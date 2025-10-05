@@ -1,0 +1,11 @@
+Sprite2D
+AnimationPlayer
+TileMap
+Camera2D
+CollisionShape2D
+AnimatedSprite2D
+CharacterBody2D
+ParallaxLayer
+ParallaxBackground
+Button
+VBoxContainer

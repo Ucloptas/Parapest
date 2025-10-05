@@ -1,0 +1,43 @@
+[gd_scene load_steps=3 format=3 uid="uid://paylobfdf0hu"]
+
+[ext_resource type="Script" path="res://MainMenu.gd" id="1_vuhke"]
+
+[sub_resource type="Theme" id="Theme_eh1qh"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_vuhke")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 61.0
+offset_top = 51.0
+offset_right = 263.0
+offset_bottom = 154.0
+theme = SubResource("Theme_eh1qh")
+
+[node name="Parent Login" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+theme = SubResource("Theme_eh1qh")
+text = "Parent Login"
+
+[node name="ChoreXplorer" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+theme = SubResource("Theme_eh1qh")
+text = "Chore Lobby"
+
+[node name="Exit" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+theme = SubResource("Theme_eh1qh")
+text = "Exit
+"
+
+[connection signal="button_down" from="VBoxContainer/Parent Login" to="." method="_on_parent_login_button_down"]
+[connection signal="button_down" from="VBoxContainer/ChoreXplorer" to="." method="_on_chore_xplorer_button_down"]
+[connection signal="button_down" from="VBoxContainer/ChoreXplorer" to="." method="_on_to_the_lobby_button_down"]
+[connection signal="button_down" from="VBoxContainer/Exit" to="." method="_on_exit_button_down"]

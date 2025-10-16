@@ -38,6 +38,6 @@ text = "Exit
 "
 
 [connection signal="button_down" from="VBoxContainer/Parent Login" to="." method="_on_parent_login_button_down"]
-[connection signal="button_down" from="VBoxContainer/ChoreXplorer" to="." method="_on_chore_xplorer_button_down"]
 [connection signal="button_down" from="VBoxContainer/ChoreXplorer" to="." method="_on_to_the_lobby_button_down"]
+[connection signal="button_down" from="VBoxContainer/ChoreXplorer" to="." method="_on_chore_xplorer_button_down"]
 [connection signal="button_down" from="VBoxContainer/Exit" to="." method="_on_exit_button_down"]

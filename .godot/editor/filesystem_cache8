@@ -1,11 +1,11 @@
 ea4bc82a6ad023ab7ee23ee620429895
-::res://::1759702470
-chore_xplorer.tscn::PackedScene::6110566416519287256::1759702180::0::1::::<><>::uid://cs13dk4l76h8k::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer1.png<>uid://duts3ow7kjv1e::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer2.png<>uid://q7frm1njw4ql::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer3.png<>uid://dv668nkbm2rdc::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer4.png<>res://Player.gd<>uid://d1yf7l22t4xuc::::res://Assets/Pixel Art Forest/PNG/tileset.png
+::res://::1760459642
+chore_xplorer.tscn::PackedScene::6110566416519287256::1759866838::0::1::::<><>::uid://cs13dk4l76h8k::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer1.png<>uid://duts3ow7kjv1e::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer2.png<>uid://q7frm1njw4ql::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer3.png<>uid://dv668nkbm2rdc::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer4.png<>res://Player.gd<>uid://d1yf7l22t4xuc::::res://Assets/Pixel Art Forest/PNG/tileset.png<>uid://ctyqljtsbkcs4::::res://Assets/Pixel Art Forest/PNG/Backgrounds/Screenshot 2025-10-05 at 5.10.23 PM.png
 icon.svg::CompressedTexture2D::8353023238029122014::1759251268::1759251272::1::::<><>::
 MainMenu.gd::GDScript::-1::1759626826::0::1::::<>Control<>::
-MainMenu.tscn::PackedScene::1054310243232952990::1759702180::0::1::::<><>::res://MainMenu.gd
-Player.gd::GDScript::-1::1759701893::0::1::::<>CharacterBody2D<>::
-::res://Assets/::1759702470
+MainMenu.tscn::PackedScene::1054310243232952990::1759866592::0::1::::<><>::res://MainMenu.gd
+Player.gd::GDScript::-1::1759702589::0::1::::<>CharacterBody2D<>::
+::res://Assets/::1759866871
 ::res://Assets/Frogs/::1759683462
 ::res://Assets/Frogs/BlueBlue/::1759683462
 ToxicFrogBlueBlue_Attack.png::CompressedTexture2D::5995241708828279177::1687552826::1759683364::1::::<><>::
@@ -49,14 +49,14 @@ ToxicFrogPurpleWhite_Hop.png::CompressedTexture2D::503624710850183295::168755320
 ToxicFrogPurpleWhite_Hurt.png::CompressedTexture2D::3331377727110099613::1687553226::1759683364::1::::<><>::
 ToxicFrogPurpleWhite_Idle.png::CompressedTexture2D::1500850774595798650::1687553200::1759683364::1::::<><>::
 ToxicFrogPurpleWhite_Sheet.png::CompressedTexture2D::6553091978653475824::1687553192::1759683364::1::::<><>::
-::res://Assets/Pixel Art Forest/::1759702470
+::res://Assets/Pixel Art Forest/::1759702477
 changelog unity.txt::TextFile::-1::1570772856::0::1::::<><>::
 changelog.txt::TextFile::-1::1570772882::0::1::::<><>::
 contact.txt::TextFile::-1::1489460994::0::1::::<><>::
 Lisense.txt::TextFile::-1::1503422830::0::1::::<><>::
 readme.txt::TextFile::-1::1570772668::0::1::::<><>::
 You might also like.png::CompressedTexture2D::3681052017752621458::1483640000::1759683365::1::::<><>::
-::res://Assets/Pixel Art Forest/PNG/::1759702470
+::res://Assets/Pixel Art Forest/PNG/::1759702477
 Build your tree2.png::CompressedTexture2D::4140211787045147085::1468539934::1759683364::1::::<><>::
 Build Your Tree.png::CompressedTexture2D::9016839028459135176::1468539958::1759683364::1::::<><>::
 bush tree (old).png::CompressedTexture2D::5276719680622984214::1466025334::1759683364::1::::<><>::
@@ -70,7 +70,7 @@ tree02.png::CompressedTexture2D::8444516079417841087::1468534394::1759683364::1:
 tree03.png::CompressedTexture2D::7588985971537786758::1468534424::1759683364::1::::<><>::
 Trees02.png::CompressedTexture2D::6898110368836960006::1468539532::1759683365::1::::<><>::
 trees.png::CompressedTexture2D::1495501564636032341::1466024994::1759683365::1::::<><>::
-::res://Assets/Pixel Art Forest/PNG/Backgrounds/::1759702470
+::res://Assets/Pixel Art Forest/PNG/Backgrounds/::1759702477
 background B complete.png::CompressedTexture2D::5947242332481110643::1483643854::1759683364::1::::<><>::
 background B layer1.png::CompressedTexture2D::8895067413954628219::1483643570::1759683364::1::::<><>::
 background B layer2.png::CompressedTexture2D::6825026684567205379::1483643114::1759683364::1::::<><>::
@@ -96,6 +96,65 @@ Example02.png::CompressedTexture2D::7470669554325134891::1483644660::1759683365:
 Example03.png::CompressedTexture2D::1165261078309253650::1483644466::1759683365::1::::<><>::
 Tileset Guide example.png::CompressedTexture2D::2825247653627700187::1485538896::1759683365::1::::<><>::
 ::res://Assets/Pixel Art Forest/PSD/::1759681950
+::res://Assets/pixelArtHeros/::1759866871
+COUPON.png::CompressedTexture2D::9191348521994568183::1686654866::1760459643::1::::<><>::
+license.txt::TextFile::-1::1510137582::0::1::::<><>::
+::res://Assets/pixelArtHeros/1 Pink_Monster/::1759866388
+Double_Jump_Dust_5.png::CompressedTexture2D::4811570860770524708::1564081138::1760459643::1::::<><>::
+Pink_Monster.png::CompressedTexture2D::548040322238436068::1564081414::1760459643::1::::<><>::
+Pink_Monster_Attack1_4.png::CompressedTexture2D::2188308999687112468::1564081186::1760459643::1::::<><>::
+Pink_Monster_Attack2_6.png::CompressedTexture2D::1650482824427811880::1564081382::1760459643::1::::<><>::
+Pink_Monster_Climb_4.png::CompressedTexture2D::1383860645225260563::1564081230::1760459643::1::::<><>::
+Pink_Monster_Death_8.png::CompressedTexture2D::8401109885331234770::1564081084::1760459643::1::::<><>::
+Pink_Monster_Hurt_4.png::CompressedTexture2D::4989195093946017162::1564081282::1760459643::1::::<><>::
+Pink_Monster_Idle_4.png::CompressedTexture2D::3741983844681029325::1564081256::1760459643::1::::<><>::
+Pink_Monster_Jump_8.png::CompressedTexture2D::7908922185417562790::1564081048::1760459643::1::::<><>::
+Pink_Monster_Push_6.png::CompressedTexture2D::7367679635148428568::1564080890::1760459643::1::::<><>::
+Pink_Monster_Run_6.png::CompressedTexture2D::8462025293562750273::1564080760::1760459643::1::::<><>::
+Pink_Monster_Throw_4.png::CompressedTexture2D::5496097638812737897::1564081312::1760459643::1::::<><>::
+Pink_Monster_Walk+Attack_6.png::CompressedTexture2D::5179808957152150158::1564080938::1760459643::1::::<><>::
+Pink_Monster_Walk_6.png::CompressedTexture2D::8425655890751340457::1564080734::1760459643::1::::<><>::
+Rock1.png::CompressedTexture2D::3035047629001350904::1564081448::1760459643::1::::<><>::
+Rock2.png::CompressedTexture2D::1611451158635295240::1564081482::1760459643::1::::<><>::
+Walk_Run_Push_Dust_6.png::CompressedTexture2D::895021483361681615::1564081004::1760459643::1::::<><>::
+::res://Assets/pixelArtHeros/2 Owlet_Monster/::1759866388
+Double_Jump_Dust_5.png::CompressedTexture2D::8756952423397170134::1564081138::1760459643::1::::<><>::
+Owlet_Monster.png::CompressedTexture2D::4179135855865744046::1564220864::1760459643::1::::<><>::
+Owlet_Monster_Attack1_4.png::CompressedTexture2D::8490771348869341355::1564221136::1760459643::1::::<><>::
+Owlet_Monster_Attack2_6.png::CompressedTexture2D::8742898038597694910::1564221026::1760459643::1::::<><>::
+Owlet_Monster_Climb_4.png::CompressedTexture2D::2794531272812742883::1564221162::1760459643::1::::<><>::
+Owlet_Monster_Death_8.png::CompressedTexture2D::4511001606591005165::1564221104::1760459643::1::::<><>::
+Owlet_Monster_Hurt_4.png::CompressedTexture2D::4600046572856122515::1564221210::1760459643::1::::<><>::
+Owlet_Monster_Idle_4.png::CompressedTexture2D::3814901868496019047::1564221184::1760459643::1::::<><>::
+Owlet_Monster_Jump_8.png::CompressedTexture2D::3478810311541539621::1564221074::1760459643::1::::<><>::
+Owlet_Monster_Push_6.png::CompressedTexture2D::4007845814661244552::1564220996::1760459643::1::::<><>::
+Owlet_Monster_Run_6.png::CompressedTexture2D::8144304629679793004::1564220932::1760459643::1::::<><>::
+Owlet_Monster_Throw_4.png::CompressedTexture2D::4254770457524704794::1564221246::1760459643::1::::<><>::
+Owlet_Monster_Walk+Attack_6.png::CompressedTexture2D::755746940768828998::1564220970::1760459643::1::::<><>::
+Owlet_Monster_Walk_6.png::CompressedTexture2D::7019721112867804828::1564220908::1760459643::1::::<><>::
+Rock1.png::CompressedTexture2D::7005561161493549921::1564081448::1760459643::1::::<><>::
+Rock2.png::CompressedTexture2D::8026792963005228105::1564081482::1760459643::1::::<><>::
+Walk_Run_Push_Dust_6.png::CompressedTexture2D::3524104481465718260::1564081004::1760459643::1::::<><>::
+::res://Assets/pixelArtHeros/3 Dude_Monster/::1759866388
+Double_Jump_Dust_5.png::CompressedTexture2D::5632890286803765041::1564081138::1760459643::1::::<><>::
+Dude_Monster.png::CompressedTexture2D::7124655309881202074::1564255276::1760459643::1::::<><>::
+Dude_Monster_Attack1_4.png::CompressedTexture2D::5567874822963537763::1564255640::1760459643::1::::<><>::
+Dude_Monster_Attack2_6.png::CompressedTexture2D::1698757525496696346::1564255602::1760459643::1::::<><>::
+Dude_Monster_Climb_4.png::CompressedTexture2D::5218135174571199215::1564255670::1760459643::1::::<><>::
+Dude_Monster_Death_8.png::CompressedTexture2D::7149712077291569454::1564255352::1760459643::1::::<><>::
+Dude_Monster_Hurt_4.png::CompressedTexture2D::5790716834973481861::1564255734::1760459643::1::::<><>::
+Dude_Monster_Idle_4.png::CompressedTexture2D::231671279239136308::1564255712::1760459643::1::::<><>::
+Dude_Monster_Jump_8.png::CompressedTexture2D::8057980974607554394::1564255326::1760459643::1::::<><>::
+Dude_Monster_Push_6.png::CompressedTexture2D::1696325385935857721::1564255536::1760459643::1::::<><>::
+Dude_Monster_Run_6.png::CompressedTexture2D::4876412351609291053::1564255502::1760459643::1::::<><>::
+Dude_Monster_Throw_4.png::CompressedTexture2D::7542908711112439743::1564255760::1760459643::1::::<><>::
+Dude_Monster_Walk+Attack_6.png::CompressedTexture2D::162349169631344902::1564255574::1760459643::1::::<><>::
+Dude_Monster_Walk_6.png::CompressedTexture2D::3134554498065480884::1564255478::1760459643::1::::<><>::
+Rock1.png::CompressedTexture2D::8376725571594622627::1564081448::1760459643::1::::<><>::
+Rock2.png::CompressedTexture2D::8823025024021911978::1564081482::1760459643::1::::<><>::
+Walk_Run_Push_Dust_6.png::CompressedTexture2D::5869055032771457436::1564081004::1760459643::1::::<><>::
+::res://Assets/pixelArtHeros/Font/::1759866388
+Planes_ValMore.ttf::FontFile::3455670026983727980::1558374948::1760459643::1::::<><>::
 ::res://Assets/PixelEffects/::1759683470
 ::res://Assets/PixelEffects/Part 1/::1759683470
 03.png::CompressedTexture2D::342785060868206107::1712324716::1759683365::1::::<><>::

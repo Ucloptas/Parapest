@@ -1,23 +1,23 @@
-# 🏠 Prapest - Chore & Reward Manager
+# Prapest - Chore & Reward Manager
 
 A modern web application for organizing household chores and rewards. Parents can create chores and rewards, while children can complete chores to earn points and redeem them for rewards. Built with React and Node.js.
 
-## ✨ Features
+##  Features
 
-### For Parents 👨‍👩‍👧‍👦
+### For Parents 
 - **F1: Add Rewards** - Create rewards that children can redeem for a set number of points
 - **F2: Add Chores** - Create chores/tasks with point rewards
 - **View Family** - See all family members and their point balances
 - **Activity History** - Track completed chores and redeemed rewards
 - **Manage Everything** - Edit or delete chores and rewards as needed
 
-### For Children 👶
+### For Children
 - **F3: Complete Chores** - Mark chores as complete to earn points
 - **F4: Redeem Rewards** - Spend earned points on available rewards
 - **View Progress** - See current point balance
 - **Browse Options** - Explore available chores and rewards
 
-## 🛠️ Technology Stack
+##  Technology Stack
 
 - **Frontend**: React 18, React Router, Axios, Vite
 - **Backend**: Node.js, Express
@@ -25,18 +25,18 @@ A modern web application for organizing household chores and rewards. Parents ca
 - **Database**: JSON file-based storage (simple and portable)
 - **Styling**: Modern CSS with gradients and animations
 
-## 📋 Requirements Met
+##  Requirements Met
 
-### Functional Requirements ✅
-- ✅ R1: Parents can add rewards into the system for a cost of x points
-- ✅ R2: Parents can add chores/tasks into the system with reward of x points
-- ✅ R3: Children can complete chores/tasks to earn points
-- ✅ R4: Children can redeem points to earn real life rewards
-- ✅ R5: Children and parents can log in and view chores/rewards
-- ✅ R6: Children can grab completed chores and take it to the reward area for point redemption
-- ✅ R7: Children can choose chores to start
+### Functional Requirements 
+-  R1: Parents can add rewards into the system for a cost of x points
+-  R2: Parents can add chores/tasks into the system with reward of x points
+-  R3: Children can complete chores/tasks to earn points
+-  R4: Children can redeem points to earn real life rewards
+-  R5: Children and parents can log in and view chores/rewards
+-  R6: Children can grab completed chores and take it to the reward area for point redemption
+-  R7: Children can choose chores to start
 
-### Non-Functional Requirements ✅
+### Non-Functional Requirements 
 
 **Security:**
 - ✅ Role-based access control (parents vs children)
@@ -61,7 +61,7 @@ A modern web application for organizing household chores and rewards. Parents ca
 - ✅ RESTful API design
 - ✅ Well-organized code structure
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 
@@ -141,7 +141,7 @@ npm run client
    - Login as parent to add chores and rewards
    - Login as child to complete chores and redeem rewards
 
-## 📖 User Guide
+##  User Guide
 
 ### Parent Workflow
 
@@ -165,14 +165,14 @@ npm run client
 1. **Login** with your child account
 2. **Complete Chores**:
    - View available chores in the "Available Chores" tab
-   - Click "✅ I Completed This!" when you finish a chore
+   - Click " I Completed This!" when you finish a chore
    - Watch your points increase!
 3. **Redeem Rewards**:
    - Browse rewards in the "Rewards Shop" tab
-   - Click "🎁 Redeem Now!" when you have enough points
+   - Click " Redeem Now!" when you have enough points
    - Ask your parent to give you your reward!
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 Prapest/
@@ -203,14 +203,14 @@ Prapest/
 └── README.md              # This file
 ```
 
-## 🔒 Security Notes
+##  Security Notes
 
 - The `.env` file contains sensitive information and should never be committed to version control
 - Change the `JWT_SECRET` in production
 - The `database.json` file stores all data - back it up regularly
 - In production, consider using a proper database (PostgreSQL, MongoDB, etc.)
 
-## 🎨 Features in Detail
+##  Features in Detail
 
 ### Points System
 - Children earn points by completing chores
@@ -227,7 +227,7 @@ Prapest/
 - **Parent**: Can create, edit, and delete chores and rewards
 - **Child**: Can complete chores and redeem rewards (but cannot modify them)
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 **Problem: Port already in use**
 - Solution: Change the port in `backend/.env` (backend) or `frontend/vite.config.js` (frontend)
@@ -244,7 +244,7 @@ Prapest/
 - Solution: The `database.json` file stores all data. Make sure it's not being deleted
 - Check file permissions
 
-## 🔮 Future Enhancements
+##  Future Enhancements
 
 Ideas for future development:
 - [ ] Add profile pictures for users
@@ -257,19 +257,19 @@ Ideas for future development:
 - [ ] Photo verification for completed chores
 - [ ] Custom themes and avatars
 
-## 📝 License
+##  License
 
 MIT License - Feel free to use and modify as needed.
 
-## 🤝 Contributing
+##  Contributing
 
 This is a personal project, but suggestions and improvements are welcome!
 
-## 📧 Support
+##  Support
 
 If you encounter any issues, please check the Troubleshooting section or create an issue in the repository.
 
 ---
 
-**Enjoy organizing your household chores! 🏠✨**
+**Enjoy organizing your household chores! **
 

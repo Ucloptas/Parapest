@@ -2,9 +2,9 @@
 
 A modern web application for organizing household chores and rewards. Parents can create chores and rewards, while children can complete chores to earn points and redeem them for rewards. Built with React and Node.js.
 
-##  Features
+## Features
 
-### For Parents 
+### For Parents
 - **F1: Add Rewards** - Create rewards that children can redeem for a set number of points
 - **F2: Add Chores** - Create chores/tasks with point rewards
 - **View Family** - See all family members and their point balances
@@ -17,7 +17,7 @@ A modern web application for organizing household chores and rewards. Parents ca
 - **View Progress** - See current point balance
 - **Browse Options** - Explore available chores and rewards
 
-##  Technology Stack
+## Technology Stack
 
 - **Frontend**: React 18, React Router, Axios, Vite
 - **Backend**: Node.js, Express
@@ -25,43 +25,7 @@ A modern web application for organizing household chores and rewards. Parents ca
 - **Database**: JSON file-based storage (simple and portable)
 - **Styling**: Modern CSS with gradients and animations
 
-##  Requirements Met
-
-### Functional Requirements 
--  R1: Parents can add rewards into the system for a cost of x points
--  R2: Parents can add chores/tasks into the system with reward of x points
--  R3: Children can complete chores/tasks to earn points
--  R4: Children can redeem points to earn real life rewards
--  R5: Children and parents can log in and view chores/rewards
--  R6: Children can grab completed chores and take it to the reward area for point redemption
--  R7: Children can choose chores to start
-
-### Non-Functional Requirements 
-
-**Security:**
--  Role-based access control (parents vs children)
--  JWT-based authentication
--  Password hashing with bcrypt
--  Separate login for each user
-
-**Reliability:**
--  Persistent data storage
--  Error handling throughout the application
--  Real-time points updates
-
-**Usability:**
--  Intuitive interface for children and parents
--  Simple navigation with clear tabs
--  Immediate feedback on actions
--  Child-friendly design with emojis and colors
-
-**Maintainability:**
--  Modular component structure
--  Clean separation of concerns (frontend/backend)
--  RESTful API design
--  Well-organized code structure
-
-##  Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -141,7 +105,7 @@ npm run client
    - Login as parent to add chores and rewards
    - Login as child to complete chores and redeem rewards
 
-##  User Guide
+## User Guide
 
 ### Parent Workflow
 
@@ -165,14 +129,14 @@ npm run client
 1. **Login** with your child account
 2. **Complete Chores**:
    - View available chores in the "Available Chores" tab
-   - Click " I Completed This!" when you finish a chore
+   - Click "✅ I Completed This!" when you finish a chore
    - Watch your points increase!
 3. **Redeem Rewards**:
    - Browse rewards in the "Rewards Shop" tab
-   - Click " Redeem Now!" when you have enough points
+   - Click "🎁 Redeem Now!" when you have enough points
    - Ask your parent to give you your reward!
 
-##  Project Structure
+## 📁 Project Structure
 
 ```
 Prapest/
@@ -203,73 +167,9 @@ Prapest/
 └── README.md              # This file
 ```
 
-##  Security Notes
+## Security Notes
 
 - The `.env` file contains sensitive information and should never be committed to version control
 - Change the `JWT_SECRET` in production
 - The `database.json` file stores all data - back it up regularly
 - In production, consider using a proper database (PostgreSQL, MongoDB, etc.)
-
-##  Features in Detail
-
-### Points System
-- Children earn points by completing chores
-- Points are tracked in real-time
-- Points can be redeemed for rewards
-- All transactions are logged in the history
-
-### Family System
-- Each family has a unique Family ID
-- Multiple children can join a family using the Family ID
-- All family members share the same pool of chores and rewards
-
-### User Roles
-- **Parent**: Can create, edit, and delete chores and rewards
-- **Child**: Can complete chores and redeem rewards (but cannot modify them)
-
-##  Troubleshooting
-
-**Problem: Port already in use**
-- Solution: Change the port in `backend/.env` (backend) or `frontend/vite.config.js` (frontend)
-
-**Problem: Cannot connect to backend**
-- Solution: Make sure the backend server is running on port 5000
-- Check the proxy configuration in `frontend/vite.config.js`
-
-**Problem: Login not working**
-- Solution: Make sure you've created an account first via the Register page
-- Check that the backend server is running
-
-**Problem: Data lost after restart**
-- Solution: The `database.json` file stores all data. Make sure it's not being deleted
-- Check file permissions
-
-##  Future Enhancements
-
-Ideas for future development:
-- [ ] Add profile pictures for users
-- [ ] Implement chore assignments (parent assigns specific chores to specific children)
-- [ ] Add recurring chores (daily, weekly, etc.)
-- [ ] Notification system
-- [ ] Mobile app version
-- [ ] Integration with the 2D platformer game
-- [ ] Statistics and charts for tracking progress
-- [ ] Photo verification for completed chores
-- [ ] Custom themes and avatars
-
-##  License
-
-MIT License - Feel free to use and modify as needed.
-
-##  Contributing
-
-This is a personal project, but suggestions and improvements are welcome!
-
-##  Support
-
-If you encounter any issues, please check the Troubleshooting section or create an issue in the repository.
-
----
-
-**Enjoy organizing your household chores! **
-

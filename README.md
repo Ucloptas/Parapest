@@ -39,27 +39,27 @@ A modern web application for organizing household chores and rewards. Parents ca
 ### Non-Functional Requirements 
 
 **Security:**
-- ✅ Role-based access control (parents vs children)
-- ✅ JWT-based authentication
-- ✅ Password hashing with bcrypt
-- ✅ Separate login for each user
+-  Role-based access control (parents vs children)
+-  JWT-based authentication
+-  Password hashing with bcrypt
+-  Separate login for each user
 
 **Reliability:**
-- ✅ Persistent data storage
-- ✅ Error handling throughout the application
-- ✅ Real-time points updates
+-  Persistent data storage
+-  Error handling throughout the application
+-  Real-time points updates
 
 **Usability:**
-- ✅ Intuitive interface for children and parents
-- ✅ Simple navigation with clear tabs
-- ✅ Immediate feedback on actions
-- ✅ Child-friendly design with emojis and colors
+-  Intuitive interface for children and parents
+-  Simple navigation with clear tabs
+-  Immediate feedback on actions
+-  Child-friendly design with emojis and colors
 
 **Maintainability:**
-- ✅ Modular component structure
-- ✅ Clean separation of concerns (frontend/backend)
-- ✅ RESTful API design
-- ✅ Well-organized code structure
+-  Modular component structure
+-  Clean separation of concerns (frontend/backend)
+-  RESTful API design
+-  Well-organized code structure
 
 ##  Getting Started
 

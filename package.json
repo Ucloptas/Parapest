@@ -1,0 +1,18 @@
+{
+  "name": "the-lobby-data",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "seed": "tsx src/scripts/seed.ts",
+    "demo": "tsx src/scripts/demo.ts"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "nanoid": "^5.0.7"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

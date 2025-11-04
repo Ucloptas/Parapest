@@ -1,14 +1,14 @@
 ea4bc82a6ad023ab7ee23ee620429895
-::res://::1760640149
-chore_xplorer.tscn::PackedScene::6110566416519287256::1760639754::0::1::::<><>::uid://cs13dk4l76h8k::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer1.png<>uid://duts3ow7kjv1e::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer2.png<>uid://q7frm1njw4ql::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer3.png<>uid://dv668nkbm2rdc::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer4.png<>res://Player.gd<>uid://d1yf7l22t4xuc::::res://Assets/Pixel Art Forest/PNG/tileset.png<>uid://ctyqljtsbkcs4::::res://Assets/Pixel Art Forest/PNG/Backgrounds/Screenshot 2025-10-05 at 5.10.23 PM.png
+::res://::1762280793
+chore_xplorer.gd::GDScript::-1::1762280232::0::1::::<>Node2D<>::
+chore_xplorer.tscn::PackedScene::6110566416519287256::1762280779::0::1::::<><>::uid://cs13dk4l76h8k::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer1.png<>res://chore_xplorer.gd<>uid://duts3ow7kjv1e::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer2.png<>uid://q7frm1njw4ql::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer3.png<>uid://dv668nkbm2rdc::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer4.png<>uid://d1yf7l22t4xuc::::res://Assets/Pixel Art Forest/PNG/tileset.png
 FEATURES.md::TextFile::-1::1760639754::0::1::::<><>::
 MainMenu.gd::GDScript::-1::1760639754::0::1::::<>Control<>::
-MainMenu.tscn::PackedScene::1054310243232952990::1760639754::0::1::::<><>::res://MainMenu.gd
-Player.gd::GDScript::-1::1760639754::0::1::::<>CharacterBody2D<>::
-player.tscn::PackedScene::6687758813433060528::1760639754::0::1::::<><>::res://player.gd<>uid://6gbenyhn2vfo::::res://Assets/pixelArtHeros/1 Pink_Monster/Pink_Monster_Attack1_4.png<>uid://btkv6r4dyxeg0::::res://Assets/pixelArtHeros/1 Pink_Monster/Pink_Monster_Idle_4.png<>uid://dkxe17tt5c7py::::res://Assets/pixelArtHeros/1 Pink_Monster/Pink_Monster_Jump_8.png<>uid://dstck5h2exe2d::::res://Assets/pixelArtHeros/1 Pink_Monster/Pink_Monster_Run_6.png<>uid://dsbpk6w5wvijp::::res://Assets/pixelArtHeros/1 Pink_Monster/Pink_Monster_Walk_6.png
+MainMenu.tscn::PackedScene::1054310243232952990::1762280596::0::1::::<><>::res://MainMenu.gd
 PROJECT_SUMMARY.md::TextFile::-1::1760639754::0::1::::<><>::
 QUICKSTART.md::TextFile::-1::1760639754::0::1::::<><>::
 README.md::TextFile::-1::1760639754::0::1::::<><>::
+reward_xplorer.tscn::PackedScene::8500506589319728261::1762280793::0::1::::<><>::res://chore_xplorer.gd<>uid://d1yf7l22t4xuc::::res://Assets/Pixel Art Forest/PNG/tileset.png<>uid://cs13dk4l76h8k::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer1.png<>uid://duts3ow7kjv1e::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer2.png<>uid://q7frm1njw4ql::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer3.png<>uid://dv668nkbm2rdc::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer4.png
 TROUBLESHOOTING.md::TextFile::-1::1760639754::0::1::::<><>::
 ::res://Assets/::1760639904
 ::res://Assets/Frogs/::1760639888
@@ -356,3 +356,6 @@ Planes_ValMore.ttf::FontFile::3455670026983727980::1760639754::1760639754::1::::
 721.png::CompressedTexture2D::7464995014426876603::1760639754::1760639754::1::::<><>::
 722.png::CompressedTexture2D::8771959609461929781::1760639754::1760639754::1::::<><>::
 723.png::CompressedTexture2D::3034101422187851873::1760639754::1760639754::1::::<><>::
+::res://characters/::1762280596
+pinkPlayer.tscn::PackedScene::8710541592102253949::1762280596::0::1::::<><>::res://characters/Player.gd<>uid://6gbenyhn2vfo::::res://Assets/pixelArtHeros/1 Pink_Monster/Pink_Monster_Attack1_4.png<>uid://btkv6r4dyxeg0::::res://Assets/pixelArtHeros/1 Pink_Monster/Pink_Monster_Idle_4.png<>uid://dkxe17tt5c7py::::res://Assets/pixelArtHeros/1 Pink_Monster/Pink_Monster_Jump_8.png<>uid://dstck5h2exe2d::::res://Assets/pixelArtHeros/1 Pink_Monster/Pink_Monster_Run_6.png<>uid://dsbpk6w5wvijp::::res://Assets/pixelArtHeros/1 Pink_Monster/Pink_Monster_Walk_6.png
+Player.gd::GDScript::-1::1762280596::0::1::::<>CharacterBody2D<>::

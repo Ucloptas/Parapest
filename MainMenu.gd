@@ -11,4 +11,3 @@ func _on_chore_xplorer_button_down():
 
 func _on_exit_button_down():
 	get_tree().quit()
-

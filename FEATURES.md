@@ -394,4 +394,3 @@ This app successfully brings together:
 - Practical functionality
 
 **Result:** A tool that makes household management actually enjoyable! 🎉
-

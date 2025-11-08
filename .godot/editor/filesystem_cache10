@@ -1,18 +1,17 @@
 63f7b34db8d8cdea90c76aacccf841ec
-::res://::1762486260
+::res://::1762626507
 chore_xplorer.gd::GDScript::2889866436706288549::1762472699::0::1::::<>Node2D<><>0<>0<><>::
 chore_xplorer.tscn::PackedScene::6110566416519287256::1762472699::0::1::::<><><>0<>0<><>::uid://cs13dk4l76h8k::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer1.png<>res://chore_xplorer.gd<>uid://duts3ow7kjv1e::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer2.png<>uid://q7frm1njw4ql::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer3.png<>uid://dv668nkbm2rdc::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer4.png<>uid://d1yf7l22t4xuc::::res://Assets/Pixel Art Forest/PNG/tileset.png
 FEATURES.md::TextFile::-1::1762473109::0::1::::<><><>0<>0<><>::
 MainMenu.gd::GDScript::3306078210879843723::1762485597::0::1::::<>Control<><>0<>0<><>::
-MainMenu.tscn::PackedScene::1054310243232952990::1762486260::0::1::::<><><>0<>0<><>::uid://bndqvivj25c1p::::res://MainMenu.gd<>uid://s03q1awmnt4e::::res://addons/download.jpg
+MainMenu.tscn::PackedScene::1054310243232952990::1762486572::0::1::::<><><>0<>0<><>::uid://bndqvivj25c1p::::res://MainMenu.gd
 PROJECT_SUMMARY.md::TextFile::-1::1762472698::0::1::::<><><>0<>0<><>::
 QUICKSTART.md::TextFile::-1::1762472698::0::1::::<><><>0<>0<><>::
 README.md::TextFile::-1::1762472698::0::1::::<><><>0<>0<><>::
 reward_xplorer.gd::GDScript::4176040627115984172::1762472699::0::1::::<>Node2D<><>0<>0<><>::
 reward_xplorer.tscn::PackedScene::8500506589319728261::1762472699::0::1::::<><><>0<>0<><>::uid://bhf4xb1a3x5yf::::res://chore_xplorer.gd<>uid://d1yf7l22t4xuc::::res://Assets/Pixel Art Forest/PNG/tileset.png<>uid://cs13dk4l76h8k::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer1.png<>uid://duts3ow7kjv1e::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer2.png<>uid://q7frm1njw4ql::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer3.png<>uid://dv668nkbm2rdc::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer4.png
 TROUBLESHOOTING.md::TextFile::-1::1762472698::0::1::::<><><>0<>0<><>::
-::res://addons/::1762486485
-james-wainscoat-LPSVNqjkI54-unsplash.jpg::CompressedTexture2D::6842999296984276827::1762486370::1762486493::1::::<><><>0<>0<>6a6c93f6feda2772749fe7ad42fbedf5<>res://.godot/imported/james-wainscoat-LPSVNqjkI54-unsplash.jpg-4f90fd92a0d9b6e4c362d45913edd1eb.ctex::
+::res://addons/::1762486711
 ::res://addons/godot-git-plugin-v3.2.1/::1762472698
 ::res://addons/godot-git-plugin-v3.2.1/addons/::1762472698
 ::res://addons/godot-git-plugin-v3.2.1/addons/godot-git-plugin/::1762472699
@@ -20,7 +19,7 @@ git_plugin.gdextension::GDExtension::3139751803785170095::1762472698::0::1::::<>
 THIRDPARTY.md::TextFile::-1::1762472698::0::1::::<><><>0<>0<><>::
 ::res://addons/godot-git-plugin-v3.2.1/addons/godot-git-plugin/linux/::1762472698
 ::res://addons/godot-git-plugin-v3.2.1/addons/godot-git-plugin/macos/::1762472698
-::res://addons/godot-git-plugin-v3.2.1/addons/godot-git-plugin/windows/::1762473935
+::res://addons/godot-git-plugin-v3.2.1/addons/godot-git-plugin/windows/::1762626501
 ::res://Assets/::1762472698
 ::res://Assets/Frogs/::1762472698
 ::res://Assets/Frogs/BlueBlue/::1762472698

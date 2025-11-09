@@ -218,7 +218,7 @@ app.get('/api/family', authenticateToken, async (req, res) => {
         points: u.points
       }));
 
-    res.json({ users: familyMembers });
+    res.json(familyMembers);
   } catch (error) {
     console.error('Get family error:', error);
     res.status(500).json({ error: 'Server error' });
@@ -232,7 +232,7 @@ app.get('/api/chores', authenticateToken, async (req, res) => {
   try {
     const db = await readDB();
     const chores = db.chores.filter(c => c.familyId === req.user.familyId);
-    res.json({ chores });
+    res.json(chores);
   } catch (error) {
     console.error('Get chores error:', error);
     res.status(500).json({ error: 'Server error' });
@@ -401,7 +401,7 @@ app.get('/api/rewards', authenticateToken, async (req, res) => {
   try {
     const db = await readDB();
     const rewards = db.rewards.filter(r => r.familyId === req.user.familyId);
-    res.json({ rewards });
+    res.json(rewards);
   } catch (error) {
     console.error('Get rewards error:', error);
     res.status(500).json({ error: 'Server error' });

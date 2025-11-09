@@ -7,6 +7,7 @@ extends Control
 @onready var btn_back: Button   = %BtnBack
 
 var http_client: Node
+var _login_in_progress: bool = false
 
 func _ready() -> void:
 	# Get the HTTPClient singleton
@@ -18,6 +19,10 @@ func _ready() -> void:
 	# If you connected Password.text_submitted in the Node tab, it will call _on_password_submit
 
 func _on_login_pressed() -> void:
+	# Prevent multiple simultaneous login attempts
+	if _login_in_progress:
+		return
+	
 	var username := email.text.strip_edges()
 	var pwd := password.text
 	if username.is_empty() or pwd.is_empty():
@@ -25,6 +30,7 @@ func _on_login_pressed() -> void:
 		return
 	
 	# Disable button during login
+	_login_in_progress = true
 	btn_login.disabled = true
 	_show_error("Logging in...")
 	
@@ -32,6 +38,7 @@ func _on_login_pressed() -> void:
 	http_client.login(username, pwd, _on_login_response)
 
 func _on_login_response(success: bool, data: Dictionary) -> void:
+	_login_in_progress = false
 	btn_login.disabled = false
 	
 	if success:
@@ -42,32 +49,22 @@ func _on_login_response(success: bool, data: Dictionary) -> void:
 		
 		if role == "parent":
 			# Navigate to parent dashboard
-			get_tree().change_scene_to_file("res://parent_dashboard.tscn")
+			var err = get_tree().change_scene_to_file("res://parent_dashboard.tscn")
+			if err != OK:
+				_show_error("Error loading dashboard: " + str(err))
+				print("Failed to change scene to parent_dashboard.tscn. Error: ", err)
 		else:
 			# Navigate to child dashboard (chore_xplorer)
-			get_tree().change_scene_to_file("res://chore_xplorer.tscn")
+			var err = get_tree().change_scene_to_file("res://chore_xplorer.tscn")
+			if err != OK:
+				_show_error("Error loading dashboard: " + str(err))
+				print("Failed to change scene to chore_xplorer.tscn. Error: ", err)
 	else:
 		var error_msg = data.get("error", "Login failed")
-		# If user doesn't exist, try to register as parent
-		if error_msg == "Invalid credentials" or error_msg.contains("not found"):
-			_show_error("Account not found. Creating new parent account...")
-			var username = email.text.strip_edges()
-			var pwd = password.text
-			btn_login.disabled = true
-			http_client.register(username, pwd, "parent", "", _on_register_response)
-		else:
-			_show_error(error_msg)
+		# Show clear error message - don't auto-register
+		_show_error("Login failed: " + error_msg)
 
-func _on_register_response(success: bool, data: Dictionary) -> void:
-	btn_login.disabled = false
-	
-	if success:
-		_show_error("Account created! Logging in...")
-		# Navigate to parent dashboard
-		get_tree().change_scene_to_file("res://parent_dashboard.tscn")
-	else:
-		var error_msg = data.get("error", "Registration failed")
-		_show_error("Registration failed: " + error_msg)
+# Removed auto-registration - users should register explicitly through a registration page
 
 func _on_back_pressed() -> void:
 	get_tree().change_scene_to_file("res://MainMenu.tscn")

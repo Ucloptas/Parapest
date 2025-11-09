@@ -8,6 +8,10 @@ var user_data: Dictionary = {}
 
 # Store the current HTTPRequest node
 var _http_request: HTTPRequest
+var _pending_callback: Callable
+var _pending_auth_callback: Callable
+var _request_queue: Array = []  # Queue for requests when HTTPRequest is busy
+var _request_in_progress: bool = false
 
 func _ready():
 	_http_request = HTTPRequest.new()
@@ -16,7 +20,7 @@ func _ready():
 # Login function
 func login(username: String, password: String, callback: Callable) -> void:
 	var json = JSON.stringify({"username": username, "password": password})
-	_make_request("/api/login", HTTPClient.METHOD_POST, json, func(result, response_code, headers, body):
+	_make_request("/api/login", HTTPClient.METHOD_POST, json, func(result, response_code, _headers, body):
 		# Check for connection errors
 		if result != HTTPRequest.RESULT_SUCCESS:
 			var error_msg = "Connection error. Make sure the backend server is running on " + BASE_URL
@@ -49,7 +53,7 @@ func register(username: String, password: String, role: String, family_id: Strin
 		payload["familyId"] = family_id
 	
 	var json = JSON.stringify(payload)
-	_make_request("/api/register", HTTPClient.METHOD_POST, json, func(result, response_code, headers, body):
+	_make_request("/api/register", HTTPClient.METHOD_POST, json, func(result, response_code, _headers, body):
 		# Check for connection errors
 		if result != HTTPRequest.RESULT_SUCCESS:
 			var error_msg = "Connection error. Make sure the backend server is running on " + BASE_URL
@@ -151,49 +155,166 @@ func logout() -> void:
 # Helper to make authenticated requests
 func _make_authenticated_request(endpoint: String, method: int, body: String, callback: Callable) -> void:
 	if auth_token == "":
+		print("HTTPClient: Not authenticated - auth_token is empty")
 		callback.call(false, {"error": "Not authenticated"})
 		return
+	
+	# If a request is in progress, queue this one
+	if _request_in_progress:
+		print("HTTPClient: Request in progress, queuing request to: ", endpoint)
+		_request_queue.append({
+			"endpoint": endpoint,
+			"method": method,
+			"body": body,
+			"callback": callback,
+			"authenticated": true
+		})
+		return
+	
+	# Start the request
+	_request_in_progress = true
+	_start_authenticated_request(endpoint, method, body, callback)
+
+func _start_authenticated_request(endpoint: String, method: int, body: String, callback: Callable) -> void:
+	# Disconnect any existing connections to prevent callback mixing
+	if _http_request.request_completed.is_connected(_on_authenticated_request_completed):
+		_http_request.request_completed.disconnect(_on_authenticated_request_completed)
+	
+	# Store callback for this request
+	_pending_auth_callback = callback
 	
 	var headers = [
 		"Content-Type: application/json",
 		"Authorization: Bearer " + auth_token
 	]
 	
-	_http_request.request_completed.connect(func(result, response_code, response_headers, response_body):
-		_handle_response(result, response_code, response_headers, response_body, callback)
-	, CONNECT_ONE_SHOT)
-	
 	var url = BASE_URL + endpoint
-	_http_request.request(url, headers, method, body)
+	print("HTTPClient: Making authenticated request to: ", url, " Method: ", method)
+	
+	# Connect the signal before making the request
+	_http_request.request_completed.connect(_on_authenticated_request_completed, CONNECT_ONE_SHOT)
+	
+	# Use call_deferred to ensure we're not in the middle of another request
+	call_deferred("_execute_authenticated_request", url, headers, method, body, callback)
+
+func _on_authenticated_request_completed(result: int, response_code: int, response_headers: PackedStringArray, response_body: PackedByteArray) -> void:
+	if _pending_auth_callback.is_valid():
+		_handle_response(result, response_code, response_headers, response_body, _pending_auth_callback)
+		_pending_auth_callback = Callable()
+	
+	# Mark request as complete and process queue on next frame
+	_request_in_progress = false
+	call_deferred("_process_queue")
 
 # Helper to make regular requests
 func _make_request(endpoint: String, method: int, body: String, callback: Callable) -> void:
+	# If a request is in progress, queue this one
+	if _request_in_progress:
+		print("HTTPClient: Request in progress, queuing request to: ", endpoint)
+		_request_queue.append({
+			"endpoint": endpoint,
+			"method": method,
+			"body": body,
+			"callback": callback,
+			"authenticated": false
+		})
+		return
+	
+	# Start the request
+	_request_in_progress = true
+	_start_regular_request(endpoint, method, body, callback)
+
+func _start_regular_request(endpoint: String, method: int, body: String, callback: Callable) -> void:
+	# Disconnect any existing connections to prevent callback mixing
+	if _http_request.request_completed.is_connected(_on_request_completed):
+		_http_request.request_completed.disconnect(_on_request_completed)
+	
+	# Store callback for this request
+	_pending_callback = callback
+	
 	var headers = ["Content-Type: application/json"]
-	
-	_http_request.request_completed.connect(func(result, response_code, response_headers, response_body):
-		callback.call(result, response_code, response_headers, response_body)
-	, CONNECT_ONE_SHOT)
-	
 	var url = BASE_URL + endpoint
-	_http_request.request(url, headers, method, body)
+	
+	# Connect the signal before making the request
+	_http_request.request_completed.connect(_on_request_completed, CONNECT_ONE_SHOT)
+	
+	# Use call_deferred to ensure we're not in the middle of another request
+	call_deferred("_execute_regular_request", url, headers, method, body, callback)
+
+func _on_request_completed(result: int, response_code: int, response_headers: PackedStringArray, response_body: PackedByteArray) -> void:
+	if _pending_callback.is_valid():
+		_pending_callback.call(result, response_code, response_headers, response_body)
+		_pending_callback = Callable()
+	
+	# Mark request as complete and process queue on next frame
+	_request_in_progress = false
+	call_deferred("_process_queue")
+
+# Execute the actual HTTP request (called deferred)
+func _execute_authenticated_request(url: String, headers: Array, method: int, body: String, callback: Callable) -> void:
+	var error = _http_request.request(url, headers, method, body)
+	if error != OK:
+		print("HTTPClient: Request failed with error: ", error)
+		_request_in_progress = false
+		_http_request.request_completed.disconnect(_on_authenticated_request_completed)
+		callback.call(false, {"error": "Failed to make request"})
+		call_deferred("_process_queue")
+		return
+
+func _execute_regular_request(url: String, headers: Array, method: int, body: String, callback: Callable) -> void:
+	var error = _http_request.request(url, headers, method, body)
+	if error != OK:
+		_request_in_progress = false
+		_http_request.request_completed.disconnect(_on_request_completed)
+		callback.call(HTTPRequest.RESULT_CANT_CONNECT, 0, [], PackedByteArray())
+		call_deferred("_process_queue")
+		return
+
+# Process the next request in the queue
+func _process_queue() -> void:
+	if _request_queue.is_empty():
+		return
+	
+	if _request_in_progress:
+		return  # Still processing, wait
+	
+	var next_request = _request_queue.pop_front()
+	print("HTTPClient: Processing queued request to: ", next_request.endpoint)
+	
+	if next_request.authenticated:
+		_start_authenticated_request(next_request.endpoint, next_request.method, next_request.body, next_request.callback)
+	else:
+		_start_regular_request(next_request.endpoint, next_request.method, next_request.body, next_request.callback)
 
 # Handle response
-func _handle_response(result, response_code, headers, body, callback: Callable) -> void:
+func _handle_response(result, response_code, _headers, body, callback: Callable) -> void:
 	# Check for connection errors
 	if result != HTTPRequest.RESULT_SUCCESS:
 		var error_msg = "Connection error. Make sure the backend server is running on " + BASE_URL
+		print("HTTPClient: Connection error - ", result)
 		callback.call(false, {"error": error_msg})
 		return
 	
+	var body_text = body.get_string_from_utf8()
+	print("HTTPClient: Response code: ", response_code, " Body: ", body_text)
+	
 	if response_code >= 200 and response_code < 300:
 		var json_parser = JSON.new()
-		var parse_result = json_parser.parse(body.get_string_from_utf8())
+		var parse_result = json_parser.parse(body_text)
 		if parse_result == OK:
-			callback.call(true, json_parser.data)
+			var data = json_parser.data
+			print("HTTPClient: Parsed data type: ", typeof(data), " Data: ", data)
+			callback.call(true, data)
 		else:
-			callback.call(true, {})
+			print("HTTPClient: JSON parse error: ", parse_result)
+			# If body is empty or just whitespace, return empty array
+			if body_text.strip_edges().is_empty():
+				callback.call(true, [])
+			else:
+				callback.call(true, {})
 	else:
 		var error_msg = _parse_error_response(body)
+		print("HTTPClient: Error response: ", error_msg)
 		callback.call(false, {"error": error_msg})
 
 # Parse error response
@@ -204,4 +325,3 @@ func _parse_error_response(body: PackedByteArray) -> String:
 		var data = json_parser.data
 		return data.get("error", "Unknown error")
 	return "Unknown error"
-

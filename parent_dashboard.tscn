@@ -1,0 +1,350 @@
+[gd_scene load_steps=2 format=3 uid="uid://bxq4n7wqv3ygb"]
+
+[ext_resource type="Script" path="res://parent_dashboard.gd" id="1_dashboard"]
+
+[node name="ParentDashboard" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_dashboard")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.105882, 0.117647, 0.141176, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 80)
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/Header"]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Header/MarginContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Header/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="WelcomeLabel" type="Label" parent="MarginContainer/VBoxContainer/Header/MarginContainer/HBoxContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Welcome, Parent!"
+theme_override_font_sizes/font_size = 24
+
+[node name="FamilyIDLabel" type="Label" parent="MarginContainer/VBoxContainer/Header/MarginContainer/HBoxContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Family ID: XXXXX"
+
+[node name="BtnLogout" type="Button" parent="MarginContainer/VBoxContainer/Header/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Logout"
+
+[node name="TabContainer" type="TabContainer" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Chores" type="MarginContainer" parent="MarginContainer/VBoxContainer/TabContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/Chores"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/Chores/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/TabContainer/Chores/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Manage Chores"
+theme_override_font_sizes/font_size = 20
+
+[node name="BtnAddChore" type="Button" parent="MarginContainer/VBoxContainer/TabContainer/Chores/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+ Add Chore"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/TabContainer/Chores/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ChoresList" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/Chores/VBoxContainer/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Rewards" type="MarginContainer" parent="MarginContainer/VBoxContainer/TabContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/Rewards"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/Rewards/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/TabContainer/Rewards/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Manage Rewards"
+theme_override_font_sizes/font_size = 20
+
+[node name="BtnAddReward" type="Button" parent="MarginContainer/VBoxContainer/TabContainer/Rewards/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+ Add Reward"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/TabContainer/Rewards/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="RewardsList" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/Rewards/VBoxContainer/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Family" type="MarginContainer" parent="MarginContainer/VBoxContainer/TabContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/Family"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/TabContainer/Family/VBoxContainer"]
+layout_mode = 2
+text = "Family Members"
+theme_override_font_sizes/font_size = 20
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/TabContainer/Family/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="FamilyList" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/Family/VBoxContainer/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="History" type="MarginContainer" parent="MarginContainer/VBoxContainer/TabContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/History"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/TabContainer/History/VBoxContainer"]
+layout_mode = 2
+text = "Activity History"
+theme_override_font_sizes/font_size = 20
+
+[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer/TabContainer/History/VBoxContainer"]
+layout_mode = 2
+text = "✅ Completed Chores"
+theme_override_font_sizes/font_size = 16
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/TabContainer/History/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CompletedChoresList" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/History/VBoxContainer/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="Label3" type="Label" parent="MarginContainer/VBoxContainer/TabContainer/History/VBoxContainer"]
+layout_mode = 2
+text = "🎁 Redeemed Rewards"
+theme_override_font_sizes/font_size = 16
+
+[node name="ScrollContainer2" type="ScrollContainer" parent="MarginContainer/VBoxContainer/TabContainer/History/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="RedeemedRewardsList" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/History/VBoxContainer/ScrollContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="ChoreDialog" type="Window" parent="."]
+unique_name_in_owner = true
+title = "Add New Chore"
+initial_position = 2
+size = Vector2i(400, 300)
+visible = false
+
+[node name="MarginContainer" type="MarginContainer" parent="ChoreDialog"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ChoreDialog/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="ChoreDialog/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Chore Title *"
+
+[node name="ChoreTitleInput" type="LineEdit" parent="ChoreDialog/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "e.g., Clean your room"
+
+[node name="Label2" type="Label" parent="ChoreDialog/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Description"
+
+[node name="ChoreDescInput" type="TextEdit" parent="ChoreDialog/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+placeholder_text = "Optional: Add details about the chore"
+
+[node name="Label3" type="Label" parent="ChoreDialog/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Points Reward *"
+
+[node name="ChorePointsInput" type="SpinBox" parent="ChoreDialog/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 1000.0
+value = 10.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ChoreDialog/MarginContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 2
+
+[node name="BtnCancelChore" type="Button" parent="ChoreDialog/MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Cancel"
+
+[node name="BtnSaveChore" type="Button" parent="ChoreDialog/MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Save Chore"
+
+[node name="RewardDialog" type="Window" parent="."]
+unique_name_in_owner = true
+title = "Add New Reward"
+initial_position = 2
+size = Vector2i(400, 300)
+visible = false
+
+[node name="MarginContainer" type="MarginContainer" parent="RewardDialog"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="VBoxContainer" type="VBoxContainer" parent="RewardDialog/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="RewardDialog/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Reward Title *"
+
+[node name="RewardTitleInput" type="LineEdit" parent="RewardDialog/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "e.g., Extra screen time"
+
+[node name="Label2" type="Label" parent="RewardDialog/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Description"
+
+[node name="RewardDescInput" type="TextEdit" parent="RewardDialog/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+placeholder_text = "Optional: Add details about the reward"
+
+[node name="Label3" type="Label" parent="RewardDialog/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Points Cost *"
+
+[node name="RewardCostInput" type="SpinBox" parent="RewardDialog/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 1000.0
+value = 50.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="RewardDialog/MarginContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 2
+
+[node name="BtnCancelReward" type="Button" parent="RewardDialog/MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Cancel"
+
+[node name="BtnSaveReward" type="Button" parent="RewardDialog/MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Save Reward"
+

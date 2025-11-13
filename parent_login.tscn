@@ -1,0 +1,108 @@
+[gd_scene load_steps=3 format=3 uid="uid://c4682o56bje6t"]
+
+[ext_resource type="Script" uid="uid://crqwrnql0300r" path="res://parent_login.gd" id="1_7nmx1"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qwck8"]
+bg_color = Color(0.16862746, 0.18431373, 0.21960784, 0.9019608)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.23529412, 0.25882354, 0.3137255, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.2509804)
+
+[node name="ParentLogin" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_7nmx1")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.105882354, 0.11764706, 0.14117648, 0.5019608)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="CenterContainer"]
+custom_minimum_size = Vector2(520, 360)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_qwck8")
+
+[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/Panel"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/Panel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="ParentLogin" type="Label" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8862745, 0.9019608, 0.92156863, 1)
+theme_override_font_sizes/font_size = 32
+text = "Parent Login"
+horizontal_alignment = 1
+
+[node name="Email" type="LineEdit" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_next = NodePath("../Password")
+placeholder_text = "Username"
+max_length = 128
+virtual_keyboard_type = 5
+clear_button_enabled = true
+select_all_on_focus = true
+
+[node name="Password" type="LineEdit" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_next = NodePath("../HBoxContainer/BtnLogin")
+placeholder_text = "Password"
+max_length = 64
+virtual_keyboard_type = 6
+clear_button_enabled = true
+select_all_on_focus = true
+secret = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="BtnBack" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Back"
+
+[node name="BtnLogin" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_next = NodePath("../BtnBack")
+text = "Login"
+
+[node name="Error" type="Label" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.33333334, 0.33333334, 1)

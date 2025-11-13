@@ -53,6 +53,15 @@
       "familyId": "1760592423328",
       "points": 0,
       "createdAt": "2025-10-20T04:53:46.497Z"
+    },
+    {
+      "id": "1762648523303cyb57rt5i",
+      "username": "dhilsufdkhsg",
+      "password": "$2a$10$dJbE6rDP0PC3.ojlABwtouQp.HekAiH3n0U/mxnzr7P8M.ss8E6Wq",
+      "role": "parent",
+      "familyId": "1762648523303",
+      "points": 0,
+      "createdAt": "2025-11-09T00:35:23.303Z"
     }
   ],
   "chores": [
@@ -66,29 +75,44 @@
       "createdAt": "2025-10-16T05:24:13.535Z"
     },
     {
-      "id": "17605924646638t1q5dt6r",
-      "title": "clean your room",
-      "description": "vacuum and viledas",
-      "points": 21,
+      "id": "1762667283646rqxud34x4",
+      "title": "Clean your room",
+      "description": "Sweep the floors and vacuum the carpets",
+      "points": 50,
       "familyId": "1760592423328",
       "createdBy": "1760592423328gklh9occ7",
-      "createdAt": "2025-10-16T05:27:44.663Z",
-      "updatedAt": "2025-10-20T04:57:46.542Z",
-      "status": "ACTIVE"
+      "createdAt": "2025-11-09T05:48:03.646Z",
+      "updatedAt": "2025-11-09T06:09:12.182Z"
+    },
+    {
+      "id": "1762668570584few8uokr3",
+      "title": "Do the dishes",
+      "description": "Do dishes",
+      "points": 30,
+      "familyId": "1760592423328",
+      "createdBy": "1760592423328gklh9occ7",
+      "createdAt": "2025-11-09T06:09:30.584Z"
     }
   ],
   "rewards": [
     {
-      "id": "176093609244609lgdr8mb",
-      "title": "ddsadsa",
-      "description": "dsadsa21123",
+      "id": "17626673195196jn5p8kii",
+      "title": "Extra screen time",
+      "description": "10 minutes of extra pc time",
       "cost": 50,
       "familyId": "1760592423328",
       "createdBy": "1760592423328gklh9occ7",
-      "createdAt": "2025-10-20T04:54:52.446Z",
-      "updatedAt": "2025-10-20T04:57:51.663Z",
-      "status": "AVAILABLE",
-      "stock": null
+      "createdAt": "2025-11-09T05:48:39.519Z"
+    },
+    {
+      "id": "1762668456499ortp0w9sa",
+      "title": "Andy's Frozen Custard",
+      "description": "1 cup of selected Andy's",
+      "cost": 150,
+      "familyId": "1760592423328",
+      "createdBy": "1760592423328gklh9occ7",
+      "createdAt": "2025-11-09T06:07:36.499Z",
+      "updatedAt": "2025-11-09T06:07:54.243Z"
     }
   ],
   "completedChores": [

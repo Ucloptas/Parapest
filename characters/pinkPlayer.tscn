@@ -506,7 +506,6 @@ position = Vector2(0.228523, -13.5)
 shape = SubResource("RectangleShape2D_pq8k4")
 
 [node name="Camera" type="Camera2D" parent="."]
-offset = Vector2(2.08165e-12, -400)
-zoom = Vector2(0.75, 0.75)
+offset = Vector2(0, -200)
 limit_enabled = false
 limit_top = 0

@@ -2,43 +2,94 @@ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const fs = require('fs').promises;
+const Database = require('better-sqlite3');
 const path = require('path');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-const DB_FILE = path.join(__dirname, 'database.json');
+const DB_FILE = path.join(__dirname, 'database.db');
+
+// Initialize SQLite database
+const db = new Database(DB_FILE);
+db.pragma('journal_mode = WAL'); // Better performance for concurrent reads
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// Initialize database
-async function initDatabase() {
-  try {
-    await fs.access(DB_FILE);
-  } catch {
-    const initialData = {
-      users: [],
-      chores: [],
-      rewards: [],
-      completedChores: [],
-      redeemedRewards: []
-    };
-    await fs.writeFile(DB_FILE, JSON.stringify(initialData, null, 2));
-  }
+// Initialize database tables
+function initDatabase() {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      username TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      role TEXT NOT NULL CHECK(role IN ('parent', 'child')),
+      familyId TEXT NOT NULL,
+      points INTEGER DEFAULT 0,
+      createdAt TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS chores (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      description TEXT DEFAULT '',
+      points INTEGER NOT NULL,
+      familyId TEXT NOT NULL,
+      createdBy TEXT NOT NULL,
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT,
+      status TEXT DEFAULT 'active'
+    );
+
+    CREATE TABLE IF NOT EXISTS rewards (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      description TEXT DEFAULT '',
+      cost INTEGER NOT NULL,
+      familyId TEXT NOT NULL,
+      createdBy TEXT NOT NULL,
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT,
+      status TEXT DEFAULT 'active',
+      stock INTEGER
+    );
+
+    CREATE TABLE IF NOT EXISTS completedChores (
+      id TEXT PRIMARY KEY,
+      choreId TEXT NOT NULL,
+      choreTitle TEXT NOT NULL,
+      userId TEXT NOT NULL,
+      username TEXT NOT NULL,
+      points INTEGER NOT NULL,
+      completedAt TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS redeemedRewards (
+      id TEXT PRIMARY KEY,
+      rewardId TEXT NOT NULL,
+      rewardTitle TEXT NOT NULL,
+      userId TEXT NOT NULL,
+      username TEXT NOT NULL,
+      cost INTEGER NOT NULL,
+      redeemedAt TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_users_familyId ON users(familyId);
+    CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+    CREATE INDEX IF NOT EXISTS idx_chores_familyId ON chores(familyId);
+    CREATE INDEX IF NOT EXISTS idx_rewards_familyId ON rewards(familyId);
+    CREATE INDEX IF NOT EXISTS idx_completedChores_userId ON completedChores(userId);
+    CREATE INDEX IF NOT EXISTS idx_redeemedRewards_userId ON redeemedRewards(userId);
+  `);
+  console.log('Database initialized');
 }
 
-// Database operations
-async function readDB() {
-  const data = await fs.readFile(DB_FILE, 'utf8');
-  return JSON.parse(data);
-}
-
-async function writeDB(data) {
-  await fs.writeFile(DB_FILE, JSON.stringify(data, null, 2));
+// Generate unique ID
+function generateId() {
+  return Date.now().toString() + Math.random().toString(36).substr(2, 9);
 }
 
 // Auth middleware
@@ -82,10 +133,9 @@ app.post('/api/register', async (req, res) => {
       return res.status(400).json({ error: 'Role must be parent or child' });
     }
 
-    const db = await readDB();
-    
     // Check if username exists
-    if (db.users.find(u => u.username === username)) {
+    const existingUser = db.prepare('SELECT id FROM users WHERE username = ?').get(username);
+    if (existingUser) {
       return res.status(400).json({ error: 'Username already exists' });
     }
 
@@ -100,7 +150,7 @@ app.post('/api/register', async (req, res) => {
     }
 
     const user = {
-      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      id: generateId(),
       username,
       password: hashedPassword,
       role,
@@ -109,8 +159,10 @@ app.post('/api/register', async (req, res) => {
       createdAt: new Date().toISOString()
     };
 
-    db.users.push(user);
-    await writeDB(db);
+    db.prepare(`
+      INSERT INTO users (id, username, password, role, familyId, points, createdAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run(user.id, user.username, user.password, user.role, user.familyId, user.points, user.createdAt);
 
     const token = jwt.sign(
       { id: user.id, username: user.username, role: user.role, familyId: user.familyId },
@@ -143,8 +195,7 @@ app.post('/api/login', async (req, res) => {
       return res.status(400).json({ error: 'Username and password are required' });
     }
 
-    const db = await readDB();
-    const user = db.users.find(u => u.username === username);
+    const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
 
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
@@ -183,22 +234,15 @@ app.post('/api/logout', (req, res) => {
 });
 
 // Get current user
-app.get('/api/user', authenticateToken, async (req, res) => {
+app.get('/api/user', authenticateToken, (req, res) => {
   try {
-    const db = await readDB();
-    const user = db.users.find(u => u.id === req.user.id);
+    const user = db.prepare('SELECT id, username, role, familyId, points FROM users WHERE id = ?').get(req.user.id);
     
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    res.json({
-      id: user.id,
-      username: user.username,
-      role: user.role,
-      familyId: user.familyId,
-      points: user.points
-    });
+    res.json(user);
   } catch (error) {
     console.error('Get user error:', error);
     res.status(500).json({ error: 'Server error' });
@@ -206,17 +250,11 @@ app.get('/api/user', authenticateToken, async (req, res) => {
 });
 
 // Get family members
-app.get('/api/family', authenticateToken, async (req, res) => {
+app.get('/api/family', authenticateToken, (req, res) => {
   try {
-    const db = await readDB();
-    const familyMembers = db.users
-      .filter(u => u.familyId === req.user.familyId)
-      .map(u => ({
-        id: u.id,
-        username: u.username,
-        role: u.role,
-        points: u.points
-      }));
+    const familyMembers = db.prepare(`
+      SELECT id, username, role, points FROM users WHERE familyId = ?
+    `).all(req.user.familyId);
 
     res.json(familyMembers);
   } catch (error) {
@@ -228,10 +266,9 @@ app.get('/api/family', authenticateToken, async (req, res) => {
 // Chores routes
 
 // Get all chores for family
-app.get('/api/chores', authenticateToken, async (req, res) => {
+app.get('/api/chores', authenticateToken, (req, res) => {
   try {
-    const db = await readDB();
-    const chores = db.chores.filter(c => c.familyId === req.user.familyId);
+    const chores = db.prepare('SELECT * FROM chores WHERE familyId = ?').all(req.user.familyId);
     res.json(chores);
   } catch (error) {
     console.error('Get chores error:', error);
@@ -240,7 +277,7 @@ app.get('/api/chores', authenticateToken, async (req, res) => {
 });
 
 // Create chore (parent only)
-app.post('/api/chores', authenticateToken, requireParent, async (req, res) => {
+app.post('/api/chores', authenticateToken, requireParent, (req, res) => {
   try {
     const { title, description, points } = req.body;
 
@@ -248,9 +285,8 @@ app.post('/api/chores', authenticateToken, requireParent, async (req, res) => {
       return res.status(400).json({ error: 'Title and points are required' });
     }
 
-    const db = await readDB();
     const chore = {
-      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      id: generateId(),
       title,
       description: description || '',
       points: parseInt(points),
@@ -259,8 +295,10 @@ app.post('/api/chores', authenticateToken, requireParent, async (req, res) => {
       createdAt: new Date().toISOString()
     };
 
-    db.chores.push(chore);
-    await writeDB(db);
+    db.prepare(`
+      INSERT INTO chores (id, title, description, points, familyId, createdBy, createdAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run(chore.id, chore.title, chore.description, chore.points, chore.familyId, chore.createdBy, chore.createdAt);
 
     res.json(chore);
   } catch (error) {
@@ -270,29 +308,32 @@ app.post('/api/chores', authenticateToken, requireParent, async (req, res) => {
 });
 
 // Update chore (parent only)
-app.put('/api/chores/:id', authenticateToken, requireParent, async (req, res) => {
+app.put('/api/chores/:id', authenticateToken, requireParent, (req, res) => {
   try {
     const { id } = req.params;
     const { title, description, points, status } = req.body;
 
-    const db = await readDB();
-    const choreIndex = db.chores.findIndex(c => c.id === id && c.familyId === req.user.familyId);
+    const chore = db.prepare('SELECT * FROM chores WHERE id = ? AND familyId = ?').get(id, req.user.familyId);
 
-    if (choreIndex === -1) {
+    if (!chore) {
       return res.status(404).json({ error: 'Chore not found' });
     }
 
-    db.chores[choreIndex] = {
-      ...db.chores[choreIndex],
-      title: title || db.chores[choreIndex].title,
-      description: description !== undefined ? description : db.chores[choreIndex].description,
-      points: points !== undefined ? parseInt(points) : db.chores[choreIndex].points,
-      status: status || db.chores[choreIndex].status,
+    const updatedChore = {
+      ...chore,
+      title: title || chore.title,
+      description: description !== undefined ? description : chore.description,
+      points: points !== undefined ? parseInt(points) : chore.points,
+      status: status || chore.status,
       updatedAt: new Date().toISOString()
     };
 
-    await writeDB(db);
-    res.json(db.chores[choreIndex]);
+    db.prepare(`
+      UPDATE chores SET title = ?, description = ?, points = ?, status = ?, updatedAt = ?
+      WHERE id = ? AND familyId = ?
+    `).run(updatedChore.title, updatedChore.description, updatedChore.points, updatedChore.status, updatedChore.updatedAt, id, req.user.familyId);
+
+    res.json(updatedChore);
   } catch (error) {
     console.error('Update chore error:', error);
     res.status(500).json({ error: 'Server error' });
@@ -300,18 +341,15 @@ app.put('/api/chores/:id', authenticateToken, requireParent, async (req, res) =>
 });
 
 // Delete chore (parent only)
-app.delete('/api/chores/:id', authenticateToken, requireParent, async (req, res) => {
+app.delete('/api/chores/:id', authenticateToken, requireParent, (req, res) => {
   try {
     const { id } = req.params;
-    const db = await readDB();
     
-    const choreIndex = db.chores.findIndex(c => c.id === id && c.familyId === req.user.familyId);
-    if (choreIndex === -1) {
+    const result = db.prepare('DELETE FROM chores WHERE id = ? AND familyId = ?').run(id, req.user.familyId);
+    
+    if (result.changes === 0) {
       return res.status(404).json({ error: 'Chore not found' });
     }
-
-    db.chores.splice(choreIndex, 1);
-    await writeDB(db);
 
     res.json({ message: 'Chore deleted successfully' });
   } catch (error) {
@@ -321,31 +359,31 @@ app.delete('/api/chores/:id', authenticateToken, requireParent, async (req, res)
 });
 
 // Complete chore (child only)
-app.post('/api/chores/:id/complete', authenticateToken, async (req, res) => {
+app.post('/api/chores/:id/complete', authenticateToken, (req, res) => {
   try {
     if (req.user.role !== 'child') {
       return res.status(403).json({ error: 'Only children can complete chores' });
     }
 
     const { id } = req.params;
-    const db = await readDB();
 
-    const chore = db.chores.find(c => c.id === id && c.familyId === req.user.familyId);
+    const chore = db.prepare('SELECT * FROM chores WHERE id = ? AND familyId = ?').get(id, req.user.familyId);
     if (!chore) {
       return res.status(404).json({ error: 'Chore not found' });
     }
 
-    // Add points to user
-    const userIndex = db.users.findIndex(u => u.id === req.user.id);
-    if (userIndex === -1) {
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
+    if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    db.users[userIndex].points += chore.points;
+    // Update user points
+    const newPoints = user.points + chore.points;
+    db.prepare('UPDATE users SET points = ? WHERE id = ?').run(newPoints, req.user.id);
 
     // Record completed chore
     const completedChore = {
-      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      id: generateId(),
       choreId: chore.id,
       choreTitle: chore.title,
       userId: req.user.id,
@@ -354,13 +392,15 @@ app.post('/api/chores/:id/complete', authenticateToken, async (req, res) => {
       completedAt: new Date().toISOString()
     };
 
-    db.completedChores.push(completedChore);
-    await writeDB(db);
+    db.prepare(`
+      INSERT INTO completedChores (id, choreId, choreTitle, userId, username, points, completedAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run(completedChore.id, completedChore.choreId, completedChore.choreTitle, completedChore.userId, completedChore.username, completedChore.points, completedChore.completedAt);
 
     res.json({
       message: 'Chore completed successfully',
       points: chore.points,
-      totalPoints: db.users[userIndex].points
+      totalPoints: newPoints
     });
   } catch (error) {
     console.error('Complete chore error:', error);
@@ -369,23 +409,15 @@ app.post('/api/chores/:id/complete', authenticateToken, async (req, res) => {
 });
 
 // Get completed chores
-app.get('/api/completed-chores', authenticateToken, async (req, res) => {
+app.get('/api/completed-chores', authenticateToken, (req, res) => {
   try {
-    const db = await readDB();
-    const user = db.users.find(u => u.id === req.user.id);
-    
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
     // Get all completed chores for the family
-    const familyUserIds = db.users
-      .filter(u => u.familyId === req.user.familyId)
-      .map(u => u.id);
-
-    const completedChores = db.completedChores
-      .filter(c => familyUserIds.includes(c.userId))
-      .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+    const completedChores = db.prepare(`
+      SELECT cc.* FROM completedChores cc
+      INNER JOIN users u ON cc.userId = u.id
+      WHERE u.familyId = ?
+      ORDER BY cc.completedAt DESC
+    `).all(req.user.familyId);
 
     res.json(completedChores);
   } catch (error) {
@@ -397,10 +429,9 @@ app.get('/api/completed-chores', authenticateToken, async (req, res) => {
 // Rewards routes
 
 // Get all rewards for family
-app.get('/api/rewards', authenticateToken, async (req, res) => {
+app.get('/api/rewards', authenticateToken, (req, res) => {
   try {
-    const db = await readDB();
-    const rewards = db.rewards.filter(r => r.familyId === req.user.familyId);
+    const rewards = db.prepare('SELECT * FROM rewards WHERE familyId = ?').all(req.user.familyId);
     res.json(rewards);
   } catch (error) {
     console.error('Get rewards error:', error);
@@ -409,7 +440,7 @@ app.get('/api/rewards', authenticateToken, async (req, res) => {
 });
 
 // Create reward (parent only)
-app.post('/api/rewards', authenticateToken, requireParent, async (req, res) => {
+app.post('/api/rewards', authenticateToken, requireParent, (req, res) => {
   try {
     const { title, description, cost } = req.body;
 
@@ -417,9 +448,8 @@ app.post('/api/rewards', authenticateToken, requireParent, async (req, res) => {
       return res.status(400).json({ error: 'Title and cost are required' });
     }
 
-    const db = await readDB();
     const reward = {
-      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      id: generateId(),
       title,
       description: description || '',
       cost: parseInt(cost),
@@ -428,8 +458,10 @@ app.post('/api/rewards', authenticateToken, requireParent, async (req, res) => {
       createdAt: new Date().toISOString()
     };
 
-    db.rewards.push(reward);
-    await writeDB(db);
+    db.prepare(`
+      INSERT INTO rewards (id, title, description, cost, familyId, createdBy, createdAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run(reward.id, reward.title, reward.description, reward.cost, reward.familyId, reward.createdBy, reward.createdAt);
 
     res.json(reward);
   } catch (error) {
@@ -439,30 +471,33 @@ app.post('/api/rewards', authenticateToken, requireParent, async (req, res) => {
 });
 
 // Update reward (parent only)
-app.put('/api/rewards/:id', authenticateToken, requireParent, async (req, res) => {
+app.put('/api/rewards/:id', authenticateToken, requireParent, (req, res) => {
   try {
     const { id } = req.params;
     const { title, description, cost, status, stock } = req.body;
 
-    const db = await readDB();
-    const rewardIndex = db.rewards.findIndex(r => r.id === id && r.familyId === req.user.familyId);
+    const reward = db.prepare('SELECT * FROM rewards WHERE id = ? AND familyId = ?').get(id, req.user.familyId);
 
-    if (rewardIndex === -1) {
+    if (!reward) {
       return res.status(404).json({ error: 'Reward not found' });
     }
 
-    db.rewards[rewardIndex] = {
-      ...db.rewards[rewardIndex],
-      title: title || db.rewards[rewardIndex].title,
-      description: description !== undefined ? description : db.rewards[rewardIndex].description,
-      cost: cost !== undefined ? parseInt(cost) : db.rewards[rewardIndex].cost,
-      status: status || db.rewards[rewardIndex].status,
-      stock: stock !== undefined ? (stock === null ? null : parseInt(stock)) : db.rewards[rewardIndex].stock,
+    const updatedReward = {
+      ...reward,
+      title: title || reward.title,
+      description: description !== undefined ? description : reward.description,
+      cost: cost !== undefined ? parseInt(cost) : reward.cost,
+      status: status || reward.status,
+      stock: stock !== undefined ? (stock === null ? null : parseInt(stock)) : reward.stock,
       updatedAt: new Date().toISOString()
     };
 
-    await writeDB(db);
-    res.json(db.rewards[rewardIndex]);
+    db.prepare(`
+      UPDATE rewards SET title = ?, description = ?, cost = ?, status = ?, stock = ?, updatedAt = ?
+      WHERE id = ? AND familyId = ?
+    `).run(updatedReward.title, updatedReward.description, updatedReward.cost, updatedReward.status, updatedReward.stock, updatedReward.updatedAt, id, req.user.familyId);
+
+    res.json(updatedReward);
   } catch (error) {
     console.error('Update reward error:', error);
     res.status(500).json({ error: 'Server error' });
@@ -470,18 +505,15 @@ app.put('/api/rewards/:id', authenticateToken, requireParent, async (req, res) =
 });
 
 // Delete reward (parent only)
-app.delete('/api/rewards/:id', authenticateToken, requireParent, async (req, res) => {
+app.delete('/api/rewards/:id', authenticateToken, requireParent, (req, res) => {
   try {
     const { id } = req.params;
-    const db = await readDB();
     
-    const rewardIndex = db.rewards.findIndex(r => r.id === id && r.familyId === req.user.familyId);
-    if (rewardIndex === -1) {
+    const result = db.prepare('DELETE FROM rewards WHERE id = ? AND familyId = ?').run(id, req.user.familyId);
+    
+    if (result.changes === 0) {
       return res.status(404).json({ error: 'Reward not found' });
     }
-
-    db.rewards.splice(rewardIndex, 1);
-    await writeDB(db);
 
     res.json({ message: 'Reward deleted successfully' });
   } catch (error) {
@@ -491,36 +523,35 @@ app.delete('/api/rewards/:id', authenticateToken, requireParent, async (req, res
 });
 
 // Redeem reward (child only)
-app.post('/api/rewards/:id/redeem', authenticateToken, async (req, res) => {
+app.post('/api/rewards/:id/redeem', authenticateToken, (req, res) => {
   try {
     if (req.user.role !== 'child') {
       return res.status(403).json({ error: 'Only children can redeem rewards' });
     }
 
     const { id } = req.params;
-    const db = await readDB();
 
-    const reward = db.rewards.find(r => r.id === id && r.familyId === req.user.familyId);
+    const reward = db.prepare('SELECT * FROM rewards WHERE id = ? AND familyId = ?').get(id, req.user.familyId);
     if (!reward) {
       return res.status(404).json({ error: 'Reward not found' });
     }
 
-    // Check if user has enough points
-    const userIndex = db.users.findIndex(u => u.id === req.user.id);
-    if (userIndex === -1) {
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
+    if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    if (db.users[userIndex].points < reward.cost) {
+    if (user.points < reward.cost) {
       return res.status(400).json({ error: 'Not enough points' });
     }
 
     // Deduct points from user
-    db.users[userIndex].points -= reward.cost;
+    const remainingPoints = user.points - reward.cost;
+    db.prepare('UPDATE users SET points = ? WHERE id = ?').run(remainingPoints, req.user.id);
 
     // Record redeemed reward
     const redeemedReward = {
-      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      id: generateId(),
       rewardId: reward.id,
       rewardTitle: reward.title,
       userId: req.user.id,
@@ -529,13 +560,15 @@ app.post('/api/rewards/:id/redeem', authenticateToken, async (req, res) => {
       redeemedAt: new Date().toISOString()
     };
 
-    db.redeemedRewards.push(redeemedReward);
-    await writeDB(db);
+    db.prepare(`
+      INSERT INTO redeemedRewards (id, rewardId, rewardTitle, userId, username, cost, redeemedAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run(redeemedReward.id, redeemedReward.rewardId, redeemedReward.rewardTitle, redeemedReward.userId, redeemedReward.username, redeemedReward.cost, redeemedReward.redeemedAt);
 
     res.json({
       message: 'Reward redeemed successfully',
       cost: reward.cost,
-      remainingPoints: db.users[userIndex].points
+      remainingPoints
     });
   } catch (error) {
     console.error('Redeem reward error:', error);
@@ -544,23 +577,15 @@ app.post('/api/rewards/:id/redeem', authenticateToken, async (req, res) => {
 });
 
 // Get redeemed rewards
-app.get('/api/redeemed-rewards', authenticateToken, async (req, res) => {
+app.get('/api/redeemed-rewards', authenticateToken, (req, res) => {
   try {
-    const db = await readDB();
-    const user = db.users.find(u => u.id === req.user.id);
-    
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
     // Get all redeemed rewards for the family
-    const familyUserIds = db.users
-      .filter(u => u.familyId === req.user.familyId)
-      .map(u => u.id);
-
-    const redeemedRewards = db.redeemedRewards
-      .filter(r => familyUserIds.includes(r.userId))
-      .sort((a, b) => new Date(b.redeemedAt) - new Date(a.redeemedAt));
+    const redeemedRewards = db.prepare(`
+      SELECT rr.* FROM redeemedRewards rr
+      INNER JOIN users u ON rr.userId = u.id
+      WHERE u.familyId = ?
+      ORDER BY rr.redeemedAt DESC
+    `).all(req.user.familyId);
 
     res.json(redeemedRewards);
   } catch (error) {
@@ -569,10 +594,20 @@ app.get('/api/redeemed-rewards', authenticateToken, async (req, res) => {
   }
 });
 
-// Start server
-initDatabase().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+// Graceful shutdown
+process.on('SIGINT', () => {
+  db.close();
+  process.exit();
 });
 
+process.on('SIGTERM', () => {
+  db.close();
+  process.exit();
+});
+
+// Start server
+initDatabase();
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Using SQLite database: ${DB_FILE}`);
+});

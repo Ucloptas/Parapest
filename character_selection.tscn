@@ -1,0 +1,290 @@
+[gd_scene load_steps=10 format=3 uid="uid://vw36d1t57bgc"]
+
+[ext_resource type="Script" uid="uid://ceb8ayufmyi8w" path="res://character_selection.gd" id="1_charselect"]
+[ext_resource type="Texture2D" uid="uid://dyy3pwuhxm2vv" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer1.png" id="2_bg1"]
+[ext_resource type="Texture2D" uid="uid://c4idgsl72rub0" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer2.png" id="3_bg2"]
+[ext_resource type="Texture2D" uid="uid://k0s1gm4fhyix" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer3.png" id="4_bg3"]
+[ext_resource type="Texture2D" uid="uid://drjcis6yxnvij" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer4.png" id="5_bg4"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.08, 0.09, 0.12, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.24, 0.32, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_char_btn"]
+bg_color = Color(0.12, 0.14, 0.18, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.28, 0.35, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
+bg_color = Color(0.22, 0.55, 0.42, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
+bg_color = Color(0.18, 0.45, 0.35, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="CharacterSelection" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_charselect")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.025, 0.035, 1)
+
+[node name="Background" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Layer1A" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("2_bg1")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer1B" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_left = 1920.0
+offset_right = 3840.0
+offset_bottom = 1080.0
+texture = ExtResource("2_bg1")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer2A" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("3_bg2")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer2B" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_left = 1920.0
+offset_right = 3840.0
+offset_bottom = 1080.0
+texture = ExtResource("3_bg2")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer3A" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("4_bg3")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer3B" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_left = 1920.0
+offset_right = 3840.0
+offset_bottom = 1080.0
+texture = ExtResource("4_bg3")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer4A" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("5_bg4")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer4B" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_left = 1920.0
+offset_right = 3840.0
+offset_bottom = 1080.0
+texture = ExtResource("5_bg4")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Overlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.55)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="CenterContainer"]
+custom_minimum_size = Vector2(600, 700)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 40
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/Panel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="TitleContainer" type="VBoxContainer" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/TitleContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.75, 0.55, 1)
+theme_override_font_sizes/font_size = 32
+text = "SELECT YOUR CHARACTER"
+horizontal_alignment = 1
+
+[node name="UserInfoContainer" type="VBoxContainer" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/TitleContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Username" type="Label" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/TitleContainer/UserInfoContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.82, 0.88, 1)
+theme_override_font_sizes/font_size = 18
+text = "Welcome, User!"
+horizontal_alignment = 1
+
+[node name="Points" type="Label" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/TitleContainer/UserInfoContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.85, 0.7, 1)
+theme_override_font_sizes/font_size = 16
+text = "Points: 0"
+horizontal_alignment = 1
+
+[node name="CharacterPreviewContainer" type="Panel" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_char_btn")
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/CharacterPreviewContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/CharacterPreviewContainer/SubViewportContainer"]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(504, 200)
+render_target_update_mode = 3
+snap_2d_transforms_to_pixel = false
+snap_2d_vertices_to_pixel = false
+
+[node name="Camera2D" type="Camera2D" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/CharacterPreviewContainer/SubViewportContainer/SubViewport"]
+position = Vector2(252, 100)
+zoom = Vector2(2, 2)
+
+[node name="CharacterPreview" type="Node2D" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/CharacterPreviewContainer/SubViewportContainer/SubViewport"]
+unique_name_in_owner = true
+position = Vector2(252, 100)
+
+[node name="CharacterButtons" type="HBoxContainer" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BtnBlue" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/CharacterButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_char_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "BLUE"
+
+[node name="BtnPink" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/CharacterButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_char_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "PINK"
+
+[node name="BtnWhite" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/CharacterButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_char_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "WHITE"
+
+[node name="BtnStart" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "START THE LOBBY"
+
+[node name="BtnLogout" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 13
+text = "Logout"
+flat = true

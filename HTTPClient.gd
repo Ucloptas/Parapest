@@ -5,6 +5,7 @@ const BASE_URL = "http://localhost:5000"
 
 var auth_token: String = ""
 var user_data: Dictionary = {}
+var selected_character: String = ""  # Stores selected character for child users
 
 # Store the current HTTPRequest node
 var _http_request: HTTPRequest

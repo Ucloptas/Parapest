@@ -2,8 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const Database = require('better-sqlite3');
+const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const util = require('util');
 require('dotenv').config();
 
 const app = express();
@@ -12,16 +13,21 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const DB_FILE = path.join(__dirname, 'database.db');
 
 // Initialize SQLite database
-const db = new Database(DB_FILE);
-db.pragma('journal_mode = WAL'); // Better performance for concurrent reads
+const db = new sqlite3.Database(DB_FILE);
+
+// Promisify database methods for easier async/await usage
+db.runAsync = util.promisify(db.run.bind(db));
+db.getAsync = util.promisify(db.get.bind(db));
+db.allAsync = util.promisify(db.all.bind(db));
+db.execAsync = util.promisify(db.exec.bind(db));
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
 // Initialize database tables
-function initDatabase() {
-  db.exec(`
+async function initDatabase() {
+  await db.execAsync(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
       username TEXT UNIQUE NOT NULL,
@@ -134,7 +140,7 @@ app.post('/api/register', async (req, res) => {
     }
 
     // Check if username exists
-    const existingUser = db.prepare('SELECT id FROM users WHERE username = ?').get(username);
+    const existingUser = await db.getAsync('SELECT id FROM users WHERE username = ?', [username]);
     if (existingUser) {
       return res.status(400).json({ error: 'Username already exists' });
     }
@@ -159,10 +165,10 @@ app.post('/api/register', async (req, res) => {
       createdAt: new Date().toISOString()
     };
 
-    db.prepare(`
+    await db.runAsync(`
       INSERT INTO users (id, username, password, role, familyId, points, createdAt)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(user.id, user.username, user.password, user.role, user.familyId, user.points, user.createdAt);
+    `, [user.id, user.username, user.password, user.role, user.familyId, user.points, user.createdAt]);
 
     const token = jwt.sign(
       { id: user.id, username: user.username, role: user.role, familyId: user.familyId },
@@ -195,7 +201,7 @@ app.post('/api/login', async (req, res) => {
       return res.status(400).json({ error: 'Username and password are required' });
     }
 
-    const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
+    const user = await db.getAsync('SELECT * FROM users WHERE username = ?', [username]);
 
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
@@ -234,9 +240,9 @@ app.post('/api/logout', (req, res) => {
 });
 
 // Get current user
-app.get('/api/user', authenticateToken, (req, res) => {
+app.get('/api/user', authenticateToken, async (req, res) => {
   try {
-    const user = db.prepare('SELECT id, username, role, familyId, points FROM users WHERE id = ?').get(req.user.id);
+    const user = await db.getAsync('SELECT id, username, role, familyId, points FROM users WHERE id = ?', [req.user.id]);
     
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -250,11 +256,11 @@ app.get('/api/user', authenticateToken, (req, res) => {
 });
 
 // Get family members
-app.get('/api/family', authenticateToken, (req, res) => {
+app.get('/api/family', authenticateToken, async (req, res) => {
   try {
-    const familyMembers = db.prepare(`
+    const familyMembers = await db.allAsync(`
       SELECT id, username, role, points FROM users WHERE familyId = ?
-    `).all(req.user.familyId);
+    `, [req.user.familyId]);
 
     res.json(familyMembers);
   } catch (error) {
@@ -266,9 +272,9 @@ app.get('/api/family', authenticateToken, (req, res) => {
 // Chores routes
 
 // Get all chores for family
-app.get('/api/chores', authenticateToken, (req, res) => {
+app.get('/api/chores', authenticateToken, async (req, res) => {
   try {
-    const chores = db.prepare('SELECT * FROM chores WHERE familyId = ?').all(req.user.familyId);
+    const chores = await db.allAsync('SELECT * FROM chores WHERE familyId = ?', [req.user.familyId]);
     res.json(chores);
   } catch (error) {
     console.error('Get chores error:', error);
@@ -277,7 +283,7 @@ app.get('/api/chores', authenticateToken, (req, res) => {
 });
 
 // Create chore (parent only)
-app.post('/api/chores', authenticateToken, requireParent, (req, res) => {
+app.post('/api/chores', authenticateToken, requireParent, async (req, res) => {
   try {
     const { title, description, points } = req.body;
 
@@ -295,10 +301,10 @@ app.post('/api/chores', authenticateToken, requireParent, (req, res) => {
       createdAt: new Date().toISOString()
     };
 
-    db.prepare(`
+    await db.runAsync(`
       INSERT INTO chores (id, title, description, points, familyId, createdBy, createdAt)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(chore.id, chore.title, chore.description, chore.points, chore.familyId, chore.createdBy, chore.createdAt);
+    `, [chore.id, chore.title, chore.description, chore.points, chore.familyId, chore.createdBy, chore.createdAt]);
 
     res.json(chore);
   } catch (error) {
@@ -308,7 +314,7 @@ app.post('/api/chores', authenticateToken, requireParent, (req, res) => {
 });
 
 // Update chore (parent only)
-app.put('/api/chores/:id', authenticateToken, requireParent, (req, res) => {
+app.put('/api/chores/:id', authenticateToken, requireParent, async (req, res) => {
   try {
     const { id } = req.params;
     const { title, description, points, status } = req.body;
@@ -328,10 +334,10 @@ app.put('/api/chores/:id', authenticateToken, requireParent, (req, res) => {
       updatedAt: new Date().toISOString()
     };
 
-    db.prepare(`
+    await db.runAsync(`
       UPDATE chores SET title = ?, description = ?, points = ?, status = ?, updatedAt = ?
       WHERE id = ? AND familyId = ?
-    `).run(updatedChore.title, updatedChore.description, updatedChore.points, updatedChore.status, updatedChore.updatedAt, id, req.user.familyId);
+    `, [updatedChore.title, updatedChore.description, updatedChore.points, updatedChore.status, updatedChore.updatedAt, id, req.user.familyId]);
 
     res.json(updatedChore);
   } catch (error) {
@@ -341,11 +347,11 @@ app.put('/api/chores/:id', authenticateToken, requireParent, (req, res) => {
 });
 
 // Delete chore (parent only)
-app.delete('/api/chores/:id', authenticateToken, requireParent, (req, res) => {
+app.delete('/api/chores/:id', authenticateToken, requireParent, async (req, res) => {
   try {
     const { id } = req.params;
     
-    const result = db.prepare('DELETE FROM chores WHERE id = ? AND familyId = ?').run(id, req.user.familyId);
+    const result = await db.runAsync('DELETE FROM chores WHERE id = ? AND familyId = ?', [id, req.user.familyId]);
     
     if (result.changes === 0) {
       return res.status(404).json({ error: 'Chore not found' });
@@ -359,7 +365,7 @@ app.delete('/api/chores/:id', authenticateToken, requireParent, (req, res) => {
 });
 
 // Complete chore (child only)
-app.post('/api/chores/:id/complete', authenticateToken, (req, res) => {
+app.post('/api/chores/:id/complete', authenticateToken, async (req, res) => {
   try {
     if (req.user.role !== 'child') {
       return res.status(403).json({ error: 'Only children can complete chores' });
@@ -367,19 +373,19 @@ app.post('/api/chores/:id/complete', authenticateToken, (req, res) => {
 
     const { id } = req.params;
 
-    const chore = db.prepare('SELECT * FROM chores WHERE id = ? AND familyId = ?').get(id, req.user.familyId);
+    const chore = await db.getAsync('SELECT * FROM chores WHERE id = ? AND familyId = ?', [id, req.user.familyId]);
     if (!chore) {
       return res.status(404).json({ error: 'Chore not found' });
     }
 
-    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
+    const user = await db.getAsync('SELECT * FROM users WHERE id = ?', [req.user.id]);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
     // Update user points
     const newPoints = user.points + chore.points;
-    db.prepare('UPDATE users SET points = ? WHERE id = ?').run(newPoints, req.user.id);
+    await db.runAsync('UPDATE users SET points = ? WHERE id = ?', [newPoints, req.user.id]);
 
     // Record completed chore
     const completedChore = {
@@ -392,10 +398,10 @@ app.post('/api/chores/:id/complete', authenticateToken, (req, res) => {
       completedAt: new Date().toISOString()
     };
 
-    db.prepare(`
+    await db.runAsync(`
       INSERT INTO completedChores (id, choreId, choreTitle, userId, username, points, completedAt)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(completedChore.id, completedChore.choreId, completedChore.choreTitle, completedChore.userId, completedChore.username, completedChore.points, completedChore.completedAt);
+    `, [completedChore.id, completedChore.choreId, completedChore.choreTitle, completedChore.userId, completedChore.username, completedChore.points, completedChore.completedAt]);
 
     res.json({
       message: 'Chore completed successfully',
@@ -409,15 +415,15 @@ app.post('/api/chores/:id/complete', authenticateToken, (req, res) => {
 });
 
 // Get completed chores
-app.get('/api/completed-chores', authenticateToken, (req, res) => {
+app.get('/api/completed-chores', authenticateToken, async (req, res) => {
   try {
     // Get all completed chores for the family
-    const completedChores = db.prepare(`
+    const completedChores = await db.allAsync(`
       SELECT cc.* FROM completedChores cc
       INNER JOIN users u ON cc.userId = u.id
       WHERE u.familyId = ?
       ORDER BY cc.completedAt DESC
-    `).all(req.user.familyId);
+    `, [req.user.familyId]);
 
     res.json(completedChores);
   } catch (error) {
@@ -429,9 +435,9 @@ app.get('/api/completed-chores', authenticateToken, (req, res) => {
 // Rewards routes
 
 // Get all rewards for family
-app.get('/api/rewards', authenticateToken, (req, res) => {
+app.get('/api/rewards', authenticateToken, async (req, res) => {
   try {
-    const rewards = db.prepare('SELECT * FROM rewards WHERE familyId = ?').all(req.user.familyId);
+    const rewards = await db.allAsync('SELECT * FROM rewards WHERE familyId = ?', [req.user.familyId]);
     res.json(rewards);
   } catch (error) {
     console.error('Get rewards error:', error);
@@ -440,7 +446,7 @@ app.get('/api/rewards', authenticateToken, (req, res) => {
 });
 
 // Create reward (parent only)
-app.post('/api/rewards', authenticateToken, requireParent, (req, res) => {
+app.post('/api/rewards', authenticateToken, requireParent, async (req, res) => {
   try {
     const { title, description, cost } = req.body;
 
@@ -458,10 +464,10 @@ app.post('/api/rewards', authenticateToken, requireParent, (req, res) => {
       createdAt: new Date().toISOString()
     };
 
-    db.prepare(`
+    await db.runAsync(`
       INSERT INTO rewards (id, title, description, cost, familyId, createdBy, createdAt)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(reward.id, reward.title, reward.description, reward.cost, reward.familyId, reward.createdBy, reward.createdAt);
+    `, [reward.id, reward.title, reward.description, reward.cost, reward.familyId, reward.createdBy, reward.createdAt]);
 
     res.json(reward);
   } catch (error) {
@@ -471,12 +477,12 @@ app.post('/api/rewards', authenticateToken, requireParent, (req, res) => {
 });
 
 // Update reward (parent only)
-app.put('/api/rewards/:id', authenticateToken, requireParent, (req, res) => {
+app.put('/api/rewards/:id', authenticateToken, requireParent, async (req, res) => {
   try {
     const { id } = req.params;
     const { title, description, cost, status, stock } = req.body;
 
-    const reward = db.prepare('SELECT * FROM rewards WHERE id = ? AND familyId = ?').get(id, req.user.familyId);
+    const reward = await db.getAsync('SELECT * FROM rewards WHERE id = ? AND familyId = ?', [id, req.user.familyId]);
 
     if (!reward) {
       return res.status(404).json({ error: 'Reward not found' });
@@ -492,10 +498,10 @@ app.put('/api/rewards/:id', authenticateToken, requireParent, (req, res) => {
       updatedAt: new Date().toISOString()
     };
 
-    db.prepare(`
+    await db.runAsync(`
       UPDATE rewards SET title = ?, description = ?, cost = ?, status = ?, stock = ?, updatedAt = ?
       WHERE id = ? AND familyId = ?
-    `).run(updatedReward.title, updatedReward.description, updatedReward.cost, updatedReward.status, updatedReward.stock, updatedReward.updatedAt, id, req.user.familyId);
+    `, [updatedReward.title, updatedReward.description, updatedReward.cost, updatedReward.status, updatedReward.stock, updatedReward.updatedAt, id, req.user.familyId]);
 
     res.json(updatedReward);
   } catch (error) {
@@ -505,11 +511,11 @@ app.put('/api/rewards/:id', authenticateToken, requireParent, (req, res) => {
 });
 
 // Delete reward (parent only)
-app.delete('/api/rewards/:id', authenticateToken, requireParent, (req, res) => {
+app.delete('/api/rewards/:id', authenticateToken, requireParent, async (req, res) => {
   try {
     const { id } = req.params;
     
-    const result = db.prepare('DELETE FROM rewards WHERE id = ? AND familyId = ?').run(id, req.user.familyId);
+    const result = await db.runAsync('DELETE FROM rewards WHERE id = ? AND familyId = ?', [id, req.user.familyId]);
     
     if (result.changes === 0) {
       return res.status(404).json({ error: 'Reward not found' });
@@ -523,7 +529,7 @@ app.delete('/api/rewards/:id', authenticateToken, requireParent, (req, res) => {
 });
 
 // Redeem reward (child only)
-app.post('/api/rewards/:id/redeem', authenticateToken, (req, res) => {
+app.post('/api/rewards/:id/redeem', authenticateToken, async (req, res) => {
   try {
     if (req.user.role !== 'child') {
       return res.status(403).json({ error: 'Only children can redeem rewards' });
@@ -531,12 +537,12 @@ app.post('/api/rewards/:id/redeem', authenticateToken, (req, res) => {
 
     const { id } = req.params;
 
-    const reward = db.prepare('SELECT * FROM rewards WHERE id = ? AND familyId = ?').get(id, req.user.familyId);
+    const reward = await db.getAsync('SELECT * FROM rewards WHERE id = ? AND familyId = ?', [id, req.user.familyId]);
     if (!reward) {
       return res.status(404).json({ error: 'Reward not found' });
     }
 
-    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
+    const user = await db.getAsync('SELECT * FROM users WHERE id = ?', [req.user.id]);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -547,7 +553,7 @@ app.post('/api/rewards/:id/redeem', authenticateToken, (req, res) => {
 
     // Deduct points from user
     const remainingPoints = user.points - reward.cost;
-    db.prepare('UPDATE users SET points = ? WHERE id = ?').run(remainingPoints, req.user.id);
+    await db.runAsync('UPDATE users SET points = ? WHERE id = ?', [remainingPoints, req.user.id]);
 
     // Record redeemed reward
     const redeemedReward = {
@@ -560,10 +566,10 @@ app.post('/api/rewards/:id/redeem', authenticateToken, (req, res) => {
       redeemedAt: new Date().toISOString()
     };
 
-    db.prepare(`
+    await db.runAsync(`
       INSERT INTO redeemedRewards (id, rewardId, rewardTitle, userId, username, cost, redeemedAt)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(redeemedReward.id, redeemedReward.rewardId, redeemedReward.rewardTitle, redeemedReward.userId, redeemedReward.username, redeemedReward.cost, redeemedReward.redeemedAt);
+    `, [redeemedReward.id, redeemedReward.rewardId, redeemedReward.rewardTitle, redeemedReward.userId, redeemedReward.username, redeemedReward.cost, redeemedReward.redeemedAt]);
 
     res.json({
       message: 'Reward redeemed successfully',
@@ -577,15 +583,15 @@ app.post('/api/rewards/:id/redeem', authenticateToken, (req, res) => {
 });
 
 // Get redeemed rewards
-app.get('/api/redeemed-rewards', authenticateToken, (req, res) => {
+app.get('/api/redeemed-rewards', authenticateToken, async (req, res) => {
   try {
     // Get all redeemed rewards for the family
-    const redeemedRewards = db.prepare(`
+    const redeemedRewards = await db.allAsync(`
       SELECT rr.* FROM redeemedRewards rr
       INNER JOIN users u ON rr.userId = u.id
       WHERE u.familyId = ?
       ORDER BY rr.redeemedAt DESC
-    `).all(req.user.familyId);
+    `, [req.user.familyId]);
 
     res.json(redeemedRewards);
   } catch (error) {
@@ -606,8 +612,12 @@ process.on('SIGTERM', () => {
 });
 
 // Start server
-initDatabase();
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Using SQLite database: ${DB_FILE}`);
+initDatabase().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Using SQLite database: ${DB_FILE}`);
+  });
+}).catch((error) => {
+  console.error('Failed to initialize database:', error);
+  process.exit(1);
 });

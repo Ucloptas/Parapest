@@ -1,19 +1,50 @@
-[gd_scene load_steps=3 format=3 uid="uid://c4682o56bje6t"]
+[gd_scene load_steps=9 format=3 uid="uid://c4682o56bje6t"]
 
 [ext_resource type="Script" uid="uid://crqwrnql0300r" path="res://parent_login.gd" id="1_7nmx1"]
+[ext_resource type="Texture2D" uid="uid://dng3mgqgjhdvh" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer1.png" id="2_bg1"]
+[ext_resource type="Texture2D" uid="uid://cr6fp4eqr2yge" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer2.png" id="3_bg2"]
+[ext_resource type="Texture2D" uid="uid://bcx5mh3b78xpl" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer3.png" id="4_bg3"]
+[ext_resource type="Texture2D" uid="uid://dgvpcvhyrbr3r" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer4.png" id="5_bg4"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qwck8"]
-bg_color = Color(0.16862746, 0.18431373, 0.21960784, 0.9019608)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.12, 0.14, 0.18, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.25, 0.3, 0.4, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_primary"]
+bg_color = Color(0.2, 0.5, 0.8, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.23529412, 0.25882354, 0.3137255, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-shadow_color = Color(0, 0, 0, 0.2509804)
+border_color = Color(0.3, 0.6, 0.9, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_secondary"]
+bg_color = Color(0.22, 0.25, 0.32, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.35, 0.4, 0.5, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_role"]
 
 [node name="ParentLogin" type="Control"]
 layout_mode = 3
@@ -31,7 +62,92 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.105882354, 0.11764706, 0.14117648, 0.5019608)
+color = Color(0.03, 0.04, 0.08, 1)
+
+[node name="Background" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Layer1A" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("2_bg1")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer1B" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_left = 1920.0
+offset_right = 3840.0
+offset_bottom = 1080.0
+texture = ExtResource("2_bg1")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer2A" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("3_bg2")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer2B" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_left = 1920.0
+offset_right = 3840.0
+offset_bottom = 1080.0
+texture = ExtResource("3_bg2")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer3A" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("4_bg3")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer3B" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_left = 1920.0
+offset_right = 3840.0
+offset_bottom = 1080.0
+texture = ExtResource("4_bg3")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer4A" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("5_bg4")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer4B" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_left = 1920.0
+offset_right = 3840.0
+offset_bottom = 1080.0
+texture = ExtResource("5_bg4")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Overlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0, 0.0, 0.0, 0.45)
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -42,67 +158,153 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="Panel" parent="CenterContainer"]
-custom_minimum_size = Vector2(520, 360)
+custom_minimum_size = Vector2(460, 480)
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_qwck8")
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
 [node name="MarginContainer" type="MarginContainer" parent="CenterContainer/Panel"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 32
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/Panel/MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 16
 
-[node name="ParentLogin" type="Label" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+[node name="LogoLabel" type="Label" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.8862745, 0.9019608, 0.92156863, 1)
-theme_override_font_sizes/font_size = 32
-text = "Parent Login"
+theme_override_colors/font_color = Color(0.4, 0.7, 1, 1)
+theme_override_font_sizes/font_size = 36
+text = "🏠 Chore Lobby"
 horizontal_alignment = 1
 
-[node name="Email" type="LineEdit" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+[node name="Title" type="Label" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-focus_next = NodePath("../Password")
-placeholder_text = "Username"
+theme_override_colors/font_color = Color(0.95, 0.96, 0.98, 1)
+theme_override_font_sizes/font_size = 24
+text = "Welcome Back!"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.65, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "Login to your account"
+horizontal_alignment = 1
+
+[node name="Spacer1" type="Control" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+
+[node name="Username" type="LineEdit" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 45)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+placeholder_text = "👤 Username"
 max_length = 128
-virtual_keyboard_type = 5
 clear_button_enabled = true
 select_all_on_focus = true
 
 [node name="Password" type="LineEdit" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 45)
 layout_mode = 2
-focus_next = NodePath("../HBoxContainer/BtnLogin")
-placeholder_text = "Password"
+theme_override_font_sizes/font_size = 16
+placeholder_text = "🔒 Password"
 max_length = 64
-virtual_keyboard_type = 6
 clear_button_enabled = true
 select_all_on_focus = true
 secret = true
 
-[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+[node name="RoleContainer" type="HBoxContainer" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
+alignment = 1
 
-[node name="BtnBack" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/HBoxContainer"]
-unique_name_in_owner = true
+[node name="RoleLabel" type="Label" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/RoleContainer"]
 layout_mode = 2
-text = "Back"
+theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 14
+text = "I am a:"
 
-[node name="BtnLogin" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/HBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-focus_next = NodePath("../BtnBack")
-text = "Login"
-
-[node name="Error" type="Label" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="RoleParent" type="CheckBox" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/RoleContainer"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.33333334, 0.33333334, 1)
+button_pressed = true
+button_group = SubResource("ButtonGroup_role")
+text = "👨‍👩 Parent"
+
+[node name="RoleChild" type="CheckBox" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/RoleContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+button_group = SubResource("ButtonGroup_role")
+text = "👶 Child"
+
+[node name="FamilyIDContainer" type="HBoxContainer" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="FamilyID" type="LineEdit" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/FamilyIDContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 45)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 16
+placeholder_text = "👨‍👩‍👧 Enter Family ID (from parent)"
+max_length = 64
+clear_button_enabled = true
+select_all_on_focus = true
+
+[node name="Error" type="Label" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Spacer2" type="Control" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+
+[node name="BtnLogin" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_primary")
+text = "Login"
+
+[node name="BtnRegister" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_primary")
+text = "Create Account"
+
+[node name="BtnToggleMode" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.8, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_secondary")
+text = "Create New Account"

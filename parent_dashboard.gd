@@ -3,22 +3,24 @@ extends Control
 # UI references
 @onready var welcome_label: Label = %WelcomeLabel
 @onready var family_id_label: Label = %FamilyIDLabel
+@onready var page_title: Label = %PageTitle
 @onready var btn_logout: Button = %BtnLogout
 
-@onready var tab_container: TabContainer = %TabContainer
+# Navigation buttons
+@onready var btn_nav_chores: Button = %BtnNavChores
+@onready var btn_nav_rewards: Button = %BtnNavRewards
+@onready var btn_nav_family: Button = %BtnNavFamily
+@onready var btn_nav_history: Button = %BtnNavHistory
 
-# Chores tab
-@onready var chores_list: VBoxContainer = %ChoresList
+# Add buttons
 @onready var btn_add_chore: Button = %BtnAddChore
-
-# Rewards tab
-@onready var rewards_list: VBoxContainer = %RewardsList
 @onready var btn_add_reward: Button = %BtnAddReward
 
-# Family tab
+# Content lists
+@onready var chores_list: VBoxContainer = %ChoresList
+@onready var rewards_list: VBoxContainer = %RewardsList
 @onready var family_list: VBoxContainer = %FamilyList
-
-# History tab
+@onready var history_container: VBoxContainer = %HistoryContainer
 @onready var completed_chores_list: VBoxContainer = %CompletedChoresList
 @onready var redeemed_rewards_list: VBoxContainer = %RedeemedRewardsList
 
@@ -46,16 +48,29 @@ var redeemed_rewards: Array = []
 
 var editing_chore_id: String = ""
 var editing_reward_id: String = ""
+var current_page: String = "chores"
+
+# Colors
+const COLOR_ACTIVE = Color(0.9, 0.92, 0.95, 1)
+const COLOR_INACTIVE = Color(0.5, 0.55, 0.6, 1)
+const COLOR_POINTS = Color(0.45, 0.75, 0.55, 1)
+const COLOR_COST = Color(0.55, 0.7, 0.9, 1)
 
 func _ready() -> void:
 	http_client = get_node("/root/HTTPClient")
 	
 	# Setup UI
 	var user_data = http_client.user_data
-	welcome_label.text = "Welcome, " + user_data.get("username", "Parent") + "!"
-	family_id_label.text = "Family ID: " + user_data.get("familyId", "N/A")
+	welcome_label.text = user_data.get("username", "Parent")
+	family_id_label.text = "ID: " + user_data.get("familyId", "N/A")
 	
-	# Connect buttons
+	# Connect navigation buttons
+	btn_nav_chores.pressed.connect(func(): _switch_page("chores"))
+	btn_nav_rewards.pressed.connect(func(): _switch_page("rewards"))
+	btn_nav_family.pressed.connect(func(): _switch_page("family"))
+	btn_nav_history.pressed.connect(func(): _switch_page("history"))
+	
+	# Connect action buttons
 	btn_logout.pressed.connect(_on_logout_pressed)
 	btn_add_chore.pressed.connect(_on_add_chore_pressed)
 	btn_add_reward.pressed.connect(_on_add_reward_pressed)
@@ -64,444 +79,411 @@ func _ready() -> void:
 	btn_save_reward.pressed.connect(_on_save_reward_pressed)
 	btn_cancel_reward.pressed.connect(func(): reward_dialog.hide())
 	
-	# Connect window close buttons (X button)
+	# Connect window close buttons
 	chore_dialog.close_requested.connect(func(): chore_dialog.hide())
 	reward_dialog.close_requested.connect(func(): reward_dialog.hide())
 	
-	# Load data
+	# Initial page
+	_switch_page("chores")
 	_load_all_data()
+
+func _switch_page(page: String) -> void:
+	current_page = page
+	
+	# Update navigation button colors
+	btn_nav_chores.add_theme_color_override("font_color", COLOR_ACTIVE if page == "chores" else COLOR_INACTIVE)
+	btn_nav_rewards.add_theme_color_override("font_color", COLOR_ACTIVE if page == "rewards" else COLOR_INACTIVE)
+	btn_nav_family.add_theme_color_override("font_color", COLOR_ACTIVE if page == "family" else COLOR_INACTIVE)
+	btn_nav_history.add_theme_color_override("font_color", COLOR_ACTIVE if page == "history" else COLOR_INACTIVE)
+	
+	# Update page title and visibility
+	chores_list.visible = (page == "chores")
+	rewards_list.visible = (page == "rewards")
+	family_list.visible = (page == "family")
+	history_container.visible = (page == "history")
+	
+	btn_add_chore.visible = (page == "chores")
+	btn_add_reward.visible = (page == "rewards")
+	
+	match page:
+		"chores":
+			page_title.text = "Chores"
+		"rewards":
+			page_title.text = "Rewards"
+		"family":
+			page_title.text = "Family Members"
+		"history":
+			page_title.text = "Activity History"
 
 func _load_all_data() -> void:
 	http_client.get_chores(func(success, data):
-		print("get_chores callback - success: ", success, " data: ", data)
-		if success:
-			if data is Array:
-				chores = data
-				print("Loaded ", chores.size(), " chores")
-			else:
-				chores = []
-				print("Data is not an Array, type: ", typeof(data))
-			_refresh_chores_list()
+		if success and data is Array:
+			chores = data
 		else:
-			# If loading fails, still show empty list
 			chores = []
-			_refresh_chores_list()
-			print("Failed to load chores: ", data.get("error", "Unknown error"))
+		_refresh_chores_list()
 	)
 	
 	http_client.get_rewards(func(success, data):
-		print("get_rewards callback - success: ", success, " data: ", data)
-		if success:
-			if data is Array:
-				rewards = data
-				print("Loaded ", rewards.size(), " rewards")
-			else:
-				rewards = []
-				print("Data is not an Array, type: ", typeof(data))
-			_refresh_rewards_list()
+		if success and data is Array:
+			rewards = data
 		else:
-			# If loading fails, still show empty list
 			rewards = []
-			_refresh_rewards_list()
-			print("Failed to load rewards: ", data.get("error", "Unknown error"))
+		_refresh_rewards_list()
 	)
 	
 	http_client.get_family(func(success, data):
-		if success:
-			if data is Array:
-				family_members = data
-			else:
-				family_members = []
-			_refresh_family_list()
+		if success and data is Array:
+			family_members = data
 		else:
 			family_members = []
-			_refresh_family_list()
-			print("Failed to load family: ", data.get("error", "Unknown error"))
+		_refresh_family_list()
 	)
 	
 	http_client.get_completed_chores(func(success, data):
-		if success:
-			if data is Array:
-				completed_chores = data
-			else:
-				completed_chores = []
-			_refresh_history()
+		if success and data is Array:
+			completed_chores = data
 		else:
 			completed_chores = []
-			_refresh_history()
-			print("Failed to load completed chores: ", data.get("error", "Unknown error"))
+		_refresh_history()
 	)
 	
 	http_client.get_redeemed_rewards(func(success, data):
-		if success:
-			if data is Array:
-				redeemed_rewards = data
-			else:
-				redeemed_rewards = []
-			_refresh_history()
+		if success and data is Array:
+			redeemed_rewards = data
 		else:
 			redeemed_rewards = []
-			_refresh_history()
-			print("Failed to load redeemed rewards: ", data.get("error", "Unknown error"))
+		_refresh_history()
 	)
 
 func _refresh_chores_list() -> void:
-	print("=== REFRESHING CHORES LIST ===")
-	print("Chores array size: ", chores.size())
-	print("Chores array: ", chores)
+	_clear_children(chores_list)
 	
-	# Clear existing items - remove and queue_free immediately
-	var children_to_remove = []
-	for child in chores_list.get_children():
-		children_to_remove.append(child)
-	
-	for child in children_to_remove:
-		chores_list.remove_child(child)
-		child.queue_free()
-	
-	if chores.is_empty() or chores.size() == 0:
-		print("No chores to display, showing empty message")
-		var label = Label.new()
-		label.text = "No chores yet. Click 'Add Chore' to create one!"
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7, 1.0))
+	if chores.is_empty():
+		var label = _create_empty_label("No chores yet. Click ADD CHORE to create one.")
 		chores_list.add_child(label)
-		print("Empty message label added")
 		return
 	
-	print("Adding ", chores.size(), " chore cards to the list")
-	# Add chore cards
-	for i in range(chores.size()):
-		var chore = chores[i]
-		print("Processing chore ", i, ": ", chore)
+	for chore in chores:
 		if chore is Dictionary:
-			print("Creating card for chore: ", chore.get("title", "No title"))
 			var card = _create_chore_card(chore)
-			if card != null:
-				chores_list.add_child(card)
-				print("Card added to list. ChoresList children count: ", chores_list.get_child_count())
-			else:
-				print("ERROR: Card creation returned null!")
-		else:
-			print("ERROR: Chore is not a Dictionary! Type: ", typeof(chore), " Value: ", chore)
-	
-	print("=== DONE REFRESHING CHORES LIST ===")
-	print("Total children in ChoresList: ", chores_list.get_child_count())
-	
-	# Force update
-	chores_list.queue_sort()
-	chores_list.get_parent().queue_sort()
+			chores_list.add_child(card)
 
 func _create_chore_card(chore: Dictionary) -> PanelContainer:
 	var panel = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(0, 100)
+	panel.custom_minimum_size = Vector2(0, 90)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	
-	# Add a style box for visibility
-	var style_box = StyleBoxFlat.new()
-	style_box.bg_color = Color(0.2, 0.2, 0.25, 1.0)
-	style_box.border_width_left = 2
-	style_box.border_width_top = 2
-	style_box.border_width_right = 2
-	style_box.border_width_bottom = 2
-	style_box.border_color = Color(0.3, 0.3, 0.35, 1.0)
-	style_box.corner_radius_top_left = 5
-	style_box.corner_radius_top_right = 5
-	style_box.corner_radius_bottom_left = 5
-	style_box.corner_radius_bottom_right = 5
-	panel.add_theme_stylebox_override("panel", style_box)
+	panel.add_theme_stylebox_override("panel", _create_card_style())
 	
 	var margin = MarginContainer.new()
-	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	margin.add_theme_constant_override("margin_left", 16)
+	margin.add_theme_constant_override("margin_top", 14)
+	margin.add_theme_constant_override("margin_right", 16)
+	margin.add_theme_constant_override("margin_bottom", 14)
 	panel.add_child(margin)
-	margin.add_theme_constant_override("margin_left", 10)
-	margin.add_theme_constant_override("margin_top", 10)
-	margin.add_theme_constant_override("margin_right", 10)
-	margin.add_theme_constant_override("margin_bottom", 10)
 	
-	var vbox = VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	margin.add_child(vbox)
+	var hbox = HBoxContainer.new()
+	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	margin.add_child(hbox)
+	
+	var info_vbox = VBoxContainer.new()
+	info_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info_vbox.add_theme_constant_override("separation", 4)
+	hbox.add_child(info_vbox)
 	
 	var title_label = Label.new()
 	title_label.text = chore.get("title", "Untitled")
-	title_label.add_theme_font_size_override("font_size", 18)
-	title_label.add_theme_color_override("font_color", Color.WHITE)
-	vbox.add_child(title_label)
+	title_label.add_theme_font_size_override("font_size", 17)
+	title_label.add_theme_color_override("font_color", Color(0.92, 0.94, 0.96))
+	info_vbox.add_child(title_label)
 	
 	var desc = chore.get("description", "")
 	if desc != "":
 		var desc_label = Label.new()
 		desc_label.text = desc
+		desc_label.add_theme_font_size_override("font_size", 13)
+		desc_label.add_theme_color_override("font_color", Color(0.55, 0.6, 0.65))
 		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD
-		desc_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9, 1.0))
-		vbox.add_child(desc_label)
+		info_vbox.add_child(desc_label)
 	
 	var points_label = Label.new()
-	points_label.text = "⭐ " + str(chore.get("points", 0)) + " points"
-	points_label.add_theme_color_override("font_color", Color(1.0, 0.84, 0.0, 1.0))
-	vbox.add_child(points_label)
+	points_label.text = str(chore.get("points", 0)) + " pts"
+	points_label.add_theme_font_size_override("font_size", 14)
+	points_label.add_theme_color_override("font_color", COLOR_POINTS)
+	info_vbox.add_child(points_label)
 	
-	var hbox = HBoxContainer.new()
-	vbox.add_child(hbox)
+	var btn_container = HBoxContainer.new()
+	btn_container.add_theme_constant_override("separation", 8)
+	hbox.add_child(btn_container)
 	
-	var edit_btn = Button.new()
-	edit_btn.text = "Edit"
+	var edit_btn = _create_action_button("Edit")
 	edit_btn.pressed.connect(_on_edit_chore_pressed.bind(chore))
-	hbox.add_child(edit_btn)
+	btn_container.add_child(edit_btn)
 	
-	var delete_btn = Button.new()
-	delete_btn.text = "Delete"
+	var delete_btn = _create_action_button("Delete", true)
 	delete_btn.pressed.connect(_on_delete_chore_pressed.bind(chore))
-	hbox.add_child(delete_btn)
+	btn_container.add_child(delete_btn)
 	
 	return panel
 
 func _refresh_rewards_list() -> void:
-	print("=== REFRESHING REWARDS LIST ===")
-	print("Rewards array size: ", rewards.size())
-	print("Rewards array: ", rewards)
+	_clear_children(rewards_list)
 	
-	# Clear existing items - remove and queue_free immediately
-	var children_to_remove = []
-	for child in rewards_list.get_children():
-		children_to_remove.append(child)
-	
-	for child in children_to_remove:
-		rewards_list.remove_child(child)
-		child.queue_free()
-	
-	if rewards.is_empty() or rewards.size() == 0:
-		print("No rewards to display, showing empty message")
-		var label = Label.new()
-		label.text = "No rewards yet. Click 'Add Reward' to create one!"
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7, 1.0))
+	if rewards.is_empty():
+		var label = _create_empty_label("No rewards yet. Click ADD REWARD to create one.")
 		rewards_list.add_child(label)
-		print("Empty message label added")
 		return
 	
-	print("Adding ", rewards.size(), " reward cards to the list")
-	# Add reward cards
-	for i in range(rewards.size()):
-		var reward = rewards[i]
-		print("Processing reward ", i, ": ", reward)
+	for reward in rewards:
 		if reward is Dictionary:
-			print("Creating card for reward: ", reward.get("title", "No title"))
 			var card = _create_reward_card(reward)
-			if card != null:
-				rewards_list.add_child(card)
-				print("Card added to list. RewardsList children count: ", rewards_list.get_child_count())
-			else:
-				print("ERROR: Card creation returned null!")
-		else:
-			print("ERROR: Reward is not a Dictionary! Type: ", typeof(reward), " Value: ", reward)
-	
-	print("=== DONE REFRESHING REWARDS LIST ===")
-	print("Total children in RewardsList: ", rewards_list.get_child_count())
-	
-	# Force update
-	rewards_list.queue_sort()
-	rewards_list.get_parent().queue_sort()
+			rewards_list.add_child(card)
 
 func _create_reward_card(reward: Dictionary) -> PanelContainer:
 	var panel = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(0, 100)
+	panel.custom_minimum_size = Vector2(0, 90)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	
-	# Add a style box for visibility
-	var style_box = StyleBoxFlat.new()
-	style_box.bg_color = Color(0.2, 0.2, 0.25, 1.0)
-	style_box.border_width_left = 2
-	style_box.border_width_top = 2
-	style_box.border_width_right = 2
-	style_box.border_width_bottom = 2
-	style_box.border_color = Color(0.3, 0.3, 0.35, 1.0)
-	style_box.corner_radius_top_left = 5
-	style_box.corner_radius_top_right = 5
-	style_box.corner_radius_bottom_left = 5
-	style_box.corner_radius_bottom_right = 5
-	panel.add_theme_stylebox_override("panel", style_box)
+	panel.add_theme_stylebox_override("panel", _create_card_style())
 	
 	var margin = MarginContainer.new()
-	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	margin.add_theme_constant_override("margin_left", 16)
+	margin.add_theme_constant_override("margin_top", 14)
+	margin.add_theme_constant_override("margin_right", 16)
+	margin.add_theme_constant_override("margin_bottom", 14)
 	panel.add_child(margin)
-	margin.add_theme_constant_override("margin_left", 10)
-	margin.add_theme_constant_override("margin_top", 10)
-	margin.add_theme_constant_override("margin_right", 10)
-	margin.add_theme_constant_override("margin_bottom", 10)
 	
-	var vbox = VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	margin.add_child(vbox)
+	var hbox = HBoxContainer.new()
+	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	margin.add_child(hbox)
+	
+	var info_vbox = VBoxContainer.new()
+	info_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info_vbox.add_theme_constant_override("separation", 4)
+	hbox.add_child(info_vbox)
 	
 	var title_label = Label.new()
 	title_label.text = reward.get("title", "Untitled")
-	title_label.add_theme_font_size_override("font_size", 18)
-	title_label.add_theme_color_override("font_color", Color.WHITE)
-	vbox.add_child(title_label)
+	title_label.add_theme_font_size_override("font_size", 17)
+	title_label.add_theme_color_override("font_color", Color(0.92, 0.94, 0.96))
+	info_vbox.add_child(title_label)
 	
 	var desc = reward.get("description", "")
 	if desc != "":
 		var desc_label = Label.new()
 		desc_label.text = desc
+		desc_label.add_theme_font_size_override("font_size", 13)
+		desc_label.add_theme_color_override("font_color", Color(0.55, 0.6, 0.65))
 		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD
-		desc_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9, 1.0))
-		vbox.add_child(desc_label)
+		info_vbox.add_child(desc_label)
 	
 	var cost_label = Label.new()
-	cost_label.text = "💎 " + str(reward.get("cost", 0)) + " points"
-	cost_label.add_theme_color_override("font_color", Color(0.5, 0.8, 1.0, 1.0))
-	vbox.add_child(cost_label)
+	cost_label.text = str(reward.get("cost", 0)) + " pts"
+	cost_label.add_theme_font_size_override("font_size", 14)
+	cost_label.add_theme_color_override("font_color", COLOR_COST)
+	info_vbox.add_child(cost_label)
 	
-	var hbox = HBoxContainer.new()
-	vbox.add_child(hbox)
+	var btn_container = HBoxContainer.new()
+	btn_container.add_theme_constant_override("separation", 8)
+	hbox.add_child(btn_container)
 	
-	var edit_btn = Button.new()
-	edit_btn.text = "Edit"
+	var edit_btn = _create_action_button("Edit")
 	edit_btn.pressed.connect(_on_edit_reward_pressed.bind(reward))
-	hbox.add_child(edit_btn)
+	btn_container.add_child(edit_btn)
 	
-	var delete_btn = Button.new()
-	delete_btn.text = "Delete"
+	var delete_btn = _create_action_button("Delete", true)
 	delete_btn.pressed.connect(_on_delete_reward_pressed.bind(reward))
-	hbox.add_child(delete_btn)
+	btn_container.add_child(delete_btn)
 	
 	return panel
 
 func _refresh_family_list() -> void:
-	# Clear existing items
-	for child in family_list.get_children():
-		child.queue_free()
+	_clear_children(family_list)
 	
 	if family_members.is_empty():
-		var label = Label.new()
-		label.text = "No family members yet."
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		var label = _create_empty_label("No family members yet.")
 		family_list.add_child(label)
 		return
 	
-	# Add family member cards
 	for member in family_members:
 		var card = _create_family_member_card(member)
 		family_list.add_child(card)
 
 func _create_family_member_card(member: Dictionary) -> PanelContainer:
 	var panel = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(0, 60)
+	panel.custom_minimum_size = Vector2(0, 70)
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.add_theme_stylebox_override("panel", _create_card_style())
+	
+	var margin = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 16)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_right", 16)
+	margin.add_theme_constant_override("margin_bottom", 12)
+	panel.add_child(margin)
 	
 	var hbox = HBoxContainer.new()
-	panel.add_child(hbox)
+	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	margin.add_child(hbox)
 	
-	var icon_label = Label.new()
 	var role = member.get("role", "")
-	icon_label.text = "👨‍👩‍👧‍👦" if role == "parent" else "👶"
-	icon_label.add_theme_font_size_override("font_size", 24)
-	hbox.add_child(icon_label)
+	var role_indicator = Label.new()
+	role_indicator.text = "P" if role == "parent" else "C"
+	role_indicator.add_theme_font_size_override("font_size", 14)
+	role_indicator.add_theme_color_override("font_color", Color(0.08, 0.09, 0.11))
+	role_indicator.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	role_indicator.custom_minimum_size = Vector2(32, 32)
 	
-	var vbox = VBoxContainer.new()
-	hbox.add_child(vbox)
+	var indicator_panel = PanelContainer.new()
+	var indicator_style = StyleBoxFlat.new()
+	indicator_style.bg_color = COLOR_POINTS if role == "parent" else COLOR_COST
+	indicator_style.set_corner_radius_all(16)
+	indicator_panel.add_theme_stylebox_override("panel", indicator_style)
+	indicator_panel.add_child(role_indicator)
+	hbox.add_child(indicator_panel)
+	
+	var spacer1 = Control.new()
+	spacer1.custom_minimum_size = Vector2(12, 0)
+	hbox.add_child(spacer1)
+	
+	var info_vbox = VBoxContainer.new()
+	info_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hbox.add_child(info_vbox)
 	
 	var name_label = Label.new()
 	name_label.text = member.get("username", "Unknown")
 	name_label.add_theme_font_size_override("font_size", 16)
-	vbox.add_child(name_label)
+	name_label.add_theme_color_override("font_color", Color(0.9, 0.92, 0.95))
+	info_vbox.add_child(name_label)
 	
 	var role_label = Label.new()
 	role_label.text = role.capitalize()
-	vbox.add_child(role_label)
-	
-	var spacer = Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hbox.add_child(spacer)
+	role_label.add_theme_font_size_override("font_size", 13)
+	role_label.add_theme_color_override("font_color", Color(0.5, 0.55, 0.6))
+	info_vbox.add_child(role_label)
 	
 	var points_label = Label.new()
-	points_label.text = "⭐ " + str(member.get("points", 0)) + " points"
+	points_label.text = str(member.get("points", 0)) + " pts"
 	points_label.add_theme_font_size_override("font_size", 16)
+	points_label.add_theme_color_override("font_color", COLOR_POINTS)
 	hbox.add_child(points_label)
 	
 	return panel
 
 func _refresh_history() -> void:
-	# Clear completed chores list
-	for child in completed_chores_list.get_children():
-		child.queue_free()
+	_clear_children(completed_chores_list)
+	_clear_children(redeemed_rewards_list)
 	
 	if completed_chores.is_empty():
-		var label = Label.new()
-		label.text = "No completed chores yet."
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		var label = _create_empty_label("No completed chores yet.")
 		completed_chores_list.add_child(label)
 	else:
 		for item in completed_chores:
 			var card = _create_history_item(
 				item.get("username", "") + " completed " + item.get("choreTitle", ""),
 				item.get("completedAt", ""),
-				"+" + str(item.get("points", 0)) + " points"
+				"+" + str(item.get("points", 0)) + " pts",
+				true
 			)
 			completed_chores_list.add_child(card)
 	
-	# Clear redeemed rewards list
-	for child in redeemed_rewards_list.get_children():
-		child.queue_free()
-	
 	if redeemed_rewards.is_empty():
-		var label = Label.new()
-		label.text = "No redeemed rewards yet."
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		var label = _create_empty_label("No redeemed rewards yet.")
 		redeemed_rewards_list.add_child(label)
 	else:
 		for item in redeemed_rewards:
 			var card = _create_history_item(
 				item.get("username", "") + " redeemed " + item.get("rewardTitle", ""),
 				item.get("redeemedAt", ""),
-				"-" + str(item.get("cost", 0)) + " points"
+				"-" + str(item.get("cost", 0)) + " pts",
+				false
 			)
 			redeemed_rewards_list.add_child(card)
 
-func _create_history_item(text: String, timestamp: String, points: String) -> PanelContainer:
+func _create_history_item(text: String, timestamp: String, points: String, is_positive: bool) -> PanelContainer:
 	var panel = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(0, 60)
+	panel.custom_minimum_size = Vector2(0, 56)
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.add_theme_stylebox_override("panel", _create_card_style())
+	
+	var margin = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_bottom", 10)
+	panel.add_child(margin)
 	
 	var hbox = HBoxContainer.new()
-	panel.add_child(hbox)
+	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	margin.add_child(hbox)
 	
 	var vbox = VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hbox.add_child(vbox)
 	
 	var text_label = Label.new()
 	text_label.text = text
+	text_label.add_theme_font_size_override("font_size", 14)
+	text_label.add_theme_color_override("font_color", Color(0.85, 0.88, 0.9))
 	vbox.add_child(text_label)
 	
 	var time_label = Label.new()
 	time_label.text = timestamp
-	time_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+	time_label.add_theme_font_size_override("font_size", 12)
+	time_label.add_theme_color_override("font_color", Color(0.45, 0.5, 0.55))
 	vbox.add_child(time_label)
-	
-	var spacer = Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hbox.add_child(spacer)
 	
 	var points_label = Label.new()
 	points_label.text = points
-	points_label.add_theme_font_size_override("font_size", 16)
+	points_label.add_theme_font_size_override("font_size", 15)
+	points_label.add_theme_color_override("font_color", COLOR_POINTS if is_positive else Color(0.9, 0.5, 0.5))
 	hbox.add_child(points_label)
 	
 	return panel
 
+# Helper functions
+func _create_card_style() -> StyleBoxFlat:
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.1, 0.11, 0.14, 1)
+	style.border_color = Color(0.15, 0.17, 0.22, 1)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(6)
+	return style
+
+func _create_empty_label(text: String) -> Label:
+	var label = Label.new()
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_color_override("font_color", Color(0.45, 0.5, 0.55))
+	label.add_theme_font_size_override("font_size", 14)
+	return label
+
+func _create_action_button(text: String, is_danger: bool = false) -> Button:
+	var btn = Button.new()
+	btn.text = text
+	btn.custom_minimum_size = Vector2(70, 32)
+	btn.add_theme_font_size_override("font_size", 13)
+	if is_danger:
+		btn.add_theme_color_override("font_color", Color(0.85, 0.5, 0.5))
+	return btn
+
+func _clear_children(container: Node) -> void:
+	for child in container.get_children():
+		container.remove_child(child)
+		child.queue_free()
+
 # Button handlers
 func _on_logout_pressed() -> void:
 	http_client.logout()
-	get_tree().change_scene_to_file("res://MainMenu.tscn")
+	get_tree().change_scene_to_file("res://login.tscn")
 
 func _on_add_chore_pressed() -> void:
 	editing_chore_id = ""
 	chore_title_input.text = ""
 	chore_desc_input.text = ""
 	chore_points_input.value = 10
-	chore_dialog.title = "Add New Chore"
+	chore_dialog.title = "Add Chore"
 	btn_save_chore.disabled = false
-	btn_save_chore.text = "Save Chore"
+	btn_save_chore.text = "Save"
 	chore_dialog.popup_centered()
 
 func _on_edit_chore_pressed(chore: Dictionary) -> void:
@@ -518,52 +500,26 @@ func _on_save_chore_pressed() -> void:
 	var points = int(chore_points_input.value)
 	
 	if title.is_empty():
-		_show_error_dialog("Error", "Chore title cannot be empty")
 		return
 	
-	# Disable button during save
 	btn_save_chore.disabled = true
 	btn_save_chore.text = "Saving..."
 	
 	if editing_chore_id == "":
-		# Create new chore
 		http_client.create_chore(title, desc, points, func(success, data):
 			btn_save_chore.disabled = false
-			btn_save_chore.text = "Save Chore"
-			
-			print("create_chore callback - success: ", success, " data: ", data)
+			btn_save_chore.text = "Save"
 			if success:
-				print("Chore created successfully, reloading data...")
 				chore_dialog.hide()
-				# Reload only chores to be faster
-				http_client.get_chores(func(load_success, load_data):
-					print("Reload after create - success: ", load_success, " data: ", load_data)
-					if load_success:
-						if load_data is Array:
-							chores = load_data
-							print("Reloaded ", chores.size(), " chores")
-						else:
-							chores = []
-						_refresh_chores_list()
-					else:
-						print("Failed to reload chores: ", load_data.get("error", "Unknown error"))
-				)
-			else:
-				var error_msg = data.get("error", "Failed to save chore")
-				_show_error_dialog("Error", "Failed to save chore: " + error_msg)
+				_reload_chores()
 		)
 	else:
-		# Update existing chore
 		http_client.update_chore(editing_chore_id, title, desc, points, func(success, data):
 			btn_save_chore.disabled = false
-			btn_save_chore.text = "Save Chore"
-			
+			btn_save_chore.text = "Save"
 			if success:
 				chore_dialog.hide()
-				_load_all_data()
-			else:
-				var error_msg = data.get("error", "Failed to update chore")
-				_show_error_dialog("Error", "Failed to update chore: " + error_msg)
+				_reload_chores()
 		)
 
 func _on_delete_chore_pressed(chore: Dictionary) -> void:
@@ -571,22 +527,16 @@ func _on_delete_chore_pressed(chore: Dictionary) -> void:
 	if chore_id == "":
 		return
 	
-	# Confirm deletion
 	var confirm = ConfirmationDialog.new()
-	confirm.dialog_text = "Are you sure you want to delete this chore?"
+	confirm.dialog_text = "Delete this chore?"
 	confirm.confirmed.connect(func():
 		http_client.delete_chore(chore_id, func(success, data):
 			if success:
-				_load_all_data()
-			else:
-				var error_msg = data.get("error", "Failed to delete chore")
-				_show_error_dialog("Error", "Failed to delete chore: " + error_msg)
+				_reload_chores()
 		)
 		confirm.queue_free()
 	)
-	confirm.canceled.connect(func():
-		confirm.queue_free()
-	)
+	confirm.canceled.connect(func(): confirm.queue_free())
 	add_child(confirm)
 	confirm.popup_centered()
 
@@ -595,9 +545,9 @@ func _on_add_reward_pressed() -> void:
 	reward_title_input.text = ""
 	reward_desc_input.text = ""
 	reward_cost_input.value = 50
-	reward_dialog.title = "Add New Reward"
+	reward_dialog.title = "Add Reward"
 	btn_save_reward.disabled = false
-	btn_save_reward.text = "Save Reward"
+	btn_save_reward.text = "Save"
 	reward_dialog.popup_centered()
 
 func _on_edit_reward_pressed(reward: Dictionary) -> void:
@@ -614,52 +564,26 @@ func _on_save_reward_pressed() -> void:
 	var cost = int(reward_cost_input.value)
 	
 	if title.is_empty():
-		_show_error_dialog("Error", "Reward title cannot be empty")
 		return
 	
-	# Disable button during save
 	btn_save_reward.disabled = true
 	btn_save_reward.text = "Saving..."
 	
 	if editing_reward_id == "":
-		# Create new reward
 		http_client.create_reward(title, desc, cost, func(success, data):
 			btn_save_reward.disabled = false
-			btn_save_reward.text = "Save Reward"
-			
-			print("create_reward callback - success: ", success, " data: ", data)
+			btn_save_reward.text = "Save"
 			if success:
-				print("Reward created successfully, reloading data...")
 				reward_dialog.hide()
-				# Reload only rewards to be faster
-				http_client.get_rewards(func(load_success, load_data):
-					print("Reload after create - success: ", load_success, " data: ", load_data)
-					if load_success:
-						if load_data is Array:
-							rewards = load_data
-							print("Reloaded ", rewards.size(), " rewards")
-						else:
-							rewards = []
-						_refresh_rewards_list()
-					else:
-						print("Failed to reload rewards: ", load_data.get("error", "Unknown error"))
-				)
-			else:
-				var error_msg = data.get("error", "Failed to save reward")
-				_show_error_dialog("Error", "Failed to save reward: " + error_msg)
+				_reload_rewards()
 		)
 	else:
-		# Update existing reward
 		http_client.update_reward(editing_reward_id, title, desc, cost, func(success, data):
 			btn_save_reward.disabled = false
-			btn_save_reward.text = "Save Reward"
-			
+			btn_save_reward.text = "Save"
 			if success:
 				reward_dialog.hide()
-				_load_all_data()
-			else:
-				var error_msg = data.get("error", "Failed to update reward")
-				_show_error_dialog("Error", "Failed to update reward: " + error_msg)
+				_reload_rewards()
 		)
 
 func _on_delete_reward_pressed(reward: Dictionary) -> void:
@@ -667,29 +591,33 @@ func _on_delete_reward_pressed(reward: Dictionary) -> void:
 	if reward_id == "":
 		return
 	
-	# Confirm deletion
 	var confirm = ConfirmationDialog.new()
-	confirm.dialog_text = "Are you sure you want to delete this reward?"
+	confirm.dialog_text = "Delete this reward?"
 	confirm.confirmed.connect(func():
 		http_client.delete_reward(reward_id, func(success, data):
 			if success:
-				_load_all_data()
-			else:
-				var error_msg = data.get("error", "Failed to delete reward")
-				_show_error_dialog("Error", "Failed to delete reward: " + error_msg)
+				_reload_rewards()
 		)
 		confirm.queue_free()
 	)
-	confirm.canceled.connect(func():
-		confirm.queue_free()
-	)
+	confirm.canceled.connect(func(): confirm.queue_free())
 	add_child(confirm)
 	confirm.popup_centered()
 
-func _show_error_dialog(title: String, message: String) -> void:
-	var dialog = AcceptDialog.new()
-	dialog.title = title
-	dialog.dialog_text = message
-	add_child(dialog)
-	dialog.popup_centered()
-	dialog.confirmed.connect(func(): dialog.queue_free())
+func _reload_chores() -> void:
+	http_client.get_chores(func(success, data):
+		if success and data is Array:
+			chores = data
+		else:
+			chores = []
+		_refresh_chores_list()
+	)
+
+func _reload_rewards() -> void:
+	http_client.get_rewards(func(success, data):
+		if success and data is Array:
+			rewards = data
+		else:
+			rewards = []
+		_refresh_rewards_list()
+	)

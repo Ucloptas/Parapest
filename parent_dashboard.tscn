@@ -1,6 +1,31 @@
-[gd_scene load_steps=2 format=3 uid="uid://bxq4n7wqv3ygb"]
+[gd_scene load_steps=6 format=3 uid="uid://bxq4n7wqv3ygb"]
 
 [ext_resource type="Script" path="res://parent_dashboard.gd" id="1_dashboard"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sidebar"]
+bg_color = Color(0.06, 0.07, 0.09, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_main"]
+bg_color = Color(0.08, 0.09, 0.11, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+bg_color = Color(0.1, 0.11, 0.14, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.15, 0.17, 0.22, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
+bg_color = Color(0.18, 0.5, 0.38, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [node name="ParentDashboard" type="Control"]
 layout_mode = 3
@@ -11,340 +36,420 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_dashboard")
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.105882, 0.117647, 0.141176, 1)
+theme_override_constants/separation = 0
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="Sidebar" type="PanelContainer" parent="HBoxContainer"]
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_sidebar")
+
+[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/Sidebar"]
+layout_mode = 2
 theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 20
+theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 20
+theme_override_constants/margin_bottom = 24
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/Sidebar/MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
-[node name="Header" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
+[node name="LogoContainer" type="VBoxContainer" parent="HBoxContainer/Sidebar/MarginContainer/VBoxContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 80)
+theme_override_constants/separation = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/Header"]
+[node name="Logo" type="Label" parent="HBoxContainer/Sidebar/MarginContainer/VBoxContainer/LogoContainer"]
 layout_mode = 2
-theme_override_constants/margin_left = 15
-theme_override_constants/margin_top = 15
-theme_override_constants/margin_right = 15
-theme_override_constants/margin_bottom = 15
+theme_override_colors/font_color = Color(0.45, 0.75, 0.55, 1)
+theme_override_font_sizes/font_size = 22
+text = "CHORE LOBBY"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Header/MarginContainer"]
+[node name="Tagline" type="Label" parent="HBoxContainer/Sidebar/MarginContainer/VBoxContainer/LogoContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.45, 0.5, 1)
+theme_override_font_sizes/font_size = 10
+text = "PARENT DASHBOARD"
+uppercase = true
+
+[node name="Spacer1" type="Control" parent="HBoxContainer/Sidebar/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Header/MarginContainer/HBoxContainer"]
+[node name="UserInfo" type="VBoxContainer" parent="HBoxContainer/Sidebar/MarginContainer/VBoxContainer"]
 layout_mode = 2
-size_flags_horizontal = 3
+theme_override_constants/separation = 4
 
-[node name="WelcomeLabel" type="Label" parent="MarginContainer/VBoxContainer/Header/MarginContainer/HBoxContainer/VBoxContainer"]
+[node name="WelcomeLabel" type="Label" parent="HBoxContainer/Sidebar/MarginContainer/VBoxContainer/UserInfo"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Welcome, Parent!"
-theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.85, 0.88, 0.92, 1)
+theme_override_font_sizes/font_size = 16
+text = "Welcome, Parent"
 
-[node name="FamilyIDLabel" type="Label" parent="MarginContainer/VBoxContainer/Header/MarginContainer/HBoxContainer/VBoxContainer"]
+[node name="FamilyIDLabel" type="Label" parent="HBoxContainer/Sidebar/MarginContainer/VBoxContainer/UserInfo"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.55, 0.6, 1)
+theme_override_font_sizes/font_size = 12
 text = "Family ID: XXXXX"
 
-[node name="BtnLogout" type="Button" parent="MarginContainer/VBoxContainer/Header/MarginContainer/HBoxContainer"]
-unique_name_in_owner = true
+[node name="Spacer2" type="Control" parent="HBoxContainer/Sidebar/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
-text = "Logout"
 
-[node name="TabContainer" type="TabContainer" parent="MarginContainer/VBoxContainer"]
+[node name="NavLabel" type="Label" parent="HBoxContainer/Sidebar/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.45, 0.5, 1)
+theme_override_font_sizes/font_size = 11
+text = "NAVIGATION"
+uppercase = true
+
+[node name="NavButtons" type="VBoxContainer" parent="HBoxContainer/Sidebar/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="BtnNavChores" type="Button" parent="HBoxContainer/Sidebar/MarginContainer/VBoxContainer/NavButtons"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.92, 0.95, 1)
+theme_override_font_sizes/font_size = 14
+flat = true
+text = "Chores"
+alignment = 0
+
+[node name="BtnNavRewards" type="Button" parent="HBoxContainer/Sidebar/MarginContainer/VBoxContainer/NavButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.65, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+flat = true
+text = "Rewards"
+alignment = 0
+
+[node name="BtnNavFamily" type="Button" parent="HBoxContainer/Sidebar/MarginContainer/VBoxContainer/NavButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.65, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+flat = true
+text = "Family"
+alignment = 0
+
+[node name="BtnNavHistory" type="Button" parent="HBoxContainer/Sidebar/MarginContainer/VBoxContainer/NavButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.65, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+flat = true
+text = "History"
+alignment = 0
+
+[node name="Spacer3" type="Control" parent="HBoxContainer/Sidebar/MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Chores" type="MarginContainer" parent="MarginContainer/VBoxContainer/TabContainer"]
+[node name="BtnLogout" type="Button" parent="HBoxContainer/Sidebar/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
+theme_override_colors/font_color = Color(0.7, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 13
+flat = true
+text = "Sign Out"
+alignment = 0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/Chores"]
-layout_mode = 2
-
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/Chores/VBoxContainer"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/TabContainer/Chores/VBoxContainer/HBoxContainer"]
+[node name="MainContent" type="PanelContainer" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Manage Chores"
-theme_override_font_sizes/font_size = 20
+theme_override_styles/panel = SubResource("StyleBoxFlat_main")
 
-[node name="BtnAddChore" type="Button" parent="MarginContainer/VBoxContainer/TabContainer/Chores/VBoxContainer/HBoxContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/MainContent"]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 28
+
+[node name="ContentContainer" type="VBoxContainer" parent="HBoxContainer/MainContent/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="PageHeader" type="HBoxContainer" parent="HBoxContainer/MainContent/MarginContainer/ContentContainer"]
+layout_mode = 2
+
+[node name="PageTitle" type="Label" parent="HBoxContainer/MainContent/MarginContainer/ContentContainer/PageHeader"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "+ Add Chore"
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.9, 0.92, 0.95, 1)
+theme_override_font_sizes/font_size = 26
+text = "Chores"
 
-[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/TabContainer/Chores/VBoxContainer"]
+[node name="BtnAddChore" type="Button" parent="HBoxContainer/MainContent/MarginContainer/ContentContainer/PageHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+text = "ADD CHORE"
+
+[node name="BtnAddReward" type="Button" parent="HBoxContainer/MainContent/MarginContainer/ContentContainer/PageHeader"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(140, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+text = "ADD REWARD"
+
+[node name="ContentScroll" type="ScrollContainer" parent="HBoxContainer/MainContent/MarginContainer/ContentContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ChoresList" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/Chores/VBoxContainer/ScrollContainer"]
+[node name="ChoresList" type="VBoxContainer" parent="HBoxContainer/MainContent/MarginContainer/ContentContainer/ContentScroll"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 12
 
-[node name="Rewards" type="MarginContainer" parent="MarginContainer/VBoxContainer/TabContainer"]
+[node name="RewardsList" type="VBoxContainer" parent="HBoxContainer/MainContent/MarginContainer/ContentContainer/ContentScroll"]
+unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/Rewards"]
-layout_mode = 2
-
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/Rewards/VBoxContainer"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/TabContainer/Rewards/VBoxContainer/HBoxContainer"]
-layout_mode = 2
 size_flags_horizontal = 3
-text = "Manage Rewards"
-theme_override_font_sizes/font_size = 20
+theme_override_constants/separation = 12
 
-[node name="BtnAddReward" type="Button" parent="MarginContainer/VBoxContainer/TabContainer/Rewards/VBoxContainer/HBoxContainer"]
+[node name="FamilyList" type="VBoxContainer" parent="HBoxContainer/MainContent/MarginContainer/ContentContainer/ContentScroll"]
 unique_name_in_owner = true
-layout_mode = 2
-text = "+ Add Reward"
-
-[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/TabContainer/Rewards/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="RewardsList" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/Rewards/VBoxContainer/ScrollContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 10
-
-[node name="Family" type="MarginContainer" parent="MarginContainer/VBoxContainer/TabContainer"]
 visible = false
 layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/Family"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/TabContainer/Family/VBoxContainer"]
-layout_mode = 2
-text = "Family Members"
-theme_override_font_sizes/font_size = 20
-
-[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/TabContainer/Family/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="FamilyList" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/Family/VBoxContainer/ScrollContainer"]
-unique_name_in_owner = true
-layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 12
 
-[node name="History" type="MarginContainer" parent="MarginContainer/VBoxContainer/TabContainer"]
+[node name="HistoryContainer" type="VBoxContainer" parent="HBoxContainer/MainContent/MarginContainer/ContentContainer/ContentScroll"]
+unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
+size_flags_horizontal = 3
+theme_override_constants/separation = 20
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/History"]
+[node name="CompletedSection" type="VBoxContainer" parent="HBoxContainer/MainContent/MarginContainer/ContentContainer/ContentScroll/HistoryContainer"]
 layout_mode = 2
+theme_override_constants/separation = 8
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/TabContainer/History/VBoxContainer"]
+[node name="Label" type="Label" parent="HBoxContainer/MainContent/MarginContainer/ContentContainer/ContentScroll/HistoryContainer/CompletedSection"]
 layout_mode = 2
-text = "Activity History"
-theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.6, 0.65, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "COMPLETED CHORES"
+uppercase = true
 
-[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer/TabContainer/History/VBoxContainer"]
-layout_mode = 2
-text = "✅ Completed Chores"
-theme_override_font_sizes/font_size = 16
-
-[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/TabContainer/History/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="CompletedChoresList" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/History/VBoxContainer/ScrollContainer"]
+[node name="CompletedChoresList" type="VBoxContainer" parent="HBoxContainer/MainContent/MarginContainer/ContentContainer/ContentScroll/HistoryContainer/CompletedSection"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 5
+theme_override_constants/separation = 8
 
-[node name="Label3" type="Label" parent="MarginContainer/VBoxContainer/TabContainer/History/VBoxContainer"]
+[node name="RedeemedSection" type="VBoxContainer" parent="HBoxContainer/MainContent/MarginContainer/ContentContainer/ContentScroll/HistoryContainer"]
 layout_mode = 2
-text = "🎁 Redeemed Rewards"
-theme_override_font_sizes/font_size = 16
+theme_override_constants/separation = 8
 
-[node name="ScrollContainer2" type="ScrollContainer" parent="MarginContainer/VBoxContainer/TabContainer/History/VBoxContainer"]
+[node name="Label" type="Label" parent="HBoxContainer/MainContent/MarginContainer/ContentContainer/ContentScroll/HistoryContainer/RedeemedSection"]
 layout_mode = 2
-size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.6, 0.65, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "REDEEMED REWARDS"
+uppercase = true
 
-[node name="RedeemedRewardsList" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/History/VBoxContainer/ScrollContainer2"]
+[node name="RedeemedRewardsList" type="VBoxContainer" parent="HBoxContainer/MainContent/MarginContainer/ContentContainer/ContentScroll/HistoryContainer/RedeemedSection"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 5
+theme_override_constants/separation = 8
 
 [node name="ChoreDialog" type="Window" parent="."]
 unique_name_in_owner = true
-title = "Add New Chore"
+title = "Add Chore"
 initial_position = 2
-size = Vector2i(400, 300)
+size = Vector2i(420, 360)
 visible = false
 
-[node name="MarginContainer" type="MarginContainer" parent="ChoreDialog"]
+[node name="PanelContainer" type="PanelContainer" parent="ChoreDialog"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 15
-theme_override_constants/margin_top = 15
-theme_override_constants/margin_right = 15
-theme_override_constants/margin_bottom = 15
 
-[node name="VBoxContainer" type="VBoxContainer" parent="ChoreDialog/MarginContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="ChoreDialog/PanelContainer"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
 
-[node name="Label" type="Label" parent="ChoreDialog/MarginContainer/VBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="ChoreDialog/PanelContainer/MarginContainer"]
 layout_mode = 2
-text = "Chore Title *"
+theme_override_constants/separation = 16
 
-[node name="ChoreTitleInput" type="LineEdit" parent="ChoreDialog/MarginContainer/VBoxContainer"]
+[node name="TitleLabel" type="Label" parent="ChoreDialog/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.55, 0.6, 1)
+theme_override_font_sizes/font_size = 12
+text = "TITLE"
+uppercase = true
+
+[node name="ChoreTitleInput" type="LineEdit" parent="ChoreDialog/PanelContainer/MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
-placeholder_text = "e.g., Clean your room"
+theme_override_font_sizes/font_size = 15
+placeholder_text = "Enter chore title"
 
-[node name="Label2" type="Label" parent="ChoreDialog/MarginContainer/VBoxContainer"]
+[node name="DescLabel" type="Label" parent="ChoreDialog/PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "Description"
+theme_override_colors/font_color = Color(0.5, 0.55, 0.6, 1)
+theme_override_font_sizes/font_size = 12
+text = "DESCRIPTION (OPTIONAL)"
+uppercase = true
 
-[node name="ChoreDescInput" type="TextEdit" parent="ChoreDialog/MarginContainer/VBoxContainer"]
+[node name="ChoreDescInput" type="TextEdit" parent="ChoreDialog/PanelContainer/MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 80)
+custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
-placeholder_text = "Optional: Add details about the chore"
+theme_override_font_sizes/font_size = 14
+placeholder_text = "Add details about the chore"
 
-[node name="Label3" type="Label" parent="ChoreDialog/MarginContainer/VBoxContainer"]
+[node name="PointsLabel" type="Label" parent="ChoreDialog/PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "Points Reward *"
+theme_override_colors/font_color = Color(0.5, 0.55, 0.6, 1)
+theme_override_font_sizes/font_size = 12
+text = "POINTS REWARD"
+uppercase = true
 
-[node name="ChorePointsInput" type="SpinBox" parent="ChoreDialog/MarginContainer/VBoxContainer"]
+[node name="ChorePointsInput" type="SpinBox" parent="ChoreDialog/PanelContainer/MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 min_value = 1.0
 max_value = 1000.0
 value = 10.0
 
-[node name="HBoxContainer" type="HBoxContainer" parent="ChoreDialog/MarginContainer/VBoxContainer"]
+[node name="ButtonContainer" type="HBoxContainer" parent="ChoreDialog/PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 alignment = 2
+theme_override_constants/separation = 12
 
-[node name="BtnCancelChore" type="Button" parent="ChoreDialog/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="BtnCancelChore" type="Button" parent="ChoreDialog/PanelContainer/MarginContainer/VBoxContainer/ButtonContainer"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 38)
 layout_mode = 2
+theme_override_font_sizes/font_size = 14
 text = "Cancel"
 
-[node name="BtnSaveChore" type="Button" parent="ChoreDialog/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="BtnSaveChore" type="Button" parent="ChoreDialog/PanelContainer/MarginContainer/VBoxContainer/ButtonContainer"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 38)
 layout_mode = 2
-text = "Save Chore"
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+text = "Save"
 
 [node name="RewardDialog" type="Window" parent="."]
 unique_name_in_owner = true
-title = "Add New Reward"
+title = "Add Reward"
 initial_position = 2
-size = Vector2i(400, 300)
+size = Vector2i(420, 360)
 visible = false
 
-[node name="MarginContainer" type="MarginContainer" parent="RewardDialog"]
+[node name="PanelContainer" type="PanelContainer" parent="RewardDialog"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 15
-theme_override_constants/margin_top = 15
-theme_override_constants/margin_right = 15
-theme_override_constants/margin_bottom = 15
 
-[node name="VBoxContainer" type="VBoxContainer" parent="RewardDialog/MarginContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="RewardDialog/PanelContainer"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
 
-[node name="Label" type="Label" parent="RewardDialog/MarginContainer/VBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="RewardDialog/PanelContainer/MarginContainer"]
 layout_mode = 2
-text = "Reward Title *"
+theme_override_constants/separation = 16
 
-[node name="RewardTitleInput" type="LineEdit" parent="RewardDialog/MarginContainer/VBoxContainer"]
+[node name="TitleLabel" type="Label" parent="RewardDialog/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.55, 0.6, 1)
+theme_override_font_sizes/font_size = 12
+text = "TITLE"
+uppercase = true
+
+[node name="RewardTitleInput" type="LineEdit" parent="RewardDialog/PanelContainer/MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
-placeholder_text = "e.g., Extra screen time"
+theme_override_font_sizes/font_size = 15
+placeholder_text = "Enter reward title"
 
-[node name="Label2" type="Label" parent="RewardDialog/MarginContainer/VBoxContainer"]
+[node name="DescLabel" type="Label" parent="RewardDialog/PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "Description"
+theme_override_colors/font_color = Color(0.5, 0.55, 0.6, 1)
+theme_override_font_sizes/font_size = 12
+text = "DESCRIPTION (OPTIONAL)"
+uppercase = true
 
-[node name="RewardDescInput" type="TextEdit" parent="RewardDialog/MarginContainer/VBoxContainer"]
+[node name="RewardDescInput" type="TextEdit" parent="RewardDialog/PanelContainer/MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 80)
+custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
-placeholder_text = "Optional: Add details about the reward"
+theme_override_font_sizes/font_size = 14
+placeholder_text = "Add details about the reward"
 
-[node name="Label3" type="Label" parent="RewardDialog/MarginContainer/VBoxContainer"]
+[node name="CostLabel" type="Label" parent="RewardDialog/PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "Points Cost *"
+theme_override_colors/font_color = Color(0.5, 0.55, 0.6, 1)
+theme_override_font_sizes/font_size = 12
+text = "POINTS COST"
+uppercase = true
 
-[node name="RewardCostInput" type="SpinBox" parent="RewardDialog/MarginContainer/VBoxContainer"]
+[node name="RewardCostInput" type="SpinBox" parent="RewardDialog/PanelContainer/MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 min_value = 1.0
 max_value = 1000.0
 value = 50.0
 
-[node name="HBoxContainer" type="HBoxContainer" parent="RewardDialog/MarginContainer/VBoxContainer"]
+[node name="ButtonContainer" type="HBoxContainer" parent="RewardDialog/PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 alignment = 2
+theme_override_constants/separation = 12
 
-[node name="BtnCancelReward" type="Button" parent="RewardDialog/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="BtnCancelReward" type="Button" parent="RewardDialog/PanelContainer/MarginContainer/VBoxContainer/ButtonContainer"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 38)
 layout_mode = 2
+theme_override_font_sizes/font_size = 14
 text = "Cancel"
 
-[node name="BtnSaveReward" type="Button" parent="RewardDialog/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="BtnSaveReward" type="Button" parent="RewardDialog/PanelContainer/MarginContainer/VBoxContainer/ButtonContainer"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 38)
 layout_mode = 2
-text = "Save Reward"
-
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+text = "Save"

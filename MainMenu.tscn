@@ -1,6 +1,10 @@
-[gd_scene load_steps=13 format=3 uid="uid://paylobfdf0hu"]
+[gd_scene load_steps=17 format=3 uid="uid://paylobfdf0hu"]
 
 [ext_resource type="Script" uid="uid://bndqvivj25c1p" path="res://MainMenu.gd" id="1_vuhke"]
+[ext_resource type="Texture2D" uid="uid://dng3mgqgjhdvh" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer1.png" id="2_bg1"]
+[ext_resource type="Texture2D" uid="uid://cr6fp4eqr2yge" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer2.png" id="3_bg2"]
+[ext_resource type="Texture2D" uid="uid://bcx5mh3b78xpl" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer3.png" id="4_bg3"]
+[ext_resource type="Texture2D" uid="uid://dgvpcvhyrbr3r" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer4.png" id="5_bg4"]
 
 [sub_resource type="Theme" id="Theme_i26rj"]
 
@@ -95,7 +99,92 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.14509805, 0.16862746, 0.20392157, 1)
+color = Color(0.05, 0.05, 0.1, 1)
+
+[node name="Background" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Layer1A" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("2_bg1")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer1B" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_left = 1920.0
+offset_right = 3840.0
+offset_bottom = 1080.0
+texture = ExtResource("2_bg1")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer2A" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("3_bg2")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer2B" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_left = 1920.0
+offset_right = 3840.0
+offset_bottom = 1080.0
+texture = ExtResource("3_bg2")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer3A" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("4_bg3")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer3B" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_left = 1920.0
+offset_right = 3840.0
+offset_bottom = 1080.0
+texture = ExtResource("4_bg3")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer4A" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("5_bg4")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer4B" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_left = 1920.0
+offset_right = 3840.0
+offset_bottom = 1080.0
+texture = ExtResource("5_bg4")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Overlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0, 0.0, 0.0, 0.35)
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 1

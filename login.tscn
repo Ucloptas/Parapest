@@ -1,0 +1,323 @@
+[gd_scene load_steps=10 format=3 uid="uid://clogin123456"]
+
+[ext_resource type="Script" path="res://login.gd" id="1_login"]
+[ext_resource type="Texture2D" uid="uid://dng3mgqgjhdvh" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer1.png" id="2_bg1"]
+[ext_resource type="Texture2D" uid="uid://cr6fp4eqr2yge" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer2.png" id="3_bg2"]
+[ext_resource type="Texture2D" uid="uid://bcx5mh3b78xpl" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer3.png" id="4_bg3"]
+[ext_resource type="Texture2D" uid="uid://dgvpcvhyrbr3r" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer4.png" id="5_bg4"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.08, 0.09, 0.12, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.24, 0.32, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
+bg_color = Color(0.18, 0.45, 0.35, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
+bg_color = Color(0.22, 0.55, 0.42, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_role_btn"]
+bg_color = Color(0.12, 0.14, 0.18, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.28, 0.35, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="Login" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_login")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.025, 0.035, 1)
+
+[node name="Background" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Layer1A" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("2_bg1")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer1B" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_left = 1920.0
+offset_right = 3840.0
+offset_bottom = 1080.0
+texture = ExtResource("2_bg1")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer2A" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("3_bg2")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer2B" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_left = 1920.0
+offset_right = 3840.0
+offset_bottom = 1080.0
+texture = ExtResource("3_bg2")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer3A" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("4_bg3")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer3B" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_left = 1920.0
+offset_right = 3840.0
+offset_bottom = 1080.0
+texture = ExtResource("4_bg3")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer4A" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("5_bg4")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Layer4B" type="TextureRect" parent="Background"]
+layout_mode = 0
+offset_left = 1920.0
+offset_right = 3840.0
+offset_bottom = 1080.0
+texture = ExtResource("5_bg4")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Overlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0, 0.0, 0.0, 0.55)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="CenterContainer"]
+custom_minimum_size = Vector2(400, 480)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 40
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/Panel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="LogoContainer" type="VBoxContainer" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Logo" type="Label" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/LogoContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.75, 0.55, 1)
+theme_override_font_sizes/font_size = 32
+text = "CHORE LOBBY"
+horizontal_alignment = 1
+
+[node name="Tagline" type="Label" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/LogoContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.55, 0.65, 1)
+theme_override_font_sizes/font_size = 12
+text = "Family Task Management"
+horizontal_alignment = 1
+uppercase = true
+
+[node name="Title" type="Label" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.82, 0.88, 1)
+theme_override_font_sizes/font_size = 18
+text = "Sign in to continue"
+horizontal_alignment = 1
+
+[node name="InputContainer" type="VBoxContainer" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Username" type="LineEdit" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/InputContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+placeholder_text = "Username"
+max_length = 32
+clear_button_enabled = true
+select_all_on_focus = true
+
+[node name="Password" type="LineEdit" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/InputContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+placeholder_text = "Password"
+max_length = 64
+clear_button_enabled = true
+select_all_on_focus = true
+secret = true
+
+[node name="RoleContainer" type="HBoxContainer" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BtnParent" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/RoleContainer"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_role_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "PARENT"
+
+[node name="BtnChild" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/RoleContainer"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_role_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "CHILD"
+
+[node name="FamilyIDContainer" type="HBoxContainer" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="FamilyID" type="LineEdit" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/FamilyIDContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+placeholder_text = "Family ID (from your parent)"
+max_length = 32
+clear_button_enabled = true
+select_all_on_focus = true
+
+[node name="ActionContainer" type="HBoxContainer" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BtnLogin" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/ActionContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "SIGN IN"
+
+[node name="BtnRegister" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/ActionContainer"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "CREATE ACCOUNT"
+
+[node name="Error" type="Label" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="BtnSwitchMode" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.65, 0.8, 1)
+theme_override_font_sizes/font_size = 13
+flat = true
+text = "Don't have an account? Sign up"
+
+[node name="BtnExit" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.45, 0.45, 1)
+theme_override_font_sizes/font_size = 12
+flat = true
+text = "Exit"

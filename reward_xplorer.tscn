@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=3 uid="uid://dtdydpo00seqv"]
 
-[ext_resource type="Script" uid="uid://bhf4xb1a3x5yf" path="res://chore_xplorer.gd" id="1_cpk1q"]
+[ext_resource type="Script" uid="uid://bhf4xb1a3x5yf" path="res://reward_xplorer.gd" id="1_cpk1q"]
 [ext_resource type="Texture2D" uid="uid://dyy3pwuhxm2vv" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer1.png" id="2_6j0xm"]
 [ext_resource type="Texture2D" uid="uid://d1yf7l22t4xuc" path="res://Assets/Pixel Art Forest/PNG/tileset.png" id="2_t186q"]
 [ext_resource type="Texture2D" uid="uid://duts3ow7kjv1e" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer2.png" id="4_ovf10"]
@@ -164,3 +164,70 @@ layer_0/tile_data = PackedInt32Array(655360, 393216, 3, 655361, 393216, 3, 65536
 
 [node name="playerPlaceholder" type="Node2D" parent="."]
 position = Vector2(57.615887, 611.2583)
+
+[node name="PauseMenu" type="CanvasLayer" parent="."]
+layer = 100
+visible = false
+process_mode = 3
+
+[node name="Overlay" type="ColorRect" parent="PauseMenu"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="PausePanel" type="Panel" parent="PauseMenu"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -150.0
+offset_right = 200.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PauseMenu/PausePanel"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 30.0
+offset_top = 30.0
+offset_right = -30.0
+offset_bottom = -30.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="PauseMenu/PausePanel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "PAUSED"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="PauseMenu/PausePanel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ResumeButton" type="Button" parent="PauseMenu/PausePanel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_font_sizes/font_size = 20
+text = "Resume"
+
+[node name="MainMenuButton" type="Button" parent="PauseMenu/PausePanel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_font_sizes/font_size = 20
+text = "Main Menu"
+
+[node name="Spacer2" type="Control" parent="PauseMenu/PausePanel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[connection signal="pressed" from="PauseMenu/PausePanel/VBoxContainer/ResumeButton" to="." method="_on_resume_pressed"]
+[connection signal="pressed" from="PauseMenu/PausePanel/VBoxContainer/MainMenuButton" to="." method="_on_main_menu_pressed"]

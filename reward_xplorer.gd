@@ -6,14 +6,29 @@ extends Node2D
 var is_paused: bool = false
 
 func _ready():
-	#load selected character
-	var player_scene = preload("res://Characters/pinkPlayer.tscn")
+	# Load selected character from HTTPClient
+	var http_client = get_node("/root/HTTPClient")
+	var character_name = http_client.selected_character
+	
+	# Default to pink if no character selected
+	if character_name.is_empty():
+		character_name = "pink"
+	
+	# Map character name to scene path
+	var character_scenes = {
+		"blue": "res://characters/bluePlayer.tscn",
+		"pink": "res://characters/pinkPlayer.tscn",
+		"white": "res://characters/whitePlayer.tscn"
+	}
+	
+	var scene_path = character_scenes.get(character_name, "res://characters/pinkPlayer.tscn")
+	var player_scene = load(scene_path)
 	var player_instance = player_scene.instantiate()
+	
 	# Add to placeholder
 	$playerPlaceholder.add_child(player_instance)
 	# Optionally center it or position it on the map
-	player_instance.position = Vector2(0, -600)
-	
+	player_instance.position = Vector2(0, 0)
 	# Hide pause menu initially
 	pause_menu.visible = false
 

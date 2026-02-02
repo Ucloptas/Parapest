@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://ctcaevl4tnaoe"]
+[gd_scene load_steps=12 format=3 uid="uid://ctcaevl4tnaoe"]
 
 [ext_resource type="Script" uid="uid://bhf4xb1a3x5yf" path="res://chore_xplorer.gd" id="1_x3ro1"]
 [ext_resource type="Texture2D" uid="uid://dyy3pwuhxm2vv" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer1.png" id="2_moxud"]
@@ -95,6 +95,13 @@ sources/0 = SubResource("TileSetAtlasSource_2svhg")
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0kt4w"]
 size = Vector2(343.709, 54.6688)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sc3n6"]
+bg_color = Color(0.6438674, 0.1258032, 0.18826097, 1)
+border_color = Color(0.48833764, 0.07817381, 0.15044078, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1s8ay"]
+bg_color = Color(0.71, 0.085200004, 0.18933353, 1)
 
 [node name="ChoreXplorer" type="Node2D"]
 position = Vector2(4.76837e-07, -5.42101e-20)
@@ -241,7 +248,6 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="infoPopup" type="CanvasLayer" parent="."]
-visible = false
 
 [node name="Overlay" type="ColorRect" parent="infoPopup"]
 anchors_preset = 12
@@ -253,23 +259,46 @@ grow_horizontal = 2
 grow_vertical = 0
 color = Color(0, 0, 0, 0.6)
 
-[node name="InfoVboxContainer" type="VBoxContainer" parent="infoPopup/Overlay"]
+[node name="HBoxContainer" type="HBoxContainer" parent="infoPopup/Overlay"]
 layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -300.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -161.5
+offset_top = -78.5
+offset_right = 161.5
+offset_bottom = 78.5
 grow_horizontal = 2
-grow_vertical = 0
+grow_vertical = 2
+
+[node name="SelectConfirmButton" type="MenuButton" parent="infoPopup/Overlay/HBoxContainer"]
+modulate = Color(0.3401115, 0.6818157, 0.38943195, 1)
+layout_mode = 2
+text = "Select"
+flat = false
+
+[node name="InfoVboxContainer" type="VBoxContainer" parent="infoPopup/Overlay/HBoxContainer"]
+custom_minimum_size = Vector2(500, 0)
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 20
 
-[node name="Title" type="Label" parent="infoPopup/Overlay/InfoVboxContainer"]
+[node name="Title" type="Label" parent="infoPopup/Overlay/HBoxContainer/InfoVboxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "CHORE INFO"
 horizontal_alignment = 1
 
+[node name="DismissButton" type="Button" parent="infoPopup/Overlay/HBoxContainer"]
+self_modulate = Color(0.6332282, 0.045970783, 0.21104217, 1)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_sc3n6")
+theme_override_styles/hover = SubResource("StyleBoxFlat_1s8ay")
+text = "Dismiss"
+
 [connection signal="body_entered" from="next_level" to="." method="_on_next_level_body_entered"]
 [connection signal="pressed" from="PauseMenu/PausePanel/VBoxContainer/ResumeButton" to="." method="_on_resume_pressed"]
 [connection signal="pressed" from="PauseMenu/PausePanel/VBoxContainer/MainMenuButton" to="." method="_on_main_menu_pressed"]
+[connection signal="button_down" from="infoPopup/Overlay/HBoxContainer/DismissButton" to="." method="_on_dismiss_button_button_down"]

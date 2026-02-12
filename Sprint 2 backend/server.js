@@ -73,6 +73,21 @@ async function initDatabase() {
       completedAt TEXT NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS pendingCompletions (
+      id TEXT PRIMARY KEY,
+      choreId TEXT NOT NULL,
+      choreTitle TEXT NOT NULL,
+      userId TEXT NOT NULL,
+      username TEXT NOT NULL,
+      points INTEGER NOT NULL,
+      familyId TEXT NOT NULL,
+      requestedAt TEXT NOT NULL,
+      status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'approved', 'rejected'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_pendingCompletions_familyId ON pendingCompletions(familyId);
+    CREATE INDEX IF NOT EXISTS idx_pendingCompletions_status ON pendingCompletions(status);
+
     CREATE TABLE IF NOT EXISTS redeemedRewards (
       id TEXT PRIMARY KEY,
       rewardId TEXT NOT NULL,
@@ -364,7 +379,7 @@ app.delete('/api/chores/:id', authenticateToken, requireParent, async (req, res)
   }
 });
 
-// Complete chore (child only)
+// Request chore completion (child only) - creates pending request for parent approval
 app.post('/api/chores/:id/complete', authenticateToken, async (req, res) => {
   try {
     if (req.user.role !== 'child') {
@@ -378,38 +393,141 @@ app.post('/api/chores/:id/complete', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Chore not found' });
     }
 
-    const user = await db.getAsync('SELECT * FROM users WHERE id = ?', [req.user.id]);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+    // Check if there's already a pending request for this chore by this user
+    const existingPending = await db.getAsync(
+      'SELECT * FROM pendingCompletions WHERE choreId = ? AND userId = ? AND status = ?',
+      [id, req.user.id, 'pending']
+    );
+    if (existingPending) {
+      return res.status(400).json({ error: 'You already have a pending request for this chore' });
     }
 
-    // Update user points
-    const newPoints = user.points + chore.points;
-    await db.runAsync('UPDATE users SET points = ? WHERE id = ?', [newPoints, req.user.id]);
-
-    // Record completed chore
-    const completedChore = {
+    // Create pending completion request
+    const pendingCompletion = {
       id: generateId(),
       choreId: chore.id,
       choreTitle: chore.title,
       userId: req.user.id,
       username: req.user.username,
       points: chore.points,
+      familyId: req.user.familyId,
+      requestedAt: new Date().toISOString()
+    };
+
+    await db.runAsync(`
+      INSERT INTO pendingCompletions (id, choreId, choreTitle, userId, username, points, familyId, requestedAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `, [pendingCompletion.id, pendingCompletion.choreId, pendingCompletion.choreTitle, 
+        pendingCompletion.userId, pendingCompletion.username, pendingCompletion.points,
+        pendingCompletion.familyId, pendingCompletion.requestedAt]);
+
+    res.json({
+      message: 'Completion request sent! Waiting for parent approval.',
+      pending: true,
+      points: chore.points
+    });
+  } catch (error) {
+    console.error('Request chore completion error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get pending completions (parent only)
+app.get('/api/pending-completions', authenticateToken, async (req, res) => {
+  try {
+    const pendingCompletions = await db.allAsync(
+      'SELECT * FROM pendingCompletions WHERE familyId = ? AND status = ? ORDER BY requestedAt DESC',
+      [req.user.familyId, 'pending']
+    );
+    res.json(pendingCompletions);
+  } catch (error) {
+    console.error('Get pending completions error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Approve pending completion (parent only)
+app.post('/api/pending-completions/:id/approve', authenticateToken, requireParent, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const pending = await db.getAsync(
+      'SELECT * FROM pendingCompletions WHERE id = ? AND familyId = ? AND status = ?',
+      [id, req.user.familyId, 'pending']
+    );
+
+    if (!pending) {
+      return res.status(404).json({ error: 'Pending completion not found' });
+    }
+
+    // Get the child user
+    const childUser = await db.getAsync('SELECT * FROM users WHERE id = ?', [pending.userId]);
+    if (!childUser) {
+      return res.status(404).json({ error: 'Child user not found' });
+    }
+
+    // Update pending status to approved
+    await db.runAsync(
+      'UPDATE pendingCompletions SET status = ? WHERE id = ?',
+      ['approved', id]
+    );
+
+    // Add points to child
+    const newPoints = childUser.points + pending.points;
+    await db.runAsync('UPDATE users SET points = ? WHERE id = ?', [newPoints, pending.userId]);
+
+    // Record in completed chores
+    const completedChore = {
+      id: generateId(),
+      choreId: pending.choreId,
+      choreTitle: pending.choreTitle,
+      userId: pending.userId,
+      username: pending.username,
+      points: pending.points,
       completedAt: new Date().toISOString()
     };
 
     await db.runAsync(`
       INSERT INTO completedChores (id, choreId, choreTitle, userId, username, points, completedAt)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `, [completedChore.id, completedChore.choreId, completedChore.choreTitle, completedChore.userId, completedChore.username, completedChore.points, completedChore.completedAt]);
+    `, [completedChore.id, completedChore.choreId, completedChore.choreTitle, 
+        completedChore.userId, completedChore.username, completedChore.points, completedChore.completedAt]);
 
     res.json({
-      message: 'Chore completed successfully',
-      points: chore.points,
-      totalPoints: newPoints
+      message: 'Chore approved! ' + pending.username + ' earned ' + pending.points + ' points.',
+      childPoints: newPoints
     });
   } catch (error) {
-    console.error('Complete chore error:', error);
+    console.error('Approve completion error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Reject pending completion (parent only)
+app.post('/api/pending-completions/:id/reject', authenticateToken, requireParent, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const pending = await db.getAsync(
+      'SELECT * FROM pendingCompletions WHERE id = ? AND familyId = ? AND status = ?',
+      [id, req.user.familyId, 'pending']
+    );
+
+    if (!pending) {
+      return res.status(404).json({ error: 'Pending completion not found' });
+    }
+
+    // Update pending status to rejected
+    await db.runAsync(
+      'UPDATE pendingCompletions SET status = ? WHERE id = ?',
+      ['rejected', id]
+    );
+
+    res.json({
+      message: 'Chore completion rejected.'
+    });
+  } catch (error) {
+    console.error('Reject completion error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });

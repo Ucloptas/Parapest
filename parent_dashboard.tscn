@@ -135,6 +135,16 @@ flat = true
 text = "Rewards"
 alignment = 0
 
+[node name="BtnNavApprovals" type="Button" parent="HBoxContainer/Sidebar/MarginContainer/VBoxContainer/NavButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.75, 0.4, 1)
+theme_override_font_sizes/font_size = 14
+flat = true
+text = "Approvals"
+alignment = 0
+
 [node name="BtnNavFamily" type="Button" parent="HBoxContainer/Sidebar/MarginContainer/VBoxContainer/NavButtons"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 40)

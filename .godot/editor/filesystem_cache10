@@ -1,9 +1,9 @@
 63f7b34db8d8cdea90c76aacccf841ec
-::res://::1769206083
+::res://::1770883335
 character_selection.gd::GDScript::5057666072154343352::1769205697::0::1::::<>Control<><>0<>0<><>::
 character_selection.tscn::PackedScene::1521137661036095378::1769205697::0::1::::<><><>0<>0<><>::uid://ceb8ayufmyi8w::::res://character_selection.gd<>uid://dyy3pwuhxm2vv::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer1.png<>uid://c4idgsl72rub0::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer2.png<>uid://k0s1gm4fhyix::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer3.png<>uid://drjcis6yxnvij::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer4.png
-chore_xplorer.gd::GDScript::2889866436706288549::1769205697::0::1::::<>Node2D<><>0<>0<><>::
-chore_xplorer.tscn::PackedScene::6110566416519287256::1769205697::0::1::::<><><>0<>0<><>::uid://bhf4xb1a3x5yf::::res://chore_xplorer.gd<>uid://dyy3pwuhxm2vv::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer1.png<>uid://duts3ow7kjv1e::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer2.png<>uid://q7frm1njw4ql::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer3.png<>uid://dv668nkbm2rdc::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer4.png<>uid://d1yf7l22t4xuc::::res://Assets/Pixel Art Forest/PNG/tileset.png
+chore_xplorer.gd::GDScript::2889866436706288549::1770883086::0::1::::<>Node2D<><>0<>0<><>::
+chore_xplorer.tscn::PackedScene::6110566416519287256::1770618850::0::1::::<><><>0<>0<><>::uid://bhf4xb1a3x5yf::::res://chore_xplorer.gd<>uid://dyy3pwuhxm2vv::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer1.png<>uid://duts3ow7kjv1e::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer2.png<>uid://q7frm1njw4ql::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer3.png<>uid://dv668nkbm2rdc::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer4.png<>uid://d1yf7l22t4xuc::::res://Assets/Pixel Art Forest/PNG/tileset.png
 FEATURES.md::TextFile::-1::1769205697::0::1::::<><><>0<>0<><>::
 HTTPClient.gd::GDScript::4945185257746536280::1769205697::0::1::::<>Node<><>0<>0<><>::
 login.gd::GDScript::7960619941745414444::1769205697::0::1::::<>Control<><>0<>0<><>::
@@ -17,7 +17,7 @@ parent_login.tscn::PackedScene::6874366203542948217::1769205697::0::1::::<><><>0
 PROJECT_SUMMARY.md::TextFile::-1::1769205697::0::1::::<><><>0<>0<><>::
 QUICKSTART.md::TextFile::-1::1769205697::0::1::::<><><>0<>0<><>::
 README.md::TextFile::-1::1769205697::0::1::::<><><>0<>0<><>::
-reward_xplorer.gd::GDScript::4176040627115984172::1769205697::0::1::::<>Node2D<><>0<>0<><>::
+reward_xplorer.gd::GDScript::4176040627115984172::1770883146::0::1::::<>Node2D<><>0<>0<><>::
 reward_xplorer.tscn::PackedScene::8500506589319728261::1769205697::0::1::::<><><>0<>0<><>::uid://bhf4xb1a3x5yf::::res://reward_xplorer.gd<>uid://dyy3pwuhxm2vv::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer1.png<>uid://d1yf7l22t4xuc::::res://Assets/Pixel Art Forest/PNG/tileset.png<>uid://duts3ow7kjv1e::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer2.png<>uid://q7frm1njw4ql::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer3.png<>uid://dv668nkbm2rdc::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer4.png
 TROUBLESHOOTING.md::TextFile::-1::1769205697::0::1::::<><><>0<>0<><>::
 ::res://addons/::1769205697
@@ -28,7 +28,7 @@ git_plugin.gdextension::GDExtension::3139751803785170095::1769205697::0::1::::<>
 THIRDPARTY.md::TextFile::-1::1769205697::0::1::::<><><>0<>0<><>::
 ::res://addons/godot-git-plugin-v3.2.1/addons/godot-git-plugin/linux/::1769205697
 ::res://addons/godot-git-plugin-v3.2.1/addons/godot-git-plugin/macos/::1769205697
-::res://addons/godot-git-plugin-v3.2.1/addons/godot-git-plugin/windows/::1769206078
+::res://addons/godot-git-plugin-v3.2.1/addons/godot-git-plugin/windows/::1770883330
 ::res://Assets/::1769205776
 spritesheet.png::CompressedTexture2D::3470196002204608619::1769205697::1769205776::1::::<><><>0<>0<>b567f991710917a66e2646c8013ee6a9<>res://.godot/imported/spritesheet.png-7eb74f42a71eaac58a7cbe0bb302bcda.ctex::
 ::res://Assets/Frogs/::1769205697
@@ -376,21 +376,35 @@ Planes_ValMore.ttf::FontFile::3455670026983727980::1769205697::1769205697::1::::
 721.png::CompressedTexture2D::7464995014426876603::1769205697::1769205697::1::::<><><>0<>0<>daadb54997b5e326e355aa1580a3ae25<>res://.godot/imported/721.png-e6402ce4e497a787de2cc3caef7ef371.ctex::
 722.png::CompressedTexture2D::8771959609461929781::1769205697::1769205697::1::::<><><>0<>0<>422a015f9ce776d963c16bf280dd0754<>res://.godot/imported/722.png-f2c5094a1751b07438864a96734865c8.ctex::
 723.png::CompressedTexture2D::3034101422187851873::1769205697::1769205697::1::::<><><>0<>0<>5f52cc7522f8f39bc99bffb2da75b08b<>res://.godot/imported/723.png-85245ab60f6230d8f7099bd36faf5011.ctex::
-::res://characters/::1769205697
+::res://characters/::1770618850
 bluePlayer.tscn::PackedScene::571447099988355044::1769205697::0::1::::<><><>0<>0<><>::uid://br2nbogjr1780::::res://characters/Player.gd<>uid://cllec5difjish::::res://Assets/pixelArtHeros/3 Dude_Monster/Dude_Monster_Attack1_4.png<>uid://dm2l1fnfr5hc1::::res://Assets/pixelArtHeros/3 Dude_Monster/Dude_Monster_Jump_8.png<>uid://dkhueq0idlcm::::res://Assets/pixelArtHeros/3 Dude_Monster/Dude_Monster_Idle_4.png<>uid://cbqf2fvbnj1rl::::res://Assets/pixelArtHeros/3 Dude_Monster/Dude_Monster_Run_6.png<>uid://bkwnwi0e6uc73::::res://Assets/pixelArtHeros/3 Dude_Monster/Dude_Monster_Walk_6.png
 pinkPlayer.tscn::PackedScene::8710541592102253949::1769205697::0::1::::<><><>0<>0<><>::uid://br2nbogjr1780::::res://characters/Player.gd<>uid://6gbenyhn2vfo::::res://Assets/pixelArtHeros/1 Pink_Monster/Pink_Monster_Attack1_4.png<>uid://btkv6r4dyxeg0::::res://Assets/pixelArtHeros/1 Pink_Monster/Pink_Monster_Idle_4.png<>uid://dkxe17tt5c7py::::res://Assets/pixelArtHeros/1 Pink_Monster/Pink_Monster_Jump_8.png<>uid://dstck5h2exe2d::::res://Assets/pixelArtHeros/1 Pink_Monster/Pink_Monster_Run_6.png<>uid://dsbpk6w5wvijp::::res://Assets/pixelArtHeros/1 Pink_Monster/Pink_Monster_Walk_6.png
 Player.gd::GDScript::3636161076627559547::1769205697::0::1::::<>CharacterBody2D<><>0<>0<><>::
 whitePlayer.tscn::PackedScene::3554222951553178949::1769205697::0::1::::<><><>0<>0<><>::uid://br2nbogjr1780::::res://characters/Player.gd<>uid://ds7807yqm3lc2::::res://Assets/pixelArtHeros/2 Owlet_Monster/Owlet_Monster_Attack1_4.png<>uid://bptfq6grosgdx::::res://Assets/pixelArtHeros/2 Owlet_Monster/Owlet_Monster_Jump_8.png<>uid://bul742eohsmwl::::res://Assets/pixelArtHeros/2 Owlet_Monster/Owlet_Monster_Idle_4.png<>uid://dobfrirad7pyq::::res://Assets/pixelArtHeros/2 Owlet_Monster/Owlet_Monster_Run_6.png<>uid://c7an1s8yu1yg7::::res://Assets/pixelArtHeros/2 Owlet_Monster/Owlet_Monster_Walk_6.png
-::res://Sprint 2 backend/::1769206047
+::res://characters/Interface_animals/::1770618850
+Interface_bear1.tscn::PackedScene::2263809740278154621::1770618850::0::1::::<><><>0<>0<><>::uid://bpo8veb35khvv::::res://Assets/spritesheet.png
+interface_bear2.tscn::PackedScene::8411300233883022147::1770618850::0::1::::<><><>0<>0<><>::uid://bpo8veb35khvv::::res://Assets/spritesheet.png
+interface_bear3.tscn::PackedScene::5174686612894011674::1770618850::0::1::::<><><>0<>0<><>::uid://bpo8veb35khvv::::res://Assets/spritesheet.png
+interface_mouse1.tscn::PackedScene::2323273793592114182::1770618850::0::1::::<><><>0<>0<><>::uid://bpo8veb35khvv::::res://Assets/spritesheet.png
+interface_snake1.tscn::PackedScene::1407130159610338228::1770618850::0::1::::<><><>0<>0<><>::uid://bpo8veb35khvv::::res://Assets/spritesheet.png
+interface_snake2.tscn::PackedScene::621305169897209804::1770618850::0::1::::<><><>0<>0<><>::uid://bpo8veb35khvv::::res://Assets/spritesheet.png
+interface_snake3.tscn::PackedScene::3887692581184319080::1770618850::0::1::::<><><>0<>0<><>::uid://bpo8veb35khvv::::res://Assets/spritesheet.png
+interface_snake4.tscn::PackedScene::5650384284138358343::1770618850::0::1::::<><><>0<>0<><>::uid://bpo8veb35khvv::::res://Assets/spritesheet.png
+interface_snake5.tscn::PackedScene::5236662473464403337::1770618850::0::1::::<><><>0<>0<><>::uid://bpo8veb35khvv::::res://Assets/spritesheet.png
+interface_snake6.tscn::PackedScene::3964700681588441296::1770618850::0::1::::<><><>0<>0<><>::uid://bpo8veb35khvv::::res://Assets/spritesheet.png
+interface_wolf1.tscn::PackedScene::47991114778314137::1770618850::0::1::::<><><>0<>0<><>::uid://bpo8veb35khvv::::res://Assets/spritesheet.png
+interface_wolf2.tscn::PackedScene::9013180411800693454::1770618850::0::1::::<><><>0<>0<><>::uid://bpo8veb35khvv::::res://Assets/spritesheet.png
+interface_wolf3.tscn::PackedScene::9102742272294745644::1770618850::0::1::::<><><>0<>0<><>::uid://bpo8veb35khvv::::res://Assets/spritesheet.png
+::res://Sprint 2 backend/::1770882677
 FIX_SDK.md::TextFile::-1::1769205697::0::1::::<><><>0<>0<><>::
 INSTALL.md::TextFile::-1::1769205697::0::1::::<><><>0<>0<><>::
-package-lock.json::JSON::-1::1769206049::0::1::::<><><>0<>0<><>::
+package-lock.json::JSON::-1::1770882665::0::1::::<><><>0<>0<><>::
 package.json::JSON::-1::1769205697::0::1::::<><><>0<>0<><>::
 QUICK_FIX.md::TextFile::-1::1769205697::0::1::::<><><>0<>0<><>::
 SETUP_WINDOWS.md::TextFile::-1::1769205697::0::1::::<><><>0<>0<><>::
 SWITCHED_TO_SQLITE3.md::TextFile::-1::1769205697::0::1::::<><><>0<>0<><>::
 ::res://Sprint 2 backend/node_modules/::1769206049
-.package-lock.json::JSON::-1::1769206049::0::1::::<><><>0<>0<><>::
+.package-lock.json::JSON::-1::1770882665::0::1::::<><><>0<>0<><>::
 ::res://Sprint 2 backend/node_modules/@gar/::1769206047
 ::res://Sprint 2 backend/node_modules/@gar/promisify/::1769206048
 LICENSE.md::TextFile::-1::1769206048::0::1::::<><><>0<>0<><>::
@@ -1510,7 +1524,7 @@ README.md::TextFile::-1::1769206048::0::1::::<><><>0<>0<><>::
 ::res://Sprint 2 backend/node_modules/unique-filename/::1769206048
 package.json::JSON::-1::1769206048::0::1::::<><><>0<>0<><>::
 README.md::TextFile::-1::1769206048::0::1::::<><><>0<>0<><>::
-::res://Sprint 2 backend/node_modules/unique-filename/coverage/::1769206048
+::res://Sprint 2 backend/node_modules/unique-filename/coverage/::1769206093
 sort-arrow-sprite.png::CompressedTexture2D::1967040272413156911::1769206048::1769206093::1::::<><><>0<>0<>fb9954c09b2e2ec58c93743ae69f9645<>res://.godot/imported/sort-arrow-sprite.png-e883ba6d65831e3bc6b1b09e9fd85c75.ctex::
 ::res://Sprint 2 backend/node_modules/unique-filename/coverage/__root__/::1769206048
 ::res://Sprint 2 backend/node_modules/unique-filename/test/::1769206048

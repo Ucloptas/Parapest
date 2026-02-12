@@ -136,6 +136,18 @@ func get_family(callback: Callable) -> void:
 func get_completed_chores(callback: Callable) -> void:
 	_make_authenticated_request("/api/completed-chores", HTTPClient.METHOD_GET, "", callback)
 
+# Get pending completions (for parent approval)
+func get_pending_completions(callback: Callable) -> void:
+	_make_authenticated_request("/api/pending-completions", HTTPClient.METHOD_GET, "", callback)
+
+# Approve a pending completion (parent only)
+func approve_completion(pending_id: String, callback: Callable) -> void:
+	_make_authenticated_request("/api/pending-completions/" + pending_id + "/approve", HTTPClient.METHOD_POST, "", callback)
+
+# Reject a pending completion (parent only)
+func reject_completion(pending_id: String, callback: Callable) -> void:
+	_make_authenticated_request("/api/pending-completions/" + pending_id + "/reject", HTTPClient.METHOD_POST, "", callback)
+
 # Get redeemed rewards
 func get_redeemed_rewards(callback: Callable) -> void:
 	_make_authenticated_request("/api/redeemed-rewards", HTTPClient.METHOD_GET, "", callback)

@@ -361,6 +361,10 @@ func _on_complete_chore_pressed():
 		select_button.disabled = true
 	
 	http_client.complete_chore(chore_id, func(success, data):
+		print("=== CHORE COMPLETE RESPONSE ===")
+		print("Success: ", success)
+		print("Data: ", data)
+		
 		if select_button:
 			select_button.disabled = false
 		
@@ -368,11 +372,16 @@ func _on_complete_chore_pressed():
 			var is_pending = data.get("pending", false)
 			var points = data.get("points", 0)
 			
+			print("Is Pending: ", is_pending)
+			print("Points in response: ", points)
+			
 			if is_pending:
-				# New workflow: waiting for parent approval
+				# New workflow: waiting for parent approval - DO NOT update points!
+				print("PENDING MODE - Points NOT added to child")
 				_show_message("REQUEST SENT!", "Waiting for parent to approve.\n\nYou'll get +" + str(points) + " points when approved!")
 			else:
-				# Old workflow (if backend doesn't support pending)
+				# Old workflow (if backend doesn't support pending) - this should NOT happen
+				print("WARNING: Old workflow triggered - backend may be outdated!")
 				var points_earned = data.get("points", 0)
 				user_points = data.get("totalPoints", user_points + points_earned)
 				http_client.user_data["points"] = user_points
@@ -381,10 +390,13 @@ func _on_complete_chore_pressed():
 			
 			print("Chore completion requested for ", current_chore.get("title", ""))
 		else:
-			var error = data.get("error", "Failed to send request")
-			_show_message("OOPS!", error)
+			var error_msg = "Failed to send request"
+			if data is Dictionary:
+				error_msg = data.get("error", error_msg)
+			print("ERROR: ", error_msg)
+			_show_message("OOPS!", str(error_msg))
 			if select_button:
-				select_button.text = "Done!"
+				select_button.text = "I Did It!"
 	)
 
 func interact():

@@ -381,17 +381,39 @@ app.delete('/api/chores/:id', authenticateToken, requireParent, async (req, res)
 
 // Request chore completion (child only) - creates pending request for parent approval
 app.post('/api/chores/:id/complete', authenticateToken, async (req, res) => {
+  console.log('=== CHORE COMPLETE REQUEST ===');
+  console.log('User:', req.user.username, 'Role:', req.user.role);
+  
   try {
     if (req.user.role !== 'child') {
+      console.log('Rejected: Not a child user');
       return res.status(403).json({ error: 'Only children can complete chores' });
     }
 
     const { id } = req.params;
+    console.log('Chore ID:', id);
 
     const chore = await db.getAsync('SELECT * FROM chores WHERE id = ? AND familyId = ?', [id, req.user.familyId]);
     if (!chore) {
+      console.log('Rejected: Chore not found');
       return res.status(404).json({ error: 'Chore not found' });
     }
+    console.log('Found chore:', chore.title, 'Points:', chore.points);
+
+    // Ensure pendingCompletions table exists
+    await db.runAsync(`
+      CREATE TABLE IF NOT EXISTS pendingCompletions (
+        id TEXT PRIMARY KEY,
+        choreId TEXT NOT NULL,
+        choreTitle TEXT NOT NULL,
+        userId TEXT NOT NULL,
+        username TEXT NOT NULL,
+        points INTEGER NOT NULL,
+        familyId TEXT NOT NULL,
+        requestedAt TEXT NOT NULL,
+        status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'approved', 'rejected'))
+      )
+    `);
 
     // Check if there's already a pending request for this chore by this user
     const existingPending = await db.getAsync(
@@ -399,6 +421,7 @@ app.post('/api/chores/:id/complete', authenticateToken, async (req, res) => {
       [id, req.user.id, 'pending']
     );
     if (existingPending) {
+      console.log('Rejected: Already has pending request');
       return res.status(400).json({ error: 'You already have a pending request for this chore' });
     }
 
@@ -414,6 +437,8 @@ app.post('/api/chores/:id/complete', authenticateToken, async (req, res) => {
       requestedAt: new Date().toISOString()
     };
 
+    console.log('Creating pending completion:', pendingCompletion.id);
+    
     await db.runAsync(`
       INSERT INTO pendingCompletions (id, choreId, choreTitle, userId, username, points, familyId, requestedAt)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -421,6 +446,8 @@ app.post('/api/chores/:id/complete', authenticateToken, async (req, res) => {
         pendingCompletion.userId, pendingCompletion.username, pendingCompletion.points,
         pendingCompletion.familyId, pendingCompletion.requestedAt]);
 
+    console.log('SUCCESS: Pending completion created. Points NOT awarded yet.');
+    
     res.json({
       message: 'Completion request sent! Waiting for parent approval.',
       pending: true,

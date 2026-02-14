@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=3 uid="uid://dtdydpo00seqv"]
 
-[ext_resource type="Script" uid="uid://bhf4xb1a3x5yf" path="res://reward_xplorer.gd" id="1_cpk1q"]
+[ext_resource type="Script" uid="uid://b0q51qr4whoo7" path="res://reward_xplorer.gd" id="1_cpk1q"]
 [ext_resource type="Texture2D" uid="uid://dyy3pwuhxm2vv" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer1.png" id="2_6j0xm"]
 [ext_resource type="Texture2D" uid="uid://d1yf7l22t4xuc" path="res://Assets/Pixel Art Forest/PNG/tileset.png" id="2_t186q"]
 [ext_resource type="Texture2D" uid="uid://duts3ow7kjv1e" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer2.png" id="4_ovf10"]

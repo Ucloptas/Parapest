@@ -1,0 +1,88 @@
+[gd_scene load_steps=11 format=3 uid="uid://cfywlkl6iv3ko"]
+
+[ext_resource type="Texture2D" uid="uid://bpo8veb35khvv" path="res://Assets/spritesheet.png" id="1_17nol"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_17nol"]
+atlas = ExtResource("1_17nol")
+region = Rect2(160, 304, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_46c12"]
+atlas = ExtResource("1_17nol")
+region = Rect2(160, 288, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2ggre"]
+atlas = ExtResource("1_17nol")
+region = Rect2(176, 288, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rtm6f"]
+atlas = ExtResource("1_17nol")
+region = Rect2(128, 288, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k7qlr"]
+atlas = ExtResource("1_17nol")
+region = Rect2(144, 288, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ihrb1"]
+atlas = ExtResource("1_17nol")
+region = Rect2(160, 288, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nht1b"]
+atlas = ExtResource("1_17nol")
+region = Rect2(176, 288, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_603gk"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_17nol")
+}],
+"loop": true,
+"name": &"focus",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_46c12")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2ggre")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rtm6f")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k7qlr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ihrb1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nht1b")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 4.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mait2"]
+size = Vector2(16, 12)
+
+[node name="CharacterBody2D" type="CharacterBody2D"]
+texture_filter = 1
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+sprite_frames = SubResource("SpriteFrames_603gk")
+animation = &"focus"
+frame_progress = 0.7615731
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 2)
+shape = SubResource("RectangleShape2D_mait2")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]

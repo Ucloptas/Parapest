@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://paylobfdf0hu"]
+[gd_scene load_steps=21 format=3 uid="uid://paylobfdf0hu"]
 
 [ext_resource type="Script" uid="uid://bndqvivj25c1p" path="res://MainMenu.gd" id="1_vuhke"]
 [ext_resource type="Texture2D" uid="uid://dng3mgqgjhdvh" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer1.png" id="2_bg1"]
@@ -10,71 +10,135 @@
 
 [sub_resource type="Theme" id="Theme_eh1qh"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_i26rj"]
-bg_color = Color(0.22352941, 0.25490198, 0.30980393, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxGlass_panel"]
+bg_color = Color(0.08, 0.12, 0.18, 0.25)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.23137255, 0.25882354, 0.32156864, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.4, 0.65, 0.9, 0.5)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+anti_aliasing = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_i26rj"]
+bg_color = Color(0.06, 0.1, 0.16, 0.35)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.35, 0.6, 0.85, 0.6)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+anti_aliasing = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eiy7p"]
-bg_color = Color(0.1764706, 0.20392157, 0.2509804, 1)
+bg_color = Color(0.05, 0.08, 0.12, 0.5)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.55, 0.8, 0.5)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+anti_aliasing = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_h7a2f"]
-bg_color = Color(0.28235295, 0.3254902, 0.4, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+bg_color = Color(0.1, 0.16, 0.24, 0.4)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.5, 0.75, 1.0, 0.7)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+anti_aliasing = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qoqlk"]
-bg_color = Color(0.22352941, 0.25490198, 0.30980393, 1)
+bg_color = Color(0.06, 0.1, 0.16, 0.35)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.23137255, 0.25882354, 0.32156864, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.35, 0.6, 0.85, 0.6)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+anti_aliasing = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_iwfq2"]
-bg_color = Color(0.1764706, 0.20392157, 0.2509804, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7r1g0"]
-bg_color = Color(0.28235295, 0.3254902, 0.4, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cqjrg"]
-bg_color = Color(0.22352941, 0.25490198, 0.30980393, 1)
+bg_color = Color(0.05, 0.08, 0.12, 0.5)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.23137255, 0.25882354, 0.32156864, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.3, 0.55, 0.8, 0.5)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+anti_aliasing = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7r1g0"]
+bg_color = Color(0.1, 0.16, 0.24, 0.4)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.5, 0.75, 1.0, 0.7)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+anti_aliasing = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cqjrg"]
+bg_color = Color(0.06, 0.1, 0.16, 0.35)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.35, 0.6, 0.85, 0.6)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+anti_aliasing = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_e2xy7"]
-bg_color = Color(0.1764706, 0.20392157, 0.2509804, 1)
+bg_color = Color(0.05, 0.08, 0.12, 0.5)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.55, 0.8, 0.5)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+anti_aliasing = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fimr5"]
-bg_color = Color(0.28235295, 0.3254902, 0.4, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+bg_color = Color(0.1, 0.16, 0.24, 0.4)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.5, 0.75, 1.0, 0.7)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+anti_aliasing = true
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -99,7 +163,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.05, 0.05, 0.1, 1)
+color = Color(0.02, 0.04, 0.08, 1)
 
 [node name="Background" type="Control" parent="."]
 layout_mode = 1
@@ -184,33 +248,45 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.0, 0.0, 0.0, 0.35)
+color = Color(0.0, 0.15, 0.3, 0.25)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="GlassPanel" type="PanelContainer" parent="."]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -101.0
-offset_top = -51.5
-offset_right = 101.0
-offset_bottom = 51.5
+offset_left = -140.0
+offset_top = -140.0
+offset_right = 140.0
+offset_bottom = 140.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxGlass_panel")
+
+[node name="MarginContainer" type="MarginContainer" parent="GlassPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 28
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GlassPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
 theme = SubResource("Theme_eh1qh")
 
-[node name="Chore Lobby" type="Label" parent="VBoxContainer"]
+[node name="Chore Lobby" type="Label" parent="GlassPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.8862745, 0.9019608, 0.92156863, 1)
-theme_override_font_sizes/font_size = 33
-text = "Chore Lobby"
+theme_override_colors/font_color = Color(0.7, 0.9, 1.0, 1)
+theme_override_font_sizes/font_size = 36
+text = "CHORE LOBBY"
 horizontal_alignment = 1
 vertical_alignment = 1
 uppercase = true
 
-[node name="Parent Login" type="Button" parent="VBoxContainer"]
+[node name="Parent Login" type="Button" parent="GlassPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme = SubResource("Theme_eh1qh")
 theme_override_colors/font_color = Color(0.93333334, 0.9490196, 0.96862745, 1)
@@ -220,7 +296,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_eiy7p")
 theme_override_styles/hover = SubResource("StyleBoxFlat_h7a2f")
 text = "Parent Login"
 
-[node name="ChoreXplorer" type="Button" parent="VBoxContainer"]
+[node name="ChoreXplorer" type="Button" parent="GlassPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme = SubResource("Theme_eh1qh")
 theme_override_colors/font_color = Color(0.93333334, 0.9490196, 0.96862745, 1)
@@ -230,7 +306,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_iwfq2")
 theme_override_styles/hover = SubResource("StyleBoxFlat_7r1g0")
 text = "Chore Lobby"
 
-[node name="Exit" type="Button" parent="VBoxContainer"]
+[node name="Exit" type="Button" parent="GlassPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme = SubResource("Theme_eh1qh")
 theme_override_colors/font_color = Color(0.93333334, 0.9490196, 0.96862745, 1)
@@ -238,10 +314,8 @@ theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_cqjrg")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_e2xy7")
 theme_override_styles/hover = SubResource("StyleBoxFlat_fimr5")
-text = "Exit
-"
+text = "Exit"
 
-[connection signal="button_down" from="VBoxContainer/Parent Login" to="." method="_on_parent_login_button_down"]
-[connection signal="button_down" from="VBoxContainer/ChoreXplorer" to="." method="_on_chore_xplorer_button_down"]
-[connection signal="button_down" from="VBoxContainer/ChoreXplorer" to="." method="_on_to_the_lobby_button_down"]
-[connection signal="button_down" from="VBoxContainer/Exit" to="." method="_on_exit_button_down"]
+[connection signal="button_down" from="GlassPanel/MarginContainer/VBoxContainer/Parent Login" to="." method="_on_parent_login_button_down"]
+[connection signal="button_down" from="GlassPanel/MarginContainer/VBoxContainer/ChoreXplorer" to="." method="_on_chore_xplorer_button_down"]
+[connection signal="button_down" from="GlassPanel/MarginContainer/VBoxContainer/Exit" to="." method="_on_exit_button_down"]

@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://vw36d1t57bgc"]
+[gd_scene load_steps=11 format=3 uid="uid://vw36d1t57bgc"]
 
 [ext_resource type="Script" uid="uid://ceb8ayufmyi8w" path="res://character_selection.gd" id="1_charselect"]
 [ext_resource type="Texture2D" uid="uid://dyy3pwuhxm2vv" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer1.png" id="2_bg1"]
@@ -29,6 +29,8 @@ corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_preview"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
 bg_color = Color(0.22, 0.55, 0.42, 1)
@@ -210,7 +212,7 @@ horizontal_alignment = 1
 [node name="CharacterPreviewContainer" type="Panel" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 200)
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_char_btn")
+theme_override_styles/panel = SubResource("StyleBoxEmpty_preview")
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/CharacterPreviewContainer"]
 layout_mode = 1

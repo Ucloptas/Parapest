@@ -30,6 +30,7 @@ var layer_width: float = 1920.0
 var http_client: Node
 var selected_character: String = ""  # "blue", "pink", or "white"
 var preview_instance: Node = null
+var entrance_tween: Tween = null
 
 # Character scene paths
 const CHARACTER_SCENES = {
@@ -59,9 +60,12 @@ func _ready() -> void:
 	# Load user data
 	_update_user_info()
 	
-	# Initially disable start button
-	btn_start.disabled = true
+	# Select blue as default character
+	selected_character = "blue"
+	btn_start.disabled = false
 	_update_character_buttons()
+	# Defer the preview load to ensure the SubViewport is fully ready
+	call_deferred("_show_character_preview", "blue")
 
 func _process(delta: float) -> void:
 	_scroll_layer_pair(bg_layer1_a, bg_layer1_b, scroll_speed_layer1, delta)
@@ -138,127 +142,121 @@ func _create_char_style(selected: bool) -> StyleBoxFlat:
 	return style
 
 func _show_character_preview(character: String) -> void:
-	# Remove old preview safely
-	if preview_instance and is_instance_valid(preview_instance):
-		preview_instance.queue_free()
-		preview_instance = null
-		# Wait for the node to be freed
-		await get_tree().process_frame
+	# Kill any running entrance animation
+	if entrance_tween and entrance_tween.is_valid():
+		entrance_tween.kill()
 	
-	# Load and show new character
+	var old_instance = preview_instance
+	preview_instance = null
+	
+	# Load new character scene
 	var scene_path = CHARACTER_SCENES.get(character, "")
 	if scene_path.is_empty():
-		print("Character selection: Invalid character path for: ", character)
 		return
 	
 	var character_scene = load(scene_path)
 	if character_scene == null:
-		print("Character selection: Failed to load scene: ", scene_path)
 		return
 	
-	preview_instance = character_scene.instantiate()
-	if preview_instance == null:
-		print("Character selection: Failed to instantiate character")
+	var new_instance = character_scene.instantiate()
+	if new_instance == null:
 		return
 	
-	# Add to preview container
 	if character_preview == null:
-		print("Character selection: character_preview is null!")
 		return
-		
-	character_preview.add_child(preview_instance)
-	# Position relative to CharacterPreview node (which is already at viewport center)
-	# Character is scaled 1.5x, sprite is offset by -16 on Y axis
-	# Since CharacterPreview is at (252, 116), position character at origin relative to it
-	preview_instance.position = Vector2(0, 0)
-	preview_instance.visible = true
-	preview_instance.modulate = Color.WHITE
 	
-	# Make sure sprite is visible and properly configured
-	if preview_instance.has_node("AnimationSprites"):
-		var sprite = preview_instance.get_node("AnimationSprites")
-		if sprite:
-			sprite.visible = true
-			sprite.modulate = Color.WHITE
-			# Ensure sprite frames are loaded
-			if sprite.sprite_frames:
-				print("Character selection: Sprite frames loaded, available animations: ", sprite.sprite_frames.get_animation_names())
-			print("Character selection: Sprite is visible, animation: ", sprite.animation, ", position: ", sprite.position)
+	# Add to scene and configure
+	character_preview.add_child(new_instance)
+	_setup_preview_character(new_instance)
 	
-	# Wait a frame for the node to be fully added to the scene tree
-	await get_tree().process_frame
-	
-	# Ensure camera is current and properly configured
+	# Ensure SubViewport camera is active
 	var subviewport = character_preview.get_parent()
 	if subviewport and subviewport.has_node("Camera2D"):
 		var camera = subviewport.get_node("Camera2D")
-		# Make camera current (this is the correct way in Godot 4)
 		camera.make_current()
-		# Zoom in a bit to make character more visible
-		if camera.zoom == Vector2(1, 1):
-			camera.zoom = Vector2(2, 2)
-		print("Character selection: Camera set to current at position ", camera.position, " zoom: ", camera.zoom)
+	
+	# Start off-screen to the right
+	new_instance.position = Vector2(150, 0)
+	preview_instance = new_instance
+	
+	# Get sprite for animation control
+	var new_sprite = new_instance.get_node_or_null("AnimationSprites")
+	
+	# Start running animation, facing left (running toward center)
+	if new_sprite:
+		new_sprite.flip_h = true
+		new_sprite.animation = "run_animation"
+		new_sprite.play()
+	
+	# Build the entrance tween sequence
+	entrance_tween = create_tween()
+	
+	# --- Phase 1: Run in from the right & knock old character off ---
+	entrance_tween.set_parallel(true)
+	entrance_tween.tween_property(new_instance, "position:x", 0.0, 0.5) \
+		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	
+	if old_instance and is_instance_valid(old_instance):
+		# Old character gets knocked to the left with an arc and spin
+		var old_sprite = old_instance.get_node_or_null("AnimationSprites")
+		if old_sprite:
+			old_sprite.animation = "fall_animation"
+			old_sprite.play()
+		entrance_tween.tween_property(old_instance, "position:x", -180.0, 0.45) \
+			.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
+		entrance_tween.tween_property(old_instance, "position:y", -30.0, 0.2) \
+			.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+		entrance_tween.tween_property(old_instance, "rotation", -0.7, 0.45) \
+			.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+	
+	entrance_tween.set_parallel(false)
+	
+	# --- Phase 2: Attack / punch animation ---
+	entrance_tween.tween_callback(func():
+		if is_instance_valid(new_instance) and new_sprite:
+			new_sprite.flip_h = false  # face right for the punch
+			new_sprite.animation = "attack_animation"
+			new_sprite.play()
+	)
+	entrance_tween.tween_interval(0.5)
+	
+	# --- Phase 3: Settle into idle ---
+	entrance_tween.tween_callback(func():
+		if is_instance_valid(new_instance) and new_sprite:
+			new_sprite.animation = "idle_animation"
+			new_sprite.play()
+		# Clean up old character
+		if old_instance and is_instance_valid(old_instance):
+			old_instance.queue_free()
+	)
+
+func _setup_preview_character(instance: Node) -> void:
+	instance.visible = true
+	instance.modulate = Color.WHITE
 	
 	# Disable physics processing to prevent movement/crashes
-	if is_instance_valid(preview_instance):
-		preview_instance.set_physics_process(false)
-		preview_instance.set_physics_process_internal(false)
-		
-		# Disable player movement in preview
-		if "can_move" in preview_instance:
-			preview_instance.can_move = false
-		
-		# Make sure the character is visible first
-		preview_instance.visible = true
-		preview_instance.modulate = Color.WHITE
-		
-		# Disable the character's built-in camera if it exists (it conflicts with SubViewport camera)
-		# In SubViewport, only one camera can be current, so the character's camera won't interfere
-		if preview_instance.has_node("Camera"):
-			var char_camera = preview_instance.get_node("Camera")
-			# Just disable it - don't try to set current property
-			char_camera.enabled = false
-			print("Character selection: Disabled character's built-in camera")
-		
-		# Ensure idle animation plays on AnimatedSprite2D
-		if preview_instance.has_node("AnimationSprites"):
-			var sprite = preview_instance.get_node("AnimationSprites")
-			if sprite:
-				sprite.visible = true
-				sprite.modulate = Color.WHITE
-				# Force animation to idle
-				sprite.animation = "idle_animation"
-				sprite.play()
-				# Wait a frame and check again
-				await get_tree().process_frame
-				if sprite.animation != "idle_animation":
-					sprite.animation = "idle_animation"
-					sprite.play()
-				print("Character selection: Sprite animation: ", sprite.animation, ", playing: ", sprite.is_playing(), ", visible: ", sprite.visible)
-		else:
-			print("Character selection: AnimationSprites node not found!")
-		
-		# Also try AnimationPlayer if it exists
-		if preview_instance.has_node("Animations"):
-			var anim_player = preview_instance.get_node("Animations")
-			if anim_player:
-				if anim_player.has_animation("idle_animation"):
-					anim_player.play("idle_animation")
-					print("Character selection: Playing animation on AnimationPlayer")
-				elif anim_player.has_animation("RESET"):
-					anim_player.play("RESET")
-		
-		# Debug: Print character tree structure
-		print("Character selection: Character tree:")
-		_print_node_tree(preview_instance, 0)
-		
-		print("Character selection: Successfully loaded ", character, " character at position ", preview_instance.position, " (global: ", preview_instance.global_position, ")")
-
-func _print_node_tree(node: Node, indent: int = 0) -> void:
-	var indent_str = "  ".repeat(indent)
-	print(indent_str, node.name, " (", node.get_class(), ") visible=", node.visible if "visible" in node else "N/A")
-	for child in node.get_children():
-		_print_node_tree(child, indent + 1)
+	instance.set_physics_process(false)
+	instance.set_physics_process_internal(false)
+	
+	# Disable player movement
+	if "can_move" in instance:
+		instance.can_move = false
+	
+	# Disable character's built-in camera (conflicts with SubViewport camera)
+	if instance.has_node("Camera"):
+		var cam = instance.get_node("Camera")
+		cam.enabled = false
+	
+	# Stop the AnimationPlayer so we can control the sprite directly
+	if instance.has_node("Animations"):
+		var anim_player = instance.get_node("Animations")
+		anim_player.stop()
+	
+	# Ensure sprite is visible
+	if instance.has_node("AnimationSprites"):
+		var sprite = instance.get_node("AnimationSprites")
+		sprite.visible = true
+		sprite.modulate = Color.WHITE
 
 func _on_start_pressed() -> void:
 	if selected_character.is_empty():

@@ -43,19 +43,11 @@ func _start_backend_server():
 	print("HTTPClient: Backend directory: ", backend_dir)
 	print("HTTPClient: Port file: ", port_file)
 	
-	# Check if port file exists - if so, try to use existing server
+	# Always delete old port file and start fresh server
 	if FileAccess.file_exists(port_file):
-		var existing_port = _read_port_from_file(port_file)
-		if existing_port > 0:
-			BASE_URL = "http://localhost:" + str(existing_port)
-			print("HTTPClient: Found existing server on port ", existing_port)
-			_server_started = true
-			# Don't start a new server - use the existing one
-			return
+		DirAccess.remove_absolute(port_file)
 	
-	# No existing server found - start a fresh one
-	print("HTTPClient: No existing server, starting fresh...")
-	
+	# Start new server
 	var success = false
 	
 	if OS.get_name() == "Windows":

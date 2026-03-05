@@ -5,12 +5,42 @@ const jwt = require('jsonwebtoken');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const util = require('util');
+const fs = require('fs');
+const net = require('net');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const DEFAULT_PORT = process.env.PORT || 49152; // Using dynamic port range (49152-65535)
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const DB_FILE = path.join(__dirname, 'database.db');
+const PORT_FILE = path.join(__dirname, 'server_port.txt'); // File to communicate port to Godot
+
+// Function to check if a port is available
+function isPortAvailable(port) {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.once('error', () => resolve(false));
+    server.once('listening', () => {
+      server.close();
+      resolve(true);
+    });
+    server.listen(port);
+  });
+}
+
+// Function to find an available port
+async function findAvailablePort(startPort) {
+  let port = startPort;
+  const maxPort = 65535;
+  
+  while (port <= maxPort) {
+    if (await isPortAvailable(port)) {
+      return port;
+    }
+    port++;
+  }
+  throw new Error('No available port found');
+}
 
 // Initialize SQLite database
 const db = new sqlite3.Database(DB_FILE);
@@ -746,22 +776,42 @@ app.get('/api/redeemed-rewards', authenticateToken, async (req, res) => {
 });
 
 // Graceful shutdown
-process.on('SIGINT', () => {
+// Cleanup function
+function cleanup() {
+  console.log('Shutting down server...');
+  // Remove port file
+  try {
+    if (fs.existsSync(PORT_FILE)) {
+      fs.unlinkSync(PORT_FILE);
+      console.log('Port file removed');
+    }
+  } catch (e) {
+    console.error('Error removing port file:', e);
+  }
   db.close();
   process.exit();
-});
+}
 
-process.on('SIGTERM', () => {
-  db.close();
-  process.exit();
-});
+process.on('SIGINT', cleanup);
+process.on('SIGTERM', cleanup);
 
-// Start server
-initDatabase().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Using SQLite database: ${DB_FILE}`);
-  });
+// Start server with automatic port finding
+initDatabase().then(async () => {
+  try {
+    const port = await findAvailablePort(DEFAULT_PORT);
+    
+    app.listen(port, () => {
+      console.log(`Server running on port ${port}`);
+      console.log(`Using SQLite database: ${DB_FILE}`);
+      
+      // Write port to file for Godot to read
+      fs.writeFileSync(PORT_FILE, port.toString());
+      console.log(`Port written to ${PORT_FILE}`);
+    });
+  } catch (error) {
+    console.error('Failed to find available port:', error);
+    process.exit(1);
+  }
 }).catch((error) => {
   console.error('Failed to initialize database:', error);
   process.exit(1);

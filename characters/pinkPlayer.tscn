@@ -531,8 +531,3 @@ autoplay = "idle_animation"
 [node name="CollisionShape" type="CollisionShape2D" parent="."]
 position = Vector2(0.228523, -13.5)
 shape = SubResource("RectangleShape2D_pq8k4")
-
-[node name="Camera" type="Camera2D" parent="."]
-offset = Vector2(0, -200)
-limit_enabled = false
-limit_top = 0

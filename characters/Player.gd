@@ -1,8 +1,8 @@
 extends CharacterBody2D
 
-const SPEED = 400.0
-const JUMP_FORCE = -500.0
-const GRAVITY = 300.0
+const SPEED = 200.0
+const JUMP_FORCE = -350.0
+const GRAVITY = 500.0
 @onready var anim:AnimationPlayer=$Animations
 @onready var sprites = $AnimationSprites
 var current_anim

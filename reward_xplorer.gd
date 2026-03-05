@@ -2,7 +2,7 @@ extends Node2D
 
 @onready var pause_menu: CanvasLayer = $PauseMenu
 @onready var pause_panel: Panel = $PauseMenu/PausePanel
-
+@onready var camera = $playerPlaceholder/Camera
 var is_paused: bool = false
 var http_client: Node
 var rewards: Array = []
@@ -39,7 +39,7 @@ func _ready():
 	
 	# Add to placeholder
 	$playerPlaceholder.add_child(player_instance)
-	player_instance.position = Vector2(0, 0)
+	camera.reparent(player_instance)
 	
 	# Hide pause menu initially
 	pause_menu.visible = false
@@ -404,7 +404,7 @@ func _show_reward_message(title_text: String, message: String):
 	
 	# Add a close hint
 	var hint_label = Label.new()
-	hint_label.text = "Press ESC or E to close"
+	hint_label.text = "Press ESC or q to close"
 	hint_label.add_theme_font_size_override("font_size", 13)
 	hint_label.add_theme_color_override("font_color", Color(0.5, 0.55, 0.6))
 	hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -505,3 +505,8 @@ func _on_main_menu_pressed():
 	get_tree().paused = false
 	http_client.logout()
 	get_tree().change_scene_to_file("res://login.tscn")
+
+
+func _on_area_2d_body_entered(body: Node2D) -> void:
+	if body.is_in_group("player"):
+		get_tree().change_scene_to_file("res://chore_xplorer.tscn")

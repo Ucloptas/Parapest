@@ -1,9 +1,10 @@
+CollisionShape2D
+Area2D
 Button
 MenuButton
 HBoxContainer
 Label
 AnimationPlayer
-CollisionShape2D
 AnimatedSprite2D
 CharacterBody2D
 LineEdit
@@ -11,4 +12,3 @@ VBoxContainer
 MarginContainer
 Panel
 CenterContainer
-ColorRect

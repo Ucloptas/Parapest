@@ -4,7 +4,7 @@ extends Node2D
 @onready var pause_panel: Panel = $PauseMenu/PausePanel
 @onready var info_popup_container = $infoPopup/Overlay/HBoxContainer/InfoVboxContainer
 @onready var select_button = $infoPopup/Overlay/HBoxContainer/SelectConfirmButton
-
+@onready var camera = $playerPlaceholder/Camera
 var popup_height = 300
 var is_paused: bool = false
 var http_client: Node
@@ -39,7 +39,7 @@ func _ready():
 	$playerPlaceholder.add_child(player_instance)
 	# Optionally center it or position it on the map
 	player_instance.position = Vector2(0, 0)
-	
+	camera.reparent(player_instance)
 	# Hide pause menu initially
 	pause_menu.visible = false
 	
@@ -320,7 +320,7 @@ func _show_message(title: String, message: String):
 	
 	# Add a close hint
 	var hint_label = Label.new()
-	hint_label.text = "Press ESC or E to close"
+	hint_label.text = "Press ESC or Q to close"
 	hint_label.add_theme_font_size_override("font_size", 13)
 	hint_label.add_theme_color_override("font_color", Color(0.5, 0.55, 0.6))
 	hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

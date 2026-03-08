@@ -198,27 +198,40 @@ func _spawn_chore_avatars():
 
 func _build_walkable_spawn_positions() -> void:
 	walkable_spawn_positions.clear()
-	var seen_cells: Dictionary = {}  # Dedupe by cell coords across layers
 	
+	var tilemaps: Array[TileMapLayer] = []
 	for layer_name in ["TileMapLayerMid", "TileMapLayerBack", "TileMapLayerFront"]:
 		var tilemap: TileMapLayer = get_node_or_null(layer_name) as TileMapLayer
-		if not tilemap:
+		if tilemap:
+			tilemaps.append(tilemap)
+	
+	if tilemaps.is_empty():
+		return
+	
+	# Collect every occupied cell across ALL layers
+	var all_occupied: Dictionary = {}
+	for tilemap in tilemaps:
+		for cell in tilemap.get_used_cells():
+			var key := "%d,%d" % [cell.x, cell.y]
+			all_occupied[key] = true
+	
+	# A cell is a surface tile only when it is occupied AND the cell
+	# directly above it is empty in EVERY layer.
+	var seen_surface: Dictionary = {}
+	var ref_tilemap: TileMapLayer = tilemaps[0]
+	
+	for key in all_occupied:
+		if key in seen_surface:
 			continue
-		var used_cells: Array = tilemap.get_used_cells()
-		for cell in used_cells:
-			var cell_coords := Vector2i(cell)
-			var key := "%d,%d" % [cell_coords.x, cell_coords.y]
-			if key in seen_cells:
-				continue
-			# Surface = has tile here, and cell above is empty (player can stand on top)
-			var above := Vector2i(cell_coords.x, cell_coords.y - 1)
-			if tilemap.get_cell_source_id(above) == -1:
-				seen_cells[key] = true
-				var local_pos: Vector2 = tilemap.map_to_local(cell_coords)
-				# Add slight random offset so not all on exact tile centers
-				local_pos.x += randf_range(-4.0, 4.0)
-				local_pos.y += randf_range(-2.0, 2.0)
-				walkable_spawn_positions.append(local_pos)
+		var parts = key.split(",")
+		var cx := int(parts[0])
+		var cy := int(parts[1])
+		var above_key := "%d,%d" % [cx, cy - 1]
+		if above_key not in all_occupied:
+			seen_surface[key] = true
+			var local_pos: Vector2 = ref_tilemap.map_to_local(Vector2i(cx, cy))
+			local_pos.x += randf_range(-4.0, 4.0)
+			walkable_spawn_positions.append(local_pos)
 
 
 func _build_fallback_spawn_positions() -> void:

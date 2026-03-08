@@ -1,15 +1,17 @@
 63f7b34db8d8cdea90c76aacccf841ec
-::res://::1772941434
+::res://::1772944733
 character_selection.gd::GDScript::5057666072154343352::1771117155::0::1::::<>Control<><>0<>0<><>::
-character_selection.tscn::PackedScene::1521137661036095378::1771117155::0::1::::<><><>0<>0<><>::uid://ceb8ayufmyi8w::::res://character_selection.gd<>uid://dyy3pwuhxm2vv::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer1.png<>uid://c4idgsl72rub0::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer2.png<>uid://k0s1gm4fhyix::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer3.png<>uid://drjcis6yxnvij::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer4.png
-chore_xplorer.gd::GDScript::2889866436706288549::1772941358::0::1::::<>Node2D<><>0<>0<><>::
+character_selection.tscn::PackedScene::1521137661036095378::1772943987::0::1::::<><><>0<>0<><>::uid://ceb8ayufmyi8w::::res://character_selection.gd<>uid://dyy3pwuhxm2vv::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer1.png<>uid://duts3ow7kjv1e::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer2.png<>uid://q7frm1njw4ql::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer3.png<>uid://dv668nkbm2rdc::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer4.png
+chore_avatar.gd::GDScript::1959611963973899665::1772944322::0::1::::<>Node2D<><>0<>0<><>::
+chore_avatar.tscn::PackedScene::-1::1772944319::0::1::::<><><>0<>0<><>::res://chore_avatar.gd<>uid://bpo8veb35khvv::::res://Assets/spritesheet.png
+chore_xplorer.gd::GDScript::2889866436706288549::1772944698::0::1::::<>Node2D<><>0<>0<><>::
 chore_xplorer.tscn::PackedScene::6110566416519287256::1772941358::0::1::::<><><>0<>0<><>::uid://bhf4xb1a3x5yf::::res://chore_xplorer.gd<>uid://dyy3pwuhxm2vv::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer1.png<>uid://duts3ow7kjv1e::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer2.png<>uid://q7frm1njw4ql::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer3.png<>uid://dv668nkbm2rdc::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer4.png<>uid://ctajho515y1d6::::res://Assets/trees.png<>uid://e8prd2irt074::::res://Assets/tiles.png
 FEATURES.md::TextFile::-1::1762649125::0::1::::<><><>0<>0<><>::
 HTTPClient.gd::GDScript::4945185257746536280::1772941358::0::1::::<>Node<><>0<>0<><>::
 login.gd::GDScript::7960619941745414444::1764868208::0::1::::<>Control<><>0<>0<><>::
 login.tscn::PackedScene::163947036720677919::1771113810::0::1::::<><><>0<>0<><>::res://login.gd<>uid://dng3mgqgjhdvh::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer1.png<>uid://cr6fp4eqr2yge::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer2.png<>uid://bcx5mh3b78xpl::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer3.png<>uid://dgvpcvhyrbr3r::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer4.png
 MainMenu.gd::GDScript::3306078210879843723::1764864755::0::1::::<>Control<><>0<>0<><>::
-MainMenu.tscn::PackedScene::1054310243232952990::1771113550::0::1::::<><><>0<>0<><>::uid://bndqvivj25c1p::::res://MainMenu.gd<>uid://dng3mgqgjhdvh::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer1.png<>uid://cr6fp4eqr2yge::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer2.png<>uid://bcx5mh3b78xpl::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer3.png<>uid://dgvpcvhyrbr3r::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer4.png
+MainMenu.tscn::PackedScene::1054310243232952990::1772943987::0::1::::<><><>0<>0<><>::uid://bndqvivj25c1p::::res://MainMenu.gd<>uid://dng3mgqgjhdvh::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer1.png<>uid://duts3ow7kjv1e::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer2.png<>uid://q7frm1njw4ql::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer3.png<>uid://dv668nkbm2rdc::::res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer4.png
 parent_dashboard.gd::GDScript::7952114749940779599::1771114100::0::1::::<>Control<><>0<>0<><>::
 parent_dashboard.tscn::PackedScene::4035579855032853469::1771114119::0::1::::<><><>0<>0<><>::res://parent_dashboard.gd
 parent_login.gd::GDScript::6000448593689705367::1764864755::0::1::::<>Control<><>0<>0<><>::
@@ -28,12 +30,12 @@ git_plugin.gdextension::GDExtension::3139751803785170095::1762649125::0::1::::<>
 THIRDPARTY.md::TextFile::-1::1762649125::0::1::::<><><>0<>0<><>::
 ::res://addons/godot-git-plugin-v3.2.1/addons/godot-git-plugin/linux/::1762649125
 ::res://addons/godot-git-plugin-v3.2.1/addons/godot-git-plugin/macos/::1762649125
-::res://addons/godot-git-plugin-v3.2.1/addons/godot-git-plugin/windows/::1772941424
-::res://Assets/::1772941358
+::res://addons/godot-git-plugin-v3.2.1/addons/godot-git-plugin/windows/::1772944728
+::res://Assets/::1772941459
 spritesheet.png::CompressedTexture2D::3470196002204608619::1771111243::1771111335::1::::<><><>0<>0<>b567f991710917a66e2646c8013ee6a9<>res://.godot/imported/spritesheet.png-7eb74f42a71eaac58a7cbe0bb302bcda.ctex::
 tiles.png::CompressedTexture2D::349821153490729897::1772941358::1772941459::1::::<><><>0<>0<>5821b6593d2c6dfc7bdccf3297c9b1d2<>res://.godot/imported/tiles.png-bfbd3a49507d49882cba49626454bc89.ctex::
 trees.png::CompressedTexture2D::6106989132894468941::1772941358::1772941459::1::::<><><>0<>0<>f79454fb426ad52d66ca11cf07197561<>res://.godot/imported/trees.png-5f8cbf691aa775e25cacc8e148dd06d7.ctex::
-::res://Assets/Frogs/::1772941358
+::res://Assets/Frogs/::1772941459
 trees.png::CompressedTexture2D::328065310496871596::1772941358::1772941459::1::::<><><>0<>0<>b29eb56e7976a96d3bc2d4f444e1acb4<>res://.godot/imported/trees.png-a9bb27767550c7a0cbb82f8ae0a71485.ctex::
 ::res://Assets/Frogs/BlueBlue/::1762649125
 ToxicFrogBlueBlue_Attack.png::CompressedTexture2D::5995241708828279177::1762649125::1762649125::1::::<><><>0<>0<>a9c238140d1bb412bdc0e5ef7890dab5<>res://.godot/imported/ToxicFrogBlueBlue_Attack.png-42f84d51e8427891503be6e3374642c7.ctex::
@@ -398,13 +400,12 @@ interface_snake6.tscn::PackedScene::3964700681588441296::1771111243::0::1::::<><
 interface_wolf1.tscn::PackedScene::47991114778314137::1771111243::0::1::::<><><>0<>0<><>::uid://bpo8veb35khvv::::res://Assets/spritesheet.png
 interface_wolf2.tscn::PackedScene::9013180411800693454::1771111243::0::1::::<><><>0<>0<><>::uid://bpo8veb35khvv::::res://Assets/spritesheet.png
 interface_wolf3.tscn::PackedScene::9102742272294745644::1771111243::0::1::::<><><>0<>0<><>::uid://bpo8veb35khvv::::res://Assets/spritesheet.png
-::res://Sprint 2 backend/::1772941358
+::res://Sprint 2 backend/::1772944443
 FIX_SDK.md::TextFile::-1::1764866742::0::1::::<><><>0<>0<><>::
 INSTALL.md::TextFile::-1::1764866742::0::1::::<><><>0<>0<><>::
 package-lock.json::JSON::-1::1771111690::0::1::::<><><>0<>0<><>::
 package.json::JSON::-1::1764866956::0::1::::<><><>0<>0<><>::
 QUICK_FIX.md::TextFile::-1::1764866742::0::1::::<><><>0<>0<><>::
-server_port.txt::TextFile::-1::1772941358::0::1::::<><><>0<>0<><>::
 SETUP_WINDOWS.md::TextFile::-1::1764866742::0::1::::<><><>0<>0<><>::
 SWITCHED_TO_SQLITE3.md::TextFile::-1::1764866956::0::1::::<><><>0<>0<><>::
 ::res://Sprint 2 backend/node_modules/::1764866935

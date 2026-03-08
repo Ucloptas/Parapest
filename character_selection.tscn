@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" uid="uid://ceb8ayufmyi8w" path="res://character_selection.gd" id="1_charselect"]
 [ext_resource type="Texture2D" uid="uid://dyy3pwuhxm2vv" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer1.png" id="2_bg1"]
-[ext_resource type="Texture2D" uid="uid://c4idgsl72rub0" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer2.png" id="3_bg2"]
-[ext_resource type="Texture2D" uid="uid://k0s1gm4fhyix" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer3.png" id="4_bg3"]
-[ext_resource type="Texture2D" uid="uid://drjcis6yxnvij" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background B layer4.png" id="5_bg4"]
+[ext_resource type="Texture2D" uid="uid://duts3ow7kjv1e" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer2.png" id="3_bg2"]
+[ext_resource type="Texture2D" uid="uid://q7frm1njw4ql" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer3.png" id="4_bg3"]
+[ext_resource type="Texture2D" uid="uid://dv668nkbm2rdc" path="res://Assets/Pixel Art Forest/PNG/Backgrounds/background C layer4.png" id="5_bg4"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
 bg_color = Color(0.06, 0.1, 0.16, 0.35)

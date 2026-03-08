@@ -12,6 +12,10 @@ var chores: Array = []
 var current_chore_index: int = 0
 var current_chore: Dictionary = {}
 var user_points: int = 0
+var chore_avatars_container: Node2D
+var chore_avatar_scene: PackedScene
+var walkable_spawn_positions: Array[Vector2] = []
+const AVATAR_MIN_DISTANCE := 180.0
 
 func _ready():
 	# Get HTTP client reference
@@ -52,6 +56,15 @@ func _ready():
 	
 	# Setup HUD
 	_setup_hud()
+	
+	# Setup chore avatars container (animals placed in world for proximity-based chore display)
+	chore_avatars_container = Node2D.new()
+	chore_avatars_container.name = "ChoreAvatarsContainer"
+	add_child(chore_avatars_container)
+	# Ensure avatars render above tilemap, in front of player
+	chore_avatars_container.z_index = 5
+	
+	chore_avatar_scene = load("res://chore_avatar.tscn") as PackedScene
 	
 	# Fetch chores and user data from backend
 	_load_data()
@@ -141,10 +154,108 @@ func _load_data():
 		if success and data is Array:
 			chores = data
 			print("Loaded ", chores.size(), " chores from backend")
+			_spawn_chore_avatars()
 		else:
 			chores = []
 			print("Failed to load chores or no chores available")
+			_spawn_chore_avatars()
 	)
+
+func _spawn_chore_avatars():
+	if not chore_avatars_container or not chore_avatar_scene:
+		return
+	
+	# Remove existing avatars
+	for child in chore_avatars_container.get_children():
+		child.queue_free()
+	
+	if chores.is_empty():
+		return
+	
+	# Build list of walkable spawn positions from tilemap (surface cells only)
+	_build_walkable_spawn_positions()
+	if walkable_spawn_positions.is_empty():
+		push_warning("Chore avatars: No walkable positions found in tilemap, using fallback")
+		_build_fallback_spawn_positions()
+	
+	var positions: Array[Vector2] = []
+	
+	for i in range(chores.size()):
+		var pos := _pick_random_avatar_position(positions)
+		positions.append(pos)
+		
+		var avatar: Node2D = chore_avatar_scene.instantiate()
+		avatar.position = pos
+		avatar.name = "ChoreAvatar_%d" % i
+		chore_avatars_container.add_child(avatar)
+		
+		if avatar.has_method("setup"):
+			avatar.setup(i, i % 6)
+		
+		if avatar.has_signal("player_entered"):
+			avatar.player_entered.connect(_on_chore_avatar_player_near)
+
+
+func _build_walkable_spawn_positions() -> void:
+	walkable_spawn_positions.clear()
+	var seen_cells: Dictionary = {}  # Dedupe by cell coords across layers
+	
+	for layer_name in ["TileMapLayerMid", "TileMapLayerBack", "TileMapLayerFront"]:
+		var tilemap: TileMapLayer = get_node_or_null(layer_name) as TileMapLayer
+		if not tilemap:
+			continue
+		var used_cells: Array = tilemap.get_used_cells()
+		for cell in used_cells:
+			var cell_coords := Vector2i(cell)
+			var key := "%d,%d" % [cell_coords.x, cell_coords.y]
+			if key in seen_cells:
+				continue
+			# Surface = has tile here, and cell above is empty (player can stand on top)
+			var above := Vector2i(cell_coords.x, cell_coords.y - 1)
+			if tilemap.get_cell_source_id(above) == -1:
+				seen_cells[key] = true
+				var local_pos: Vector2 = tilemap.map_to_local(cell_coords)
+				# Add slight random offset so not all on exact tile centers
+				local_pos.x += randf_range(-4.0, 4.0)
+				local_pos.y += randf_range(-2.0, 2.0)
+				walkable_spawn_positions.append(local_pos)
+
+
+func _build_fallback_spawn_positions() -> void:
+	# Fallback: use camera bounds if tilemap lookup fails
+	walkable_spawn_positions.clear()
+	var step_x := 80
+	var step_y := 60
+	for x in range(400, 3200, step_x):
+		for y in range(200, 800, step_y):
+			walkable_spawn_positions.append(Vector2(x, y))
+
+
+func _pick_random_avatar_position(existing: Array[Vector2]) -> Vector2:
+	if walkable_spawn_positions.is_empty():
+		return Vector2(500, 400)
+	
+	var positions_copy: Array = walkable_spawn_positions.duplicate()
+	positions_copy.shuffle()
+	
+	for pos in positions_copy:
+		var too_close := false
+		for other in existing:
+			if pos.distance_to(other) < AVATAR_MIN_DISTANCE:
+				too_close = true
+				break
+		if not too_close:
+			return pos
+	
+	# Fallback: return first available even if close
+	return walkable_spawn_positions[0] if walkable_spawn_positions.size() > 0 else Vector2(500, 400)
+
+
+func _on_chore_avatar_player_near(chore_index: int) -> void:
+	if chore_index >= 0 and chore_index < chores.size() and not $infoPopup.visible:
+		current_chore_index = chore_index
+		_show_chore_popup(current_chore_index)
+
 
 func _update_points_display():
 	var hud = get_node_or_null("HUD")

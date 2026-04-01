@@ -20,6 +20,7 @@ var _walkable_feet_cache: Array[Vector2] = []
 var _walkable_feet_cache_built: bool = false
 ## Match chore_avatar.gd FEET_ART_CLEARANCE_PX (feet above tile collider top for sprite padding).
 const CHORE_AVATAR_FEET_CLEARANCE_LOCAL := 12.0
+var player_instance
 
 func _ready():
 	# Get HTTP client reference
@@ -41,7 +42,7 @@ func _ready():
 	
 	var scene_path = character_scenes.get(character_name, "res://characters/pinkPlayer.tscn")
 	var player_scene = load(scene_path)
-	var player_instance = player_scene.instantiate()
+	player_instance = player_scene.instantiate()
 	
 	# Add to placeholder
 	$playerPlaceholder.add_child(player_instance)
@@ -123,14 +124,14 @@ func _setup_hud():
 	# Chores button
 	var chores_btn = Button.new()
 	chores_btn.name = "ChoresButton"
-	chores_btn.text = "View Chores"
+	chores_btn.text = "View Chores (q)"
 	chores_btn.add_theme_font_size_override("font_size", 16)
 	var btn_style = StyleBoxFlat.new()
 	btn_style.bg_color = Color(0.2, 0.5, 0.35, 1)
 	btn_style.set_corner_radius_all(6)
 	chores_btn.add_theme_stylebox_override("normal", btn_style)
 	chores_btn.position = Vector2(200, 20)
-	chores_btn.custom_minimum_size = Vector2(120, 40)
+	chores_btn.custom_minimum_size = Vector2(130, 40)
 	chores_btn.pressed.connect(_on_chores_button_pressed)
 	hud.add_child(chores_btn)
 	
@@ -354,6 +355,7 @@ func hide_info_popup():
 	$infoPopup.hide()
 	current_chore = {}
 	chore_popup_single_chore_only = false
+	player_instance.unfreeze()
 
 func _show_chore_popup(index: int):
 	if index < 0 or index >= chores.size():
@@ -433,7 +435,7 @@ func _show_chore_popup(index: int):
 		select_button.text = "I Did It!"
 		select_button.visible = true
 		select_button.disabled = false
-	
+	player_instance.freeze()
 	$infoPopup.show()
 
 func _show_message(title: String, message: String):

@@ -20,12 +20,12 @@ func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y += GRAVITY * delta
 
-	#get horizontal input direction: -1, 0, 1 // left, neutral, right
-	
+	#get horizontal input direction: -1, 0, 1 // left, neutral, right	
 	var input_dir_h = Input.get_axis("ui_left", "ui_right")
 	if can_move:
 		velocity.x = input_dir_h * SPEED
-
+	else:
+		velocity.x = 0
 	#sprite horizontal flip
 	if input_dir_h > 0 && can_move:
 		sprites.flip_h=false
@@ -70,7 +70,7 @@ func play(anim_name: String): #function to manage animation calls and currently 
 		current_anim = "idle_animation"
 		can_move=true
 	if anim_name != current_anim:
-		if !can_move:
+		if !can_move and current_anim == "attack":
 			can_move=true
 		anim.play(anim_name)
 		current_anim = anim_name
@@ -78,5 +78,9 @@ func play(anim_name: String): #function to manage animation calls and currently 
 func do_jump(): #called from jump animation at right time
 	velocity.y = JUMP_FORCE
 	
-
+func freeze():
+	can_move = 0
+	
+func unfreeze():
+	can_move = 1
 	

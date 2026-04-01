@@ -15,7 +15,7 @@ script = ExtResource("1_avatar")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture_filter = 1
-position = Vector2(0, -24)
+position = Vector2(0, -16)
 scale = Vector2(2, 2)
 texture = SubResource("AtlasTexture_bear")
 centered = true
@@ -27,5 +27,5 @@ monitoring = true
 monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ProximityArea"]
-position = Vector2(0, -24)
+position = Vector2(0, -18)
 shape = SubResource("CircleShape2D_proximity")

@@ -18,6 +18,8 @@ var chore_avatar_scene: PackedScene
 var chore_popup_single_chore_only: bool = false
 var _walkable_feet_cache: Array[Vector2] = []
 var _walkable_feet_cache_built: bool = false
+## Match chore_avatar.gd FEET_ART_CLEARANCE_PX (feet above tile collider top for sprite padding).
+const CHORE_AVATAR_FEET_CLEARANCE_LOCAL := 12.0
 
 func _ready():
 	# Get HTTP client reference
@@ -231,7 +233,7 @@ func _build_walkable_feet_cache() -> void:
 		var above_key := "%d,%d" % [cx, cy - 1]
 		if above_key not in all_occupied:
 			var center_local: Vector2 = ref_tm.map_to_local(Vector2i(cx, cy))
-			var local_feet := Vector2(center_local.x, center_local.y - tile_h * 0.5)
+			var local_feet := Vector2(center_local.x, center_local.y - tile_h * 0.5 - CHORE_AVATAR_FEET_CLEARANCE_LOCAL)
 			_walkable_feet_cache.append(ref_tm.to_global(local_feet))
 	_walkable_feet_cache_built = true
 

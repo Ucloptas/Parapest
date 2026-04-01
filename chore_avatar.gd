@@ -11,6 +11,10 @@ var chore_index: int = 0
 const SNAP_RAY_ABOVE := 260.0
 const SNAP_RAY_BELOW := 720.0
 const TILE_COLLISION_MASK := 1
+## Push feet outward along hit normal (often hit point is slightly inside the shape).
+const FEET_SURFACE_OUTSET_PX := 4.0
+## Extra lift so pixel feet sit on grass, not inside dirt (atlas has bottom padding).
+const FEET_ART_CLEARANCE_PX := 12.0
 ## Search along X so we snap to a walkable top (rays that hit pit walls are skipped).
 const HORIZONTAL_SEARCH_OFFSETS: Array[float] = [
 	0.0, -8.0, 8.0, -16.0, 16.0, -24.0, 24.0, -32.0, 32.0, -40.0, 40.0,
@@ -51,11 +55,21 @@ func setup(index: int, animal_type: int = -1) -> void:
 func snap_feet_to_ground() -> void:
 	if not is_inside_tree():
 		return
-	if _try_snap_to_walkable_floor():
+	if not _try_snap_to_walkable_floor():
+		var explorer := get_parent().get_parent()
+		if explorer and explorer.has_method("snap_chore_avatar_to_walkable_surface"):
+			explorer.snap_chore_avatar_to_walkable_surface(self)
+		_try_snap_to_walkable_floor()
+	call_deferred("_refine_snap_after_physics_frame")
+
+
+func _refine_snap_after_physics_frame() -> void:
+	if not is_inside_tree():
 		return
-	var explorer := get_parent().get_parent()
-	if explorer and explorer.has_method("snap_chore_avatar_to_walkable_surface"):
-		explorer.snap_chore_avatar_to_walkable_surface(self)
+	await get_tree().physics_frame
+	if not is_inside_tree():
+		return
+	_try_snap_to_walkable_floor()
 
 
 func _try_snap_to_walkable_floor() -> bool:
@@ -77,7 +91,9 @@ func _try_snap_to_walkable_floor() -> bool:
 		var pos: Vector2 = hit.get("position", Vector2.ZERO)
 		if not _is_walkable_floor_normal(n):
 			continue
-		global_position = Vector2(x, pos.y)
+		var along: float = FEET_SURFACE_OUTSET_PX + FEET_ART_CLEARANCE_PX
+		var feet_y: float = pos.y + n.y * along
+		global_position = Vector2(x, feet_y)
 		return true
 	return false
 

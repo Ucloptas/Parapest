@@ -176,7 +176,7 @@ func _on_login_response(success: bool, data: Dictionary) -> void:
 		if role == "parent":
 			get_tree().change_scene_to_file("res://parent_dashboard.tscn")
 		else:
-			get_tree().change_scene_to_file("res://chore_xplorer.tscn")
+			get_tree().change_scene_to_file("res://character_selection.tscn")
 	else:
 		var error_msg = data.get("error", "Unable to sign in")
 		_show_error(error_msg)
@@ -232,7 +232,7 @@ func _on_register_response(success: bool, data: Dictionary) -> void:
 		if role == "parent":
 			get_tree().change_scene_to_file("res://parent_dashboard.tscn")
 		else:
-			get_tree().change_scene_to_file("res://chore_xplorer.tscn")
+			get_tree().change_scene_to_file("res://character_selection.tscn")
 	else:
 		var error_msg = data.get("error", "Unable to create account")
 		_show_error(error_msg)

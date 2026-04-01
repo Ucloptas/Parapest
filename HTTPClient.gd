@@ -1,10 +1,13 @@
 extends Node
 
 # Singleton for handling HTTP requests to the backend
-const BASE_URL = "http://localhost:5000"
+var BASE_URL: String = "http://localhost:49152"  # Will be updated dynamically
+const DEFAULT_PORT: int = 49152
+const BACKEND_PATH: String = "res://../Sprint 2 backend"  # Relative path to backend
 
 var auth_token: String = ""
 var user_data: Dictionary = {}
+var selected_character: String = ""  # Stores selected character for child users
 
 # Store the current HTTPRequest node
 var _http_request: HTTPRequest
@@ -13,9 +16,99 @@ var _pending_auth_callback: Callable
 var _request_queue: Array = []  # Queue for requests when HTTPRequest is busy
 var _request_in_progress: bool = false
 
+# Backend server process
+var _server_pid: int = -1
+var _server_started: bool = false
+
 func _ready():
 	_http_request = HTTPRequest.new()
 	add_child(_http_request)
+	
+	# Try to start backend server automatically
+	_start_backend_server()
+
+func _notification(what):
+	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_PREDELETE:
+		_stop_backend_server()
+
+func _start_backend_server():
+	print("HTTPClient: Attempting to start backend server...")
+	
+	# Get the backend directory path
+	var project_dir = ProjectSettings.globalize_path("res://").get_base_dir()
+	var backend_dir = project_dir + "/Sprint 2 backend"
+	var port_file = backend_dir + "/server_port.txt"
+	
+	print("HTTPClient: Project directory: ", project_dir)
+	print("HTTPClient: Backend directory: ", backend_dir)
+	print("HTTPClient: Port file: ", port_file)
+	
+	# Always delete old port file and start fresh server
+	if FileAccess.file_exists(port_file):
+		DirAccess.remove_absolute(port_file)
+	
+	# Start new server
+	var success = false
+	
+	if OS.get_name() == "Windows":
+		var cmd_args = ["/c", "cd /d \"" + backend_dir + "\" && npm run dev"]
+		print("HTTPClient: Running: cmd ", cmd_args)
+		_server_pid = OS.create_process("cmd", cmd_args, false)
+		success = _server_pid > 0
+	else:
+		var bash_args = ["-c", "cd '" + backend_dir + "' && npm run dev"]
+		print("HTTPClient: Running: bash ", bash_args)
+		_server_pid = OS.create_process("bash", bash_args, false)
+		success = _server_pid > 0
+	
+	if success:
+		print("HTTPClient: Server process started with PID: ", _server_pid)
+		await _wait_for_server(port_file, 8.0)
+	else:
+		print("HTTPClient: Failed to start server process")
+		print("HTTPClient: Please start the server manually:")
+		print("  cd \"" + backend_dir + "\"")
+		print("  npm run dev")
+		BASE_URL = "http://localhost:" + str(DEFAULT_PORT)
+
+func _wait_for_server(port_file: String, timeout: float):
+	var elapsed = 0.0
+	var check_interval = 0.5
+	
+	print("HTTPClient: Waiting for server to start...")
+	
+	while elapsed < timeout:
+		await get_tree().create_timer(check_interval).timeout
+		elapsed += check_interval
+		
+		var port = _read_port_from_file(port_file)
+		if port > 0:
+			BASE_URL = "http://localhost:" + str(port)
+			print("HTTPClient: Server started on port ", port)
+			_server_started = true
+			return
+		
+		print("HTTPClient: Still waiting... (", elapsed, "s)")
+	
+	print("HTTPClient: Timeout waiting for server, using default port")
+	BASE_URL = "http://localhost:" + str(DEFAULT_PORT)
+
+func _read_port_from_file(port_file: String) -> int:
+	if FileAccess.file_exists(port_file):
+		var file = FileAccess.open(port_file, FileAccess.READ)
+		if file:
+			var content = file.get_as_text().strip_edges()
+			file.close()
+			if content.is_valid_int():
+				return content.to_int()
+	return -1
+
+func _stop_backend_server():
+	if _server_pid > 0:
+		print("HTTPClient: Stopping backend server (PID: ", _server_pid, ")")
+		OS.kill(_server_pid)
+		_server_pid = -1
+		_server_started = false
 
 # Login function
 func login(username: String, password: String, callback: Callable) -> void:
@@ -134,6 +227,18 @@ func get_family(callback: Callable) -> void:
 # Get completed chores
 func get_completed_chores(callback: Callable) -> void:
 	_make_authenticated_request("/api/completed-chores", HTTPClient.METHOD_GET, "", callback)
+
+# Get pending completions (for parent approval)
+func get_pending_completions(callback: Callable) -> void:
+	_make_authenticated_request("/api/pending-completions", HTTPClient.METHOD_GET, "", callback)
+
+# Approve a pending completion (parent only)
+func approve_completion(pending_id: String, callback: Callable) -> void:
+	_make_authenticated_request("/api/pending-completions/" + pending_id + "/approve", HTTPClient.METHOD_POST, "", callback)
+
+# Reject a pending completion (parent only)
+func reject_completion(pending_id: String, callback: Callable) -> void:
+	_make_authenticated_request("/api/pending-completions/" + pending_id + "/reject", HTTPClient.METHOD_POST, "", callback)
 
 # Get redeemed rewards
 func get_redeemed_rewards(callback: Callable) -> void:

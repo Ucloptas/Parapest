@@ -107,4 +107,3 @@ You're now ready to organize household chores and rewards!
 - It's the long number displayed in the header
 
 Need more help? Check the full `README.md` file!
-

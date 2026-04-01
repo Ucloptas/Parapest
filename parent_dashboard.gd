@@ -9,6 +9,7 @@ extends Control
 # Navigation buttons
 @onready var btn_nav_chores: Button = %BtnNavChores
 @onready var btn_nav_rewards: Button = %BtnNavRewards
+@onready var btn_nav_approvals: Button = %BtnNavApprovals
 @onready var btn_nav_family: Button = %BtnNavFamily
 @onready var btn_nav_history: Button = %BtnNavHistory
 
@@ -45,16 +46,20 @@ var rewards: Array = []
 var family_members: Array = []
 var completed_chores: Array = []
 var redeemed_rewards: Array = []
+var pending_completions: Array = []
+
+# Approvals list (created dynamically if not in scene)
+var approvals_list: VBoxContainer
 
 var editing_chore_id: String = ""
 var editing_reward_id: String = ""
 var current_page: String = "chores"
 
-# Colors
-const COLOR_ACTIVE = Color(0.9, 0.92, 0.95, 1)
-const COLOR_INACTIVE = Color(0.5, 0.55, 0.6, 1)
-const COLOR_POINTS = Color(0.45, 0.75, 0.55, 1)
-const COLOR_COST = Color(0.55, 0.7, 0.9, 1)
+# Colors (futuristic glassmorphism palette)
+const COLOR_ACTIVE = Color(0.7, 0.92, 1.0, 1)
+const COLOR_INACTIVE = Color(0.55, 0.7, 0.85, 0.9)
+const COLOR_POINTS = Color(0.4, 0.95, 0.7, 1)
+const COLOR_COST = Color(0.5, 0.75, 1.0, 1)
 
 func _ready() -> void:
 	http_client = get_node("/root/HTTPClient")
@@ -67,8 +72,13 @@ func _ready() -> void:
 	# Connect navigation buttons
 	btn_nav_chores.pressed.connect(func(): _switch_page("chores"))
 	btn_nav_rewards.pressed.connect(func(): _switch_page("rewards"))
+	if btn_nav_approvals:
+		btn_nav_approvals.pressed.connect(func(): _switch_page("approvals"))
 	btn_nav_family.pressed.connect(func(): _switch_page("family"))
 	btn_nav_history.pressed.connect(func(): _switch_page("history"))
+	
+	# Create approvals list dynamically if it doesn't exist
+	_setup_approvals_list()
 	
 	# Connect action buttons
 	btn_logout.pressed.connect(_on_logout_pressed)
@@ -87,18 +97,37 @@ func _ready() -> void:
 	_switch_page("chores")
 	_load_all_data()
 
+func _setup_approvals_list():
+	# Create approvals list container
+	approvals_list = VBoxContainer.new()
+	approvals_list.name = "ApprovalsList"
+	approvals_list.visible = false
+	approvals_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	approvals_list.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	approvals_list.add_theme_constant_override("separation", 10)
+	
+	# Add it as sibling to other lists (inside the ContentScroll)
+	if chores_list and chores_list.get_parent():
+		var parent = chores_list.get_parent()
+		parent.add_child(approvals_list)
+		print("Approvals list created and added to: ", parent.name)
+
 func _switch_page(page: String) -> void:
 	current_page = page
 	
 	# Update navigation button colors
 	btn_nav_chores.add_theme_color_override("font_color", COLOR_ACTIVE if page == "chores" else COLOR_INACTIVE)
 	btn_nav_rewards.add_theme_color_override("font_color", COLOR_ACTIVE if page == "rewards" else COLOR_INACTIVE)
+	if btn_nav_approvals:
+		btn_nav_approvals.add_theme_color_override("font_color", COLOR_ACTIVE if page == "approvals" else COLOR_INACTIVE)
 	btn_nav_family.add_theme_color_override("font_color", COLOR_ACTIVE if page == "family" else COLOR_INACTIVE)
 	btn_nav_history.add_theme_color_override("font_color", COLOR_ACTIVE if page == "history" else COLOR_INACTIVE)
 	
 	# Update page title and visibility
 	chores_list.visible = (page == "chores")
 	rewards_list.visible = (page == "rewards")
+	if approvals_list:
+		approvals_list.visible = (page == "approvals")
 	family_list.visible = (page == "family")
 	history_container.visible = (page == "history")
 	
@@ -110,6 +139,9 @@ func _switch_page(page: String) -> void:
 			page_title.text = "Chores"
 		"rewards":
 			page_title.text = "Rewards"
+		"approvals":
+			page_title.text = "Pending Approvals"
+			_reload_pending_completions()
 		"family":
 			page_title.text = "Family Members"
 		"history":
@@ -130,6 +162,15 @@ func _load_all_data() -> void:
 		else:
 			rewards = []
 		_refresh_rewards_list()
+	)
+	
+	http_client.get_pending_completions(func(success, data):
+		if success and data is Array:
+			pending_completions = data
+		else:
+			pending_completions = []
+		_refresh_approvals_list()
+		_update_approvals_badge()
 	)
 	
 	http_client.get_family(func(success, data):
@@ -155,6 +196,183 @@ func _load_all_data() -> void:
 			redeemed_rewards = []
 		_refresh_history()
 	)
+
+func _reload_pending_completions() -> void:
+	print("Reloading pending completions...")
+	http_client.get_pending_completions(func(success, data):
+		print("Reload pending - Success: ", success, " Data: ", data)
+		if success and data is Array:
+			pending_completions = data
+			print("Reloaded ", pending_completions.size(), " pending completions")
+		else:
+			pending_completions = []
+			print("No pending completions found")
+		_refresh_approvals_list()
+		_update_approvals_badge()
+	)
+
+func _update_approvals_badge() -> void:
+	if btn_nav_approvals and pending_completions.size() > 0:
+		btn_nav_approvals.text = "Approvals (" + str(pending_completions.size()) + ")"
+	elif btn_nav_approvals:
+		btn_nav_approvals.text = "Approvals"
+
+func _refresh_approvals_list() -> void:
+	if not approvals_list:
+		return
+	
+	_clear_children(approvals_list)
+	
+	if pending_completions.is_empty():
+		var label = _create_empty_label("No pending approvals. Children's chore completions will appear here.")
+		approvals_list.add_child(label)
+		return
+	
+	for pending in pending_completions:
+		if pending is Dictionary:
+			var card = _create_approval_card(pending)
+			approvals_list.add_child(card)
+
+func _create_approval_card(pending: Dictionary) -> PanelContainer:
+	var panel = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(0, 100)
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	
+	# Glassmorphism style for pending approvals
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.04, 0.12, 0.08, 0.25)
+	style.border_color = Color(0.4, 0.9, 0.65, 0.7)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(14)
+	style.anti_aliasing = true
+	style.shadow_color = Color(0, 0, 0, 0.08)
+	style.shadow_size = 4
+	style.shadow_offset = Vector2(0, 2)
+	panel.add_theme_stylebox_override("panel", style)
+	
+	var margin = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 16)
+	margin.add_theme_constant_override("margin_top", 14)
+	margin.add_theme_constant_override("margin_right", 16)
+	margin.add_theme_constant_override("margin_bottom", 14)
+	panel.add_child(margin)
+	
+	var hbox = HBoxContainer.new()
+	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	margin.add_child(hbox)
+	
+	var info_vbox = VBoxContainer.new()
+	info_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info_vbox.add_theme_constant_override("separation", 4)
+	hbox.add_child(info_vbox)
+	
+	var child_label = Label.new()
+	child_label.text = pending.get("username", "Child") + " completed:"
+	child_label.add_theme_font_size_override("font_size", 14)
+	child_label.add_theme_color_override("font_color", Color(0.65, 0.85, 0.95, 0.95))
+	info_vbox.add_child(child_label)
+	
+	var title_label = Label.new()
+	title_label.text = pending.get("choreTitle", "Untitled")
+	title_label.add_theme_font_size_override("font_size", 18)
+	title_label.add_theme_color_override("font_color", Color(0.9, 0.95, 1.0, 1))
+	info_vbox.add_child(title_label)
+	
+	var points_label = Label.new()
+	points_label.text = "+" + str(pending.get("points", 0)) + " pts"
+	points_label.add_theme_font_size_override("font_size", 15)
+	points_label.add_theme_color_override("font_color", COLOR_POINTS)
+	info_vbox.add_child(points_label)
+	
+	var btn_container = HBoxContainer.new()
+	btn_container.add_theme_constant_override("separation", 10)
+	hbox.add_child(btn_container)
+	
+	var approve_btn = Button.new()
+	approve_btn.text = "Approve"
+	approve_btn.custom_minimum_size = Vector2(90, 38)
+	approve_btn.add_theme_font_size_override("font_size", 14)
+	var approve_style = StyleBoxFlat.new()
+	approve_style.bg_color = Color(0.08, 0.35, 0.22, 0.55)
+	approve_style.border_color = Color(0.5, 0.95, 0.7, 0.75)
+	approve_style.set_border_width_all(1)
+	approve_style.set_corner_radius_all(12)
+	approve_style.anti_aliasing = true
+	approve_btn.add_theme_stylebox_override("normal", approve_style)
+	approve_btn.pressed.connect(_on_approve_pressed.bind(pending))
+	btn_container.add_child(approve_btn)
+	
+	var reject_btn = Button.new()
+	reject_btn.text = "Reject"
+	reject_btn.custom_minimum_size = Vector2(80, 38)
+	reject_btn.add_theme_font_size_override("font_size", 14)
+	reject_btn.add_theme_color_override("font_color", Color(1.0, 0.55, 0.6, 1))
+	reject_btn.pressed.connect(_on_reject_pressed.bind(pending))
+	btn_container.add_child(reject_btn)
+	
+	return panel
+
+func _on_approve_pressed(pending: Dictionary) -> void:
+	var pending_id = str(pending.get("id", ""))
+	if pending_id == "":
+		print("Error: No pending ID found")
+		return
+	
+	print("Approving completion: ", pending_id)
+	
+	http_client.approve_completion(pending_id, func(success, data):
+		print("Approve result - Success: ", success, " Data: ", data)
+		if success:
+			# Show feedback
+			_show_approval_feedback("Approved! " + pending.get("username", "Child") + " earned " + str(pending.get("points", 0)) + " points.")
+			_reload_pending_completions()
+			_load_all_data()  # Refresh all data including family points
+		else:
+			var error = data.get("error", "Unknown error") if data is Dictionary else "Unknown error"
+			print("Failed to approve: ", error)
+			_show_approval_feedback("Error: " + str(error))
+	)
+
+func _on_reject_pressed(pending: Dictionary) -> void:
+	var pending_id = str(pending.get("id", ""))
+	if pending_id == "":
+		print("Error: No pending ID found")
+		return
+	
+	print("Rejecting completion: ", pending_id)
+	
+	http_client.reject_completion(pending_id, func(success, data):
+		print("Reject result - Success: ", success, " Data: ", data)
+		if success:
+			_show_approval_feedback("Rejected.")
+			_reload_pending_completions()
+		else:
+			var error = data.get("error", "Unknown error") if data is Dictionary else "Unknown error"
+			print("Failed to reject: ", error)
+			_show_approval_feedback("Error: " + str(error))
+	)
+
+func _show_approval_feedback(message: String) -> void:
+	# Create a temporary feedback label at the top of the page
+	var feedback = Label.new()
+	feedback.text = message
+	feedback.add_theme_font_size_override("font_size", 16)
+	if "Error" in message:
+		feedback.add_theme_color_override("font_color", Color(0.95, 0.5, 0.5))
+	else:
+		feedback.add_theme_color_override("font_color", Color(0.5, 0.9, 0.5))
+	feedback.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	
+	if approvals_list:
+		approvals_list.add_child(feedback)
+		approvals_list.move_child(feedback, 0)
+		
+		# Remove after 3 seconds
+		var timer = get_tree().create_timer(3.0)
+		timer.timeout.connect(func():
+			if is_instance_valid(feedback):
+				feedback.queue_free()
+		)
 
 func _refresh_chores_list() -> void:
 	_clear_children(chores_list)
@@ -194,7 +412,7 @@ func _create_chore_card(chore: Dictionary) -> PanelContainer:
 	var title_label = Label.new()
 	title_label.text = chore.get("title", "Untitled")
 	title_label.add_theme_font_size_override("font_size", 17)
-	title_label.add_theme_color_override("font_color", Color(0.92, 0.94, 0.96))
+	title_label.add_theme_color_override("font_color", Color(0.9, 0.95, 1.0, 1))
 	info_vbox.add_child(title_label)
 	
 	var desc = chore.get("description", "")
@@ -202,7 +420,7 @@ func _create_chore_card(chore: Dictionary) -> PanelContainer:
 		var desc_label = Label.new()
 		desc_label.text = desc
 		desc_label.add_theme_font_size_override("font_size", 13)
-		desc_label.add_theme_color_override("font_color", Color(0.55, 0.6, 0.65))
+		desc_label.add_theme_color_override("font_color", Color(0.55, 0.75, 0.9, 0.9))
 		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 		info_vbox.add_child(desc_label)
 	
@@ -264,7 +482,7 @@ func _create_reward_card(reward: Dictionary) -> PanelContainer:
 	var title_label = Label.new()
 	title_label.text = reward.get("title", "Untitled")
 	title_label.add_theme_font_size_override("font_size", 17)
-	title_label.add_theme_color_override("font_color", Color(0.92, 0.94, 0.96))
+	title_label.add_theme_color_override("font_color", Color(0.9, 0.95, 1.0, 1))
 	info_vbox.add_child(title_label)
 	
 	var desc = reward.get("description", "")
@@ -272,7 +490,7 @@ func _create_reward_card(reward: Dictionary) -> PanelContainer:
 		var desc_label = Label.new()
 		desc_label.text = desc
 		desc_label.add_theme_font_size_override("font_size", 13)
-		desc_label.add_theme_color_override("font_color", Color(0.55, 0.6, 0.65))
+		desc_label.add_theme_color_override("font_color", Color(0.55, 0.75, 0.9, 0.9))
 		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 		info_vbox.add_child(desc_label)
 	
@@ -329,7 +547,7 @@ func _create_family_member_card(member: Dictionary) -> PanelContainer:
 	var role_indicator = Label.new()
 	role_indicator.text = "P" if role == "parent" else "C"
 	role_indicator.add_theme_font_size_override("font_size", 14)
-	role_indicator.add_theme_color_override("font_color", Color(0.08, 0.09, 0.11))
+	role_indicator.add_theme_color_override("font_color", Color(0.02, 0.05, 0.1, 1))
 	role_indicator.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	role_indicator.custom_minimum_size = Vector2(32, 32)
 	
@@ -352,13 +570,13 @@ func _create_family_member_card(member: Dictionary) -> PanelContainer:
 	var name_label = Label.new()
 	name_label.text = member.get("username", "Unknown")
 	name_label.add_theme_font_size_override("font_size", 16)
-	name_label.add_theme_color_override("font_color", Color(0.9, 0.92, 0.95))
+	name_label.add_theme_color_override("font_color", Color(0.88, 0.94, 1.0, 1))
 	info_vbox.add_child(name_label)
 	
 	var role_label = Label.new()
 	role_label.text = role.capitalize()
 	role_label.add_theme_font_size_override("font_size", 13)
-	role_label.add_theme_color_override("font_color", Color(0.5, 0.55, 0.6))
+	role_label.add_theme_color_override("font_color", Color(0.5, 0.7, 0.9, 0.9))
 	info_vbox.add_child(role_label)
 	
 	var points_label = Label.new()
@@ -423,13 +641,13 @@ func _create_history_item(text: String, timestamp: String, points: String, is_po
 	var text_label = Label.new()
 	text_label.text = text
 	text_label.add_theme_font_size_override("font_size", 14)
-	text_label.add_theme_color_override("font_color", Color(0.85, 0.88, 0.9))
+	text_label.add_theme_color_override("font_color", Color(0.85, 0.92, 1.0, 0.95))
 	vbox.add_child(text_label)
 	
 	var time_label = Label.new()
 	time_label.text = timestamp
 	time_label.add_theme_font_size_override("font_size", 12)
-	time_label.add_theme_color_override("font_color", Color(0.45, 0.5, 0.55))
+	time_label.add_theme_color_override("font_color", Color(0.45, 0.65, 0.85, 0.8))
 	vbox.add_child(time_label)
 	
 	var points_label = Label.new()
@@ -443,17 +661,21 @@ func _create_history_item(text: String, timestamp: String, points: String, is_po
 # Helper functions
 func _create_card_style() -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.1, 0.11, 0.14, 1)
-	style.border_color = Color(0.15, 0.17, 0.22, 1)
+	style.bg_color = Color(0.06, 0.12, 0.2, 0.2)
+	style.border_color = Color(0.5, 0.75, 1.0, 0.55)
 	style.set_border_width_all(1)
-	style.set_corner_radius_all(6)
+	style.set_corner_radius_all(14)
+	style.anti_aliasing = true
+	style.shadow_color = Color(0, 0, 0, 0.08)
+	style.shadow_size = 4
+	style.shadow_offset = Vector2(0, 2)
 	return style
 
 func _create_empty_label(text: String) -> Label:
 	var label = Label.new()
 	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_color_override("font_color", Color(0.45, 0.5, 0.55))
+	label.add_theme_color_override("font_color", Color(0.5, 0.7, 0.9, 0.8))
 	label.add_theme_font_size_override("font_size", 14)
 	return label
 
@@ -463,7 +685,7 @@ func _create_action_button(text: String, is_danger: bool = false) -> Button:
 	btn.custom_minimum_size = Vector2(70, 32)
 	btn.add_theme_font_size_override("font_size", 13)
 	if is_danger:
-		btn.add_theme_color_override("font_color", Color(0.85, 0.5, 0.5))
+		btn.add_theme_color_override("font_color", Color(1.0, 0.5, 0.55, 1))
 	return btn
 
 func _clear_children(container: Node) -> void:

@@ -2,26 +2,62 @@ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const Database = require('better-sqlite3');
+const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const util = require('util');
+const fs = require('fs');
+const net = require('net');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const DEFAULT_PORT = process.env.PORT || 49152; // Using dynamic port range (49152-65535)
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const DB_FILE = path.join(__dirname, 'database.db');
+const PORT_FILE = path.join(__dirname, 'server_port.txt'); // File to communicate port to Godot
+
+// Function to check if a port is available
+function isPortAvailable(port) {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.once('error', () => resolve(false));
+    server.once('listening', () => {
+      server.close();
+      resolve(true);
+    });
+    server.listen(port);
+  });
+}
+
+// Function to find an available port
+async function findAvailablePort(startPort) {
+  let port = startPort;
+  const maxPort = 65535;
+  
+  while (port <= maxPort) {
+    if (await isPortAvailable(port)) {
+      return port;
+    }
+    port++;
+  }
+  throw new Error('No available port found');
+}
 
 // Initialize SQLite database
-const db = new Database(DB_FILE);
-db.pragma('journal_mode = WAL'); // Better performance for concurrent reads
+const db = new sqlite3.Database(DB_FILE);
+
+// Promisify database methods for easier async/await usage
+db.runAsync = util.promisify(db.run.bind(db));
+db.getAsync = util.promisify(db.get.bind(db));
+db.allAsync = util.promisify(db.all.bind(db));
+db.execAsync = util.promisify(db.exec.bind(db));
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
 // Initialize database tables
-function initDatabase() {
-  db.exec(`
+async function initDatabase() {
+  await db.execAsync(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
       username TEXT UNIQUE NOT NULL,
@@ -66,6 +102,21 @@ function initDatabase() {
       points INTEGER NOT NULL,
       completedAt TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS pendingCompletions (
+      id TEXT PRIMARY KEY,
+      choreId TEXT NOT NULL,
+      choreTitle TEXT NOT NULL,
+      userId TEXT NOT NULL,
+      username TEXT NOT NULL,
+      points INTEGER NOT NULL,
+      familyId TEXT NOT NULL,
+      requestedAt TEXT NOT NULL,
+      status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'approved', 'rejected'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_pendingCompletions_familyId ON pendingCompletions(familyId);
+    CREATE INDEX IF NOT EXISTS idx_pendingCompletions_status ON pendingCompletions(status);
 
     CREATE TABLE IF NOT EXISTS redeemedRewards (
       id TEXT PRIMARY KEY,
@@ -134,7 +185,7 @@ app.post('/api/register', async (req, res) => {
     }
 
     // Check if username exists
-    const existingUser = db.prepare('SELECT id FROM users WHERE username = ?').get(username);
+    const existingUser = await db.getAsync('SELECT id FROM users WHERE username = ?', [username]);
     if (existingUser) {
       return res.status(400).json({ error: 'Username already exists' });
     }
@@ -159,10 +210,10 @@ app.post('/api/register', async (req, res) => {
       createdAt: new Date().toISOString()
     };
 
-    db.prepare(`
+    await db.runAsync(`
       INSERT INTO users (id, username, password, role, familyId, points, createdAt)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(user.id, user.username, user.password, user.role, user.familyId, user.points, user.createdAt);
+    `, [user.id, user.username, user.password, user.role, user.familyId, user.points, user.createdAt]);
 
     const token = jwt.sign(
       { id: user.id, username: user.username, role: user.role, familyId: user.familyId },
@@ -195,7 +246,7 @@ app.post('/api/login', async (req, res) => {
       return res.status(400).json({ error: 'Username and password are required' });
     }
 
-    const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
+    const user = await db.getAsync('SELECT * FROM users WHERE username = ?', [username]);
 
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
@@ -234,9 +285,9 @@ app.post('/api/logout', (req, res) => {
 });
 
 // Get current user
-app.get('/api/user', authenticateToken, (req, res) => {
+app.get('/api/user', authenticateToken, async (req, res) => {
   try {
-    const user = db.prepare('SELECT id, username, role, familyId, points FROM users WHERE id = ?').get(req.user.id);
+    const user = await db.getAsync('SELECT id, username, role, familyId, points FROM users WHERE id = ?', [req.user.id]);
     
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -250,11 +301,11 @@ app.get('/api/user', authenticateToken, (req, res) => {
 });
 
 // Get family members
-app.get('/api/family', authenticateToken, (req, res) => {
+app.get('/api/family', authenticateToken, async (req, res) => {
   try {
-    const familyMembers = db.prepare(`
+    const familyMembers = await db.allAsync(`
       SELECT id, username, role, points FROM users WHERE familyId = ?
-    `).all(req.user.familyId);
+    `, [req.user.familyId]);
 
     res.json(familyMembers);
   } catch (error) {
@@ -266,9 +317,9 @@ app.get('/api/family', authenticateToken, (req, res) => {
 // Chores routes
 
 // Get all chores for family
-app.get('/api/chores', authenticateToken, (req, res) => {
+app.get('/api/chores', authenticateToken, async (req, res) => {
   try {
-    const chores = db.prepare('SELECT * FROM chores WHERE familyId = ?').all(req.user.familyId);
+    const chores = await db.allAsync('SELECT * FROM chores WHERE familyId = ?', [req.user.familyId]);
     res.json(chores);
   } catch (error) {
     console.error('Get chores error:', error);
@@ -277,7 +328,7 @@ app.get('/api/chores', authenticateToken, (req, res) => {
 });
 
 // Create chore (parent only)
-app.post('/api/chores', authenticateToken, requireParent, (req, res) => {
+app.post('/api/chores', authenticateToken, requireParent, async (req, res) => {
   try {
     const { title, description, points } = req.body;
 
@@ -295,10 +346,10 @@ app.post('/api/chores', authenticateToken, requireParent, (req, res) => {
       createdAt: new Date().toISOString()
     };
 
-    db.prepare(`
+    await db.runAsync(`
       INSERT INTO chores (id, title, description, points, familyId, createdBy, createdAt)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(chore.id, chore.title, chore.description, chore.points, chore.familyId, chore.createdBy, chore.createdAt);
+    `, [chore.id, chore.title, chore.description, chore.points, chore.familyId, chore.createdBy, chore.createdAt]);
 
     res.json(chore);
   } catch (error) {
@@ -308,7 +359,7 @@ app.post('/api/chores', authenticateToken, requireParent, (req, res) => {
 });
 
 // Update chore (parent only)
-app.put('/api/chores/:id', authenticateToken, requireParent, (req, res) => {
+app.put('/api/chores/:id', authenticateToken, requireParent, async (req, res) => {
   try {
     const { id } = req.params;
     const { title, description, points, status } = req.body;
@@ -328,10 +379,10 @@ app.put('/api/chores/:id', authenticateToken, requireParent, (req, res) => {
       updatedAt: new Date().toISOString()
     };
 
-    db.prepare(`
+    await db.runAsync(`
       UPDATE chores SET title = ?, description = ?, points = ?, status = ?, updatedAt = ?
       WHERE id = ? AND familyId = ?
-    `).run(updatedChore.title, updatedChore.description, updatedChore.points, updatedChore.status, updatedChore.updatedAt, id, req.user.familyId);
+    `, [updatedChore.title, updatedChore.description, updatedChore.points, updatedChore.status, updatedChore.updatedAt, id, req.user.familyId]);
 
     res.json(updatedChore);
   } catch (error) {
@@ -341,11 +392,11 @@ app.put('/api/chores/:id', authenticateToken, requireParent, (req, res) => {
 });
 
 // Delete chore (parent only)
-app.delete('/api/chores/:id', authenticateToken, requireParent, (req, res) => {
+app.delete('/api/chores/:id', authenticateToken, requireParent, async (req, res) => {
   try {
     const { id } = req.params;
     
-    const result = db.prepare('DELETE FROM chores WHERE id = ? AND familyId = ?').run(id, req.user.familyId);
+    const result = await db.runAsync('DELETE FROM chores WHERE id = ? AND familyId = ?', [id, req.user.familyId]);
     
     if (result.changes === 0) {
       return res.status(404).json({ error: 'Chore not found' });
@@ -358,66 +409,196 @@ app.delete('/api/chores/:id', authenticateToken, requireParent, (req, res) => {
   }
 });
 
-// Complete chore (child only)
-app.post('/api/chores/:id/complete', authenticateToken, (req, res) => {
+// Request chore completion (child only) - creates pending request for parent approval
+app.post('/api/chores/:id/complete', authenticateToken, async (req, res) => {
+  console.log('=== CHORE COMPLETE REQUEST ===');
+  console.log('User:', req.user.username, 'Role:', req.user.role);
+  
   try {
     if (req.user.role !== 'child') {
+      console.log('Rejected: Not a child user');
       return res.status(403).json({ error: 'Only children can complete chores' });
     }
 
     const { id } = req.params;
+    console.log('Chore ID:', id);
 
-    const chore = db.prepare('SELECT * FROM chores WHERE id = ? AND familyId = ?').get(id, req.user.familyId);
+    const chore = await db.getAsync('SELECT * FROM chores WHERE id = ? AND familyId = ?', [id, req.user.familyId]);
     if (!chore) {
+      console.log('Rejected: Chore not found');
       return res.status(404).json({ error: 'Chore not found' });
     }
+    console.log('Found chore:', chore.title, 'Points:', chore.points);
 
-    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+    // Ensure pendingCompletions table exists
+    await db.runAsync(`
+      CREATE TABLE IF NOT EXISTS pendingCompletions (
+        id TEXT PRIMARY KEY,
+        choreId TEXT NOT NULL,
+        choreTitle TEXT NOT NULL,
+        userId TEXT NOT NULL,
+        username TEXT NOT NULL,
+        points INTEGER NOT NULL,
+        familyId TEXT NOT NULL,
+        requestedAt TEXT NOT NULL,
+        status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'approved', 'rejected'))
+      )
+    `);
+
+    // Check if there's already a pending request for this chore by this user
+    const existingPending = await db.getAsync(
+      'SELECT * FROM pendingCompletions WHERE choreId = ? AND userId = ? AND status = ?',
+      [id, req.user.id, 'pending']
+    );
+    if (existingPending) {
+      console.log('Rejected: Already has pending request');
+      return res.status(400).json({ error: 'You already have a pending request for this chore' });
     }
 
-    // Update user points
-    const newPoints = user.points + chore.points;
-    db.prepare('UPDATE users SET points = ? WHERE id = ?').run(newPoints, req.user.id);
-
-    // Record completed chore
-    const completedChore = {
+    // Create pending completion request
+    const pendingCompletion = {
       id: generateId(),
       choreId: chore.id,
       choreTitle: chore.title,
       userId: req.user.id,
       username: req.user.username,
       points: chore.points,
+      familyId: req.user.familyId,
+      requestedAt: new Date().toISOString()
+    };
+
+    console.log('Creating pending completion:', pendingCompletion.id);
+    
+    await db.runAsync(`
+      INSERT INTO pendingCompletions (id, choreId, choreTitle, userId, username, points, familyId, requestedAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `, [pendingCompletion.id, pendingCompletion.choreId, pendingCompletion.choreTitle, 
+        pendingCompletion.userId, pendingCompletion.username, pendingCompletion.points,
+        pendingCompletion.familyId, pendingCompletion.requestedAt]);
+
+    console.log('SUCCESS: Pending completion created. Points NOT awarded yet.');
+    
+    res.json({
+      message: 'Completion request sent! Waiting for parent approval.',
+      pending: true,
+      points: chore.points
+    });
+  } catch (error) {
+    console.error('Request chore completion error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get pending completions (parent only)
+app.get('/api/pending-completions', authenticateToken, async (req, res) => {
+  try {
+    const pendingCompletions = await db.allAsync(
+      'SELECT * FROM pendingCompletions WHERE familyId = ? AND status = ? ORDER BY requestedAt DESC',
+      [req.user.familyId, 'pending']
+    );
+    res.json(pendingCompletions);
+  } catch (error) {
+    console.error('Get pending completions error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Approve pending completion (parent only)
+app.post('/api/pending-completions/:id/approve', authenticateToken, requireParent, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const pending = await db.getAsync(
+      'SELECT * FROM pendingCompletions WHERE id = ? AND familyId = ? AND status = ?',
+      [id, req.user.familyId, 'pending']
+    );
+
+    if (!pending) {
+      return res.status(404).json({ error: 'Pending completion not found' });
+    }
+
+    // Get the child user
+    const childUser = await db.getAsync('SELECT * FROM users WHERE id = ?', [pending.userId]);
+    if (!childUser) {
+      return res.status(404).json({ error: 'Child user not found' });
+    }
+
+    // Update pending status to approved
+    await db.runAsync(
+      'UPDATE pendingCompletions SET status = ? WHERE id = ?',
+      ['approved', id]
+    );
+
+    // Add points to child
+    const newPoints = childUser.points + pending.points;
+    await db.runAsync('UPDATE users SET points = ? WHERE id = ?', [newPoints, pending.userId]);
+
+    // Record in completed chores
+    const completedChore = {
+      id: generateId(),
+      choreId: pending.choreId,
+      choreTitle: pending.choreTitle,
+      userId: pending.userId,
+      username: pending.username,
+      points: pending.points,
       completedAt: new Date().toISOString()
     };
 
-    db.prepare(`
+    await db.runAsync(`
       INSERT INTO completedChores (id, choreId, choreTitle, userId, username, points, completedAt)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(completedChore.id, completedChore.choreId, completedChore.choreTitle, completedChore.userId, completedChore.username, completedChore.points, completedChore.completedAt);
+    `, [completedChore.id, completedChore.choreId, completedChore.choreTitle, 
+        completedChore.userId, completedChore.username, completedChore.points, completedChore.completedAt]);
 
     res.json({
-      message: 'Chore completed successfully',
-      points: chore.points,
-      totalPoints: newPoints
+      message: 'Chore approved! ' + pending.username + ' earned ' + pending.points + ' points.',
+      childPoints: newPoints
     });
   } catch (error) {
-    console.error('Complete chore error:', error);
+    console.error('Approve completion error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Reject pending completion (parent only)
+app.post('/api/pending-completions/:id/reject', authenticateToken, requireParent, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const pending = await db.getAsync(
+      'SELECT * FROM pendingCompletions WHERE id = ? AND familyId = ? AND status = ?',
+      [id, req.user.familyId, 'pending']
+    );
+
+    if (!pending) {
+      return res.status(404).json({ error: 'Pending completion not found' });
+    }
+
+    // Update pending status to rejected
+    await db.runAsync(
+      'UPDATE pendingCompletions SET status = ? WHERE id = ?',
+      ['rejected', id]
+    );
+
+    res.json({
+      message: 'Chore completion rejected.'
+    });
+  } catch (error) {
+    console.error('Reject completion error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
 // Get completed chores
-app.get('/api/completed-chores', authenticateToken, (req, res) => {
+app.get('/api/completed-chores', authenticateToken, async (req, res) => {
   try {
     // Get all completed chores for the family
-    const completedChores = db.prepare(`
+    const completedChores = await db.allAsync(`
       SELECT cc.* FROM completedChores cc
       INNER JOIN users u ON cc.userId = u.id
       WHERE u.familyId = ?
       ORDER BY cc.completedAt DESC
-    `).all(req.user.familyId);
+    `, [req.user.familyId]);
 
     res.json(completedChores);
   } catch (error) {
@@ -429,9 +610,9 @@ app.get('/api/completed-chores', authenticateToken, (req, res) => {
 // Rewards routes
 
 // Get all rewards for family
-app.get('/api/rewards', authenticateToken, (req, res) => {
+app.get('/api/rewards', authenticateToken, async (req, res) => {
   try {
-    const rewards = db.prepare('SELECT * FROM rewards WHERE familyId = ?').all(req.user.familyId);
+    const rewards = await db.allAsync('SELECT * FROM rewards WHERE familyId = ?', [req.user.familyId]);
     res.json(rewards);
   } catch (error) {
     console.error('Get rewards error:', error);
@@ -440,7 +621,7 @@ app.get('/api/rewards', authenticateToken, (req, res) => {
 });
 
 // Create reward (parent only)
-app.post('/api/rewards', authenticateToken, requireParent, (req, res) => {
+app.post('/api/rewards', authenticateToken, requireParent, async (req, res) => {
   try {
     const { title, description, cost } = req.body;
 
@@ -458,10 +639,10 @@ app.post('/api/rewards', authenticateToken, requireParent, (req, res) => {
       createdAt: new Date().toISOString()
     };
 
-    db.prepare(`
+    await db.runAsync(`
       INSERT INTO rewards (id, title, description, cost, familyId, createdBy, createdAt)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(reward.id, reward.title, reward.description, reward.cost, reward.familyId, reward.createdBy, reward.createdAt);
+    `, [reward.id, reward.title, reward.description, reward.cost, reward.familyId, reward.createdBy, reward.createdAt]);
 
     res.json(reward);
   } catch (error) {
@@ -471,12 +652,12 @@ app.post('/api/rewards', authenticateToken, requireParent, (req, res) => {
 });
 
 // Update reward (parent only)
-app.put('/api/rewards/:id', authenticateToken, requireParent, (req, res) => {
+app.put('/api/rewards/:id', authenticateToken, requireParent, async (req, res) => {
   try {
     const { id } = req.params;
     const { title, description, cost, status, stock } = req.body;
 
-    const reward = db.prepare('SELECT * FROM rewards WHERE id = ? AND familyId = ?').get(id, req.user.familyId);
+    const reward = await db.getAsync('SELECT * FROM rewards WHERE id = ? AND familyId = ?', [id, req.user.familyId]);
 
     if (!reward) {
       return res.status(404).json({ error: 'Reward not found' });
@@ -492,10 +673,10 @@ app.put('/api/rewards/:id', authenticateToken, requireParent, (req, res) => {
       updatedAt: new Date().toISOString()
     };
 
-    db.prepare(`
+    await db.runAsync(`
       UPDATE rewards SET title = ?, description = ?, cost = ?, status = ?, stock = ?, updatedAt = ?
       WHERE id = ? AND familyId = ?
-    `).run(updatedReward.title, updatedReward.description, updatedReward.cost, updatedReward.status, updatedReward.stock, updatedReward.updatedAt, id, req.user.familyId);
+    `, [updatedReward.title, updatedReward.description, updatedReward.cost, updatedReward.status, updatedReward.stock, updatedReward.updatedAt, id, req.user.familyId]);
 
     res.json(updatedReward);
   } catch (error) {
@@ -505,11 +686,11 @@ app.put('/api/rewards/:id', authenticateToken, requireParent, (req, res) => {
 });
 
 // Delete reward (parent only)
-app.delete('/api/rewards/:id', authenticateToken, requireParent, (req, res) => {
+app.delete('/api/rewards/:id', authenticateToken, requireParent, async (req, res) => {
   try {
     const { id } = req.params;
     
-    const result = db.prepare('DELETE FROM rewards WHERE id = ? AND familyId = ?').run(id, req.user.familyId);
+    const result = await db.runAsync('DELETE FROM rewards WHERE id = ? AND familyId = ?', [id, req.user.familyId]);
     
     if (result.changes === 0) {
       return res.status(404).json({ error: 'Reward not found' });
@@ -523,7 +704,7 @@ app.delete('/api/rewards/:id', authenticateToken, requireParent, (req, res) => {
 });
 
 // Redeem reward (child only)
-app.post('/api/rewards/:id/redeem', authenticateToken, (req, res) => {
+app.post('/api/rewards/:id/redeem', authenticateToken, async (req, res) => {
   try {
     if (req.user.role !== 'child') {
       return res.status(403).json({ error: 'Only children can redeem rewards' });
@@ -531,12 +712,12 @@ app.post('/api/rewards/:id/redeem', authenticateToken, (req, res) => {
 
     const { id } = req.params;
 
-    const reward = db.prepare('SELECT * FROM rewards WHERE id = ? AND familyId = ?').get(id, req.user.familyId);
+    const reward = await db.getAsync('SELECT * FROM rewards WHERE id = ? AND familyId = ?', [id, req.user.familyId]);
     if (!reward) {
       return res.status(404).json({ error: 'Reward not found' });
     }
 
-    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
+    const user = await db.getAsync('SELECT * FROM users WHERE id = ?', [req.user.id]);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -547,7 +728,7 @@ app.post('/api/rewards/:id/redeem', authenticateToken, (req, res) => {
 
     // Deduct points from user
     const remainingPoints = user.points - reward.cost;
-    db.prepare('UPDATE users SET points = ? WHERE id = ?').run(remainingPoints, req.user.id);
+    await db.runAsync('UPDATE users SET points = ? WHERE id = ?', [remainingPoints, req.user.id]);
 
     // Record redeemed reward
     const redeemedReward = {
@@ -560,10 +741,10 @@ app.post('/api/rewards/:id/redeem', authenticateToken, (req, res) => {
       redeemedAt: new Date().toISOString()
     };
 
-    db.prepare(`
+    await db.runAsync(`
       INSERT INTO redeemedRewards (id, rewardId, rewardTitle, userId, username, cost, redeemedAt)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(redeemedReward.id, redeemedReward.rewardId, redeemedReward.rewardTitle, redeemedReward.userId, redeemedReward.username, redeemedReward.cost, redeemedReward.redeemedAt);
+    `, [redeemedReward.id, redeemedReward.rewardId, redeemedReward.rewardTitle, redeemedReward.userId, redeemedReward.username, redeemedReward.cost, redeemedReward.redeemedAt]);
 
     res.json({
       message: 'Reward redeemed successfully',
@@ -577,15 +758,15 @@ app.post('/api/rewards/:id/redeem', authenticateToken, (req, res) => {
 });
 
 // Get redeemed rewards
-app.get('/api/redeemed-rewards', authenticateToken, (req, res) => {
+app.get('/api/redeemed-rewards', authenticateToken, async (req, res) => {
   try {
     // Get all redeemed rewards for the family
-    const redeemedRewards = db.prepare(`
+    const redeemedRewards = await db.allAsync(`
       SELECT rr.* FROM redeemedRewards rr
       INNER JOIN users u ON rr.userId = u.id
       WHERE u.familyId = ?
       ORDER BY rr.redeemedAt DESC
-    `).all(req.user.familyId);
+    `, [req.user.familyId]);
 
     res.json(redeemedRewards);
   } catch (error) {
@@ -595,19 +776,43 @@ app.get('/api/redeemed-rewards', authenticateToken, (req, res) => {
 });
 
 // Graceful shutdown
-process.on('SIGINT', () => {
+// Cleanup function
+function cleanup() {
+  console.log('Shutting down server...');
+  // Remove port file
+  try {
+    if (fs.existsSync(PORT_FILE)) {
+      fs.unlinkSync(PORT_FILE);
+      console.log('Port file removed');
+    }
+  } catch (e) {
+    console.error('Error removing port file:', e);
+  }
   db.close();
   process.exit();
-});
+}
 
-process.on('SIGTERM', () => {
-  db.close();
-  process.exit();
-});
+process.on('SIGINT', cleanup);
+process.on('SIGTERM', cleanup);
 
-// Start server
-initDatabase();
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Using SQLite database: ${DB_FILE}`);
+// Start server with automatic port finding
+initDatabase().then(async () => {
+  try {
+    const port = await findAvailablePort(DEFAULT_PORT);
+    
+    app.listen(port, () => {
+      console.log(`Server running on port ${port}`);
+      console.log(`Using SQLite database: ${DB_FILE}`);
+      
+      // Write port to file for Godot to read
+      fs.writeFileSync(PORT_FILE, port.toString());
+      console.log(`Port written to ${PORT_FILE}`);
+    });
+  } catch (error) {
+    console.error('Failed to find available port:', error);
+    process.exit(1);
+  }
+}).catch((error) => {
+  console.error('Failed to initialize database:', error);
+  process.exit(1);
 });

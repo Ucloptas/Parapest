@@ -2,10 +2,7 @@ extends Node2D
 
 @onready var pause_menu: CanvasLayer = $PauseMenu
 @onready var pause_panel: Panel = $PauseMenu/PausePanel
-@onready var info_popup_container = $infoPopup/Overlay/HBoxContainer/InfoVboxContainer
-@onready var select_button = $infoPopup/Overlay/HBoxContainer/SelectConfirmButton
 @onready var camera = $playerPlaceholder/Camera
-var popup_height = 300
 var is_paused: bool = false
 var http_client: Node
 var chores: Array = []
@@ -16,6 +13,11 @@ var chore_avatars_container: Node2D
 var chore_avatar_scene: PackedScene
 var nearby_chore_index: int = -1  # Track which animal/chore the player is near
 var is_browsing_all: bool = false  # True when using View Chores button, false when interacting with animal
+
+# Dynamic popup UI (like reward scene)
+var chore_popup: CanvasLayer
+var popup_container: VBoxContainer
+var complete_button: Button
 
 # Fixed spawn positions for animals (hand-picked valid coordinates)
 const SPAWN_POSITIONS: Array = [
@@ -109,15 +111,14 @@ func _ready():
 	# Hide pause menu initially
 	pause_menu.visible = false
 	
-	# Setup select button for completing chores
-	if select_button:
-		select_button.text = "Complete"
-		# Connect the button press signal
-		if not select_button.pressed.is_connected(_on_complete_chore_pressed):
-			select_button.pressed.connect(_on_complete_chore_pressed)
+	# Hide old infoPopup if it exists (we're using dynamic popup now)
+	var old_popup = get_node_or_null("infoPopup")
+	if old_popup:
+		old_popup.visible = false
 	
-	# Setup HUD
+	# Setup HUD and chore popup
 	_setup_hud()
+	_setup_chore_popup()
 	
 	# Setup chore avatars container (animals placed in world for proximity-based chore display)
 	chore_avatars_container = Node2D.new()
@@ -205,6 +206,96 @@ func _setup_hud():
 	back_btn.custom_minimum_size = Vector2(80, 40)
 	back_btn.pressed.connect(_on_back_button_pressed)
 	hud.add_child(back_btn)
+
+func _setup_chore_popup():
+	# Create chore popup overlay (same style as reward popup)
+	chore_popup = CanvasLayer.new()
+	chore_popup.name = "ChorePopup"
+	chore_popup.layer = 50
+	chore_popup.visible = false
+	add_child(chore_popup)
+	
+	# Background overlay
+	var overlay = ColorRect.new()
+	overlay.name = "Overlay"
+	overlay.color = Color(0, 0, 0, 0.7)
+	overlay.anchor_right = 1.0
+	overlay.anchor_bottom = 1.0
+	chore_popup.add_child(overlay)
+	
+	# Main panel
+	var panel = PanelContainer.new()
+	panel.name = "Panel"
+	var panel_style = StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.08, 0.1, 0.12, 0.95)
+	panel_style.border_color = Color(0.3, 0.65, 0.45, 1)  # Green tint for chores
+	panel_style.set_border_width_all(2)
+	panel_style.set_corner_radius_all(12)
+	panel.add_theme_stylebox_override("panel", panel_style)
+	panel.custom_minimum_size = Vector2(500, 350)
+	panel.anchor_left = 0.5
+	panel.anchor_right = 0.5
+	panel.anchor_top = 0.5
+	panel.anchor_bottom = 0.5
+	panel.offset_left = -250
+	panel.offset_right = 250
+	panel.offset_top = -175
+	panel.offset_bottom = 175
+	chore_popup.add_child(panel)
+	
+	var margin = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 30)
+	margin.add_theme_constant_override("margin_top", 25)
+	margin.add_theme_constant_override("margin_right", 30)
+	margin.add_theme_constant_override("margin_bottom", 25)
+	panel.add_child(margin)
+	
+	popup_container = VBoxContainer.new()
+	popup_container.name = "Container"
+	popup_container.add_theme_constant_override("separation", 15)
+	margin.add_child(popup_container)
+	
+	# Title
+	var title = Label.new()
+	title.name = "Title"
+	title.text = "CHORE"
+	title.add_theme_font_size_override("font_size", 28)
+	title.add_theme_color_override("font_color", Color(0.3, 0.65, 0.45))
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	popup_container.add_child(title)
+	
+	# Button container
+	var btn_hbox = HBoxContainer.new()
+	btn_hbox.name = "ButtonContainer"
+	btn_hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	btn_hbox.add_theme_constant_override("separation", 20)
+	popup_container.add_child(btn_hbox)
+	
+	# Complete button
+	complete_button = Button.new()
+	complete_button.name = "CompleteButton"
+	complete_button.text = "I Did It!"
+	complete_button.add_theme_font_size_override("font_size", 18)
+	complete_button.custom_minimum_size = Vector2(120, 45)
+	var complete_style = StyleBoxFlat.new()
+	complete_style.bg_color = Color(0.2, 0.5, 0.35, 1)
+	complete_style.set_corner_radius_all(6)
+	complete_button.add_theme_stylebox_override("normal", complete_style)
+	complete_button.pressed.connect(_on_complete_chore_pressed)
+	btn_hbox.add_child(complete_button)
+	
+	# Close button
+	var close_btn = Button.new()
+	close_btn.name = "CloseButton"
+	close_btn.text = "Close"
+	close_btn.add_theme_font_size_override("font_size", 18)
+	close_btn.custom_minimum_size = Vector2(100, 45)
+	var close_style = StyleBoxFlat.new()
+	close_style.bg_color = Color(0.5, 0.3, 0.3, 1)
+	close_style.set_corner_radius_all(6)
+	close_btn.add_theme_stylebox_override("normal", close_style)
+	close_btn.pressed.connect(_hide_chore_popup)
+	btn_hbox.add_child(close_btn)
 
 func _load_data():
 	# Fetch user data to get current points
@@ -297,17 +388,17 @@ func _on_back_button_pressed():
 
 func _input(event):
 	if event.is_action_pressed("ui_cancel"):  # ESC key
-		if $infoPopup.visible:
-			hide_info_popup()
+		if chore_popup.visible:
+			_hide_chore_popup()
 		else:
 			toggle_pause()
 	elif event.is_action_pressed("interact"):
 		interact()
 	# Arrow key navigation only when browsing all chores (via View Chores button)
-	elif event.is_action_pressed("ui_left") and $infoPopup.visible and is_browsing_all and chores.size() > 1:
+	elif event.is_action_pressed("ui_left") and chore_popup.visible and is_browsing_all and chores.size() > 1:
 		current_chore_index = (current_chore_index - 1 + chores.size()) % chores.size()
 		_show_chore_popup(current_chore_index)
-	elif event.is_action_pressed("ui_right") and $infoPopup.visible and is_browsing_all and chores.size() > 1:
+	elif event.is_action_pressed("ui_right") and chore_popup.visible and is_browsing_all and chores.size() > 1:
 		current_chore_index = (current_chore_index + 1) % chores.size()
 		_show_chore_popup(current_chore_index)
 
@@ -328,33 +419,35 @@ func _on_next_level_body_entered(body):
 	if body.is_in_group("player"):
 		get_tree().change_scene_to_file("res://reward_xplorer.tscn")
 
-func hide_info_popup():
-	clear_popup_content()
-	$infoPopup.hide()
+func _hide_chore_popup():
+	chore_popup.visible = false
 	current_chore = {}
 	is_browsing_all = false
+	if complete_button:
+		complete_button.visible = true
 
 func _show_chore_popup(index: int):
 	if index < 0 or index >= chores.size():
 		return
 	
-	clear_popup_content()
+	_clear_popup_content()
 	current_chore = chores[index]
 	
 	# Update title based on browsing mode
-	var title_node = info_popup_container.get_node_or_null("Title")
-	if title_node:
+	var title = popup_container.get_node_or_null("Title")
+	if title:
 		if is_browsing_all:
-			title_node.text = "CHORE " + str(index + 1) + " of " + str(chores.size())
+			title.text = "CHORE " + str(index + 1) + " of " + str(chores.size())
 		else:
-			title_node.text = "THIS ANIMAL'S CHORE"
-		title_node.add_theme_font_size_override("font_size", 18)
-		title_node.add_theme_color_override("font_color", Color(0.6, 0.75, 0.9))
+			title.text = "THIS ANIMAL'S CHORE"
+		title.add_theme_font_size_override("font_size", 18)
+		title.add_theme_color_override("font_color", Color(0.3, 0.65, 0.45))
 	
 	# Spacer
 	var spacer1 = Control.new()
 	spacer1.custom_minimum_size = Vector2(0, 5)
-	info_popup_container.add_child(spacer1)
+	popup_container.add_child(spacer1)
+	popup_container.move_child(spacer1, 1)
 	
 	# Chore title - big and prominent
 	var title_label = Label.new()
@@ -362,7 +455,8 @@ func _show_chore_popup(index: int):
 	title_label.add_theme_font_size_override("font_size", 28)
 	title_label.add_theme_color_override("font_color", Color(1, 1, 1))
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	info_popup_container.add_child(title_label)
+	popup_container.add_child(title_label)
+	popup_container.move_child(title_label, 2)
 	
 	# Description
 	var desc = current_chore.get("description", "")
@@ -374,12 +468,14 @@ func _show_chore_popup(index: int):
 		desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 		desc_label.custom_minimum_size = Vector2(400, 0)
-		info_popup_container.add_child(desc_label)
+		popup_container.add_child(desc_label)
+		popup_container.move_child(desc_label, 3)
 	
 	# Points reward - highlighted
 	var points_container = HBoxContainer.new()
 	points_container.alignment = BoxContainer.ALIGNMENT_CENTER
-	info_popup_container.add_child(points_container)
+	popup_container.add_child(points_container)
+	popup_container.move_child(points_container, popup_container.get_child_count() - 1)
 	
 	var star_label = Label.new()
 	star_label.text = "Reward: "
@@ -396,7 +492,14 @@ func _show_chore_popup(index: int):
 	# Spacer
 	var spacer2 = Control.new()
 	spacer2.custom_minimum_size = Vector2(0, 10)
-	info_popup_container.add_child(spacer2)
+	popup_container.add_child(spacer2)
+	popup_container.move_child(spacer2, popup_container.get_child_count() - 1)
+	
+	# Update complete button
+	if complete_button:
+		complete_button.text = "I Did It!"
+		complete_button.visible = true
+		complete_button.disabled = false
 	
 	# Navigation hint depends on mode
 	if chores.size() > 1:
@@ -408,38 +511,34 @@ func _show_chore_popup(index: int):
 		nav_label.add_theme_font_size_override("font_size", 13)
 		nav_label.add_theme_color_override("font_color", Color(0.5, 0.55, 0.6))
 		nav_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		info_popup_container.add_child(nav_label)
+		popup_container.add_child(nav_label)
+		popup_container.move_child(nav_label, popup_container.get_child_count() - 1)
 	
-	# Update select button to be more child-friendly
-	if select_button:
-		select_button.text = "I Did It!"
-		select_button.visible = true
-		select_button.disabled = false
-	
-	$infoPopup.show()
+	chore_popup.visible = true
 
-func _show_message(title: String, message: String):
-	clear_popup_content()
+func _show_message(title_text: String, message: String):
+	_clear_popup_content()
 	current_chore = {}
 	
-	var title_node = info_popup_container.get_node_or_null("Title")
-	if title_node:
-		title_node.text = title
+	var title = popup_container.get_node_or_null("Title")
+	if title:
+		title.text = title_text
 		# Color based on message type
-		if "SENT" in title or "COMPLETED" in title:
-			title_node.add_theme_color_override("font_color", Color(0.4, 0.9, 0.5))
-			title_node.add_theme_font_size_override("font_size", 26)
-		elif "OOPS" in title or "ERROR" in title:
-			title_node.add_theme_color_override("font_color", Color(0.95, 0.5, 0.5))
-			title_node.add_theme_font_size_override("font_size", 24)
+		if "SENT" in title_text or "COMPLETED" in title_text:
+			title.add_theme_color_override("font_color", Color(0.4, 0.9, 0.5))
+			title.add_theme_font_size_override("font_size", 26)
+		elif "OOPS" in title_text or "ERROR" in title_text:
+			title.add_theme_color_override("font_color", Color(0.95, 0.5, 0.5))
+			title.add_theme_font_size_override("font_size", 24)
 		else:
-			title_node.add_theme_color_override("font_color", Color(0.9, 0.85, 0.4))
-			title_node.add_theme_font_size_override("font_size", 24)
+			title.add_theme_color_override("font_color", Color(0.9, 0.85, 0.4))
+			title.add_theme_font_size_override("font_size", 24)
 	
 	# Spacer
 	var spacer = Control.new()
 	spacer.custom_minimum_size = Vector2(0, 12)
-	info_popup_container.add_child(spacer)
+	popup_container.add_child(spacer)
+	popup_container.move_child(spacer, 1)
 	
 	var msg_label = Label.new()
 	msg_label.text = message
@@ -448,41 +547,39 @@ func _show_message(title: String, message: String):
 	msg_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	msg_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	msg_label.custom_minimum_size = Vector2(350, 0)
-	info_popup_container.add_child(msg_label)
+	popup_container.add_child(msg_label)
+	popup_container.move_child(msg_label, 2)
 	
 	# Spacer
 	var spacer2 = Control.new()
 	spacer2.custom_minimum_size = Vector2(0, 15)
-	info_popup_container.add_child(spacer2)
+	popup_container.add_child(spacer2)
+	popup_container.move_child(spacer2, 3)
 	
 	# Add a close hint
 	var hint_label = Label.new()
-	hint_label.text = "Press ESC or Q to close"
+	hint_label.text = "Press ESC or E to close"
 	hint_label.add_theme_font_size_override("font_size", 13)
 	hint_label.add_theme_color_override("font_color", Color(0.5, 0.55, 0.6))
 	hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	info_popup_container.add_child(hint_label)
+	popup_container.add_child(hint_label)
+	popup_container.move_child(hint_label, 4)
 	
-	if select_button:
-		select_button.visible = false
+	if complete_button:
+		complete_button.visible = false
 	
-	$infoPopup.show()
+	chore_popup.visible = true
 
-func show_info_popup(data: Dictionary):
-	for key in data.keys():
-		var label = Label.new()
-		label.text = key + ": " + str(data[key])
-		info_popup_container.add_child(label)
-	$infoPopup.show()
-
-func clear_popup_content():
-	for child in info_popup_container.get_children():
-		if str(child.name) != "Title":
-			child.queue_free()
-
-func _on_dismiss_button_button_down() -> void:
-	if $infoPopup.visible:
-		hide_info_popup()
+func _clear_popup_content():
+	# Keep Title and ButtonContainer, remove everything else
+	var to_remove = []
+	for child in popup_container.get_children():
+		if child.name != "Title" and child.name != "ButtonContainer":
+			to_remove.append(child)
+	
+	for child in to_remove:
+		popup_container.remove_child(child)
+		child.queue_free()
 
 func _on_complete_chore_pressed():
 	if current_chore.is_empty():
@@ -493,17 +590,17 @@ func _on_complete_chore_pressed():
 		return
 	
 	# Disable button while processing
-	if select_button:
-		select_button.text = "Sending..."
-		select_button.disabled = true
+	if complete_button:
+		complete_button.text = "Sending..."
+		complete_button.disabled = true
 	
 	http_client.complete_chore(chore_id, func(success, data):
 		print("=== CHORE COMPLETE RESPONSE ===")
 		print("Success: ", success)
 		print("Data: ", data)
 		
-		if select_button:
-			select_button.disabled = false
+		if complete_button:
+			complete_button.disabled = false
 		
 		if success:
 			var is_pending = data.get("pending", false)
@@ -532,12 +629,12 @@ func _on_complete_chore_pressed():
 				error_msg = data.get("error", error_msg)
 			print("ERROR: ", error_msg)
 			_show_message("OOPS!", str(error_msg))
-			if select_button:
-				select_button.text = "I Did It!"
+			if complete_button:
+				complete_button.text = "I Did It!"
 	)
 
 func interact():
-	if !$infoPopup.visible:
+	if not chore_popup.visible:
 		# Check if player is near an animal
 		if nearby_chore_index >= 0 and nearby_chore_index < chores.size():
 			# Show the specific chore for this animal (not browsing all)
@@ -549,4 +646,4 @@ func interact():
 		else:
 			_show_message("Find an Animal", "Walk up to an animal and press E to see its chore!")
 	else:
-		hide_info_popup()
+		_hide_chore_popup()

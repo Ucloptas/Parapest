@@ -14,8 +14,70 @@ var current_chore: Dictionary = {}
 var user_points: int = 0
 var chore_avatars_container: Node2D
 var chore_avatar_scene: PackedScene
-var walkable_spawn_positions: Array[Vector2] = []
-const AVATAR_MIN_DISTANCE := 180.0
+var nearby_chore_index: int = -1  # Track which animal/chore the player is near
+var is_browsing_all: bool = false  # True when using View Chores button, false when interacting with animal
+
+# Fixed spawn positions for animals (hand-picked valid coordinates)
+const SPAWN_POSITIONS: Array = [
+	Vector2(1500, 8),
+	Vector2(1800, 152),
+	Vector2(1675, 152),
+	Vector2(1490, 7),
+	Vector2(1439, 152),
+	Vector2(1315, 23),
+	Vector2(1223, -24),
+	Vector2(1103, -56),
+	Vector2(1045, -56),
+	Vector2(968, -8),
+	Vector2(1400, 152),
+	Vector2(1300, 152),
+	Vector2(1250, 152),
+	Vector2(1080, 152),
+	Vector2(950, 152),
+	Vector2(1320, 392),
+	Vector2(1488, 312),
+	Vector2(1100, 409),
+	Vector2(1022, 392),
+	Vector2(920, 328),
+	Vector2(780, 24),
+	Vector2(656, -40),
+	Vector2(462, 24),
+	Vector2(376, 24),
+	Vector2(215, 24),
+	Vector2(126, 24),
+	Vector2(670, 152),
+	Vector2(200, 152),
+	Vector2(163, 312),
+	Vector2(32, 312),
+	Vector2(-140, 280),
+	Vector2(-80, 344),
+	Vector2(34, 120),
+	Vector2(83, 152),
+	Vector2(-160, 24),
+	Vector2(-332, -8),
+	Vector2(-430, -40),
+	Vector2(-308, 232),
+	Vector2(-380, 200),
+	Vector2(-438, 200),
+	Vector2(-500, 200),
+	Vector2(-676, 232),
+	Vector2(-266, 345),
+	Vector2(-359, 361),
+	Vector2(-534, 377),
+	Vector2(-760, 104),
+	Vector2(-837, 104),
+	Vector2(-943, 104),
+	Vector2(-1114, 56),
+	Vector2(-1000, 248),
+	Vector2(-1080, 248),
+	Vector2(-1188, 248),
+	Vector2(-1368, 328),
+	Vector2(-1500, 441),
+	Vector2(-1544, 377),
+	Vector2(-1617, 264),
+	Vector2(-1719, 312),
+	Vector2(-1786, 248),
+]
 
 func _ready():
 	# Get HTTP client reference
@@ -172,17 +234,15 @@ func _spawn_chore_avatars():
 	if chores.is_empty():
 		return
 	
-	# Build list of walkable spawn positions from tilemap (surface cells only)
-	_build_walkable_spawn_positions()
-	if walkable_spawn_positions.is_empty():
-		push_warning("Chore avatars: No walkable positions found in tilemap, using fallback")
-		_build_fallback_spawn_positions()
+	# Shuffle positions randomly so animals appear at different locations each time
+	var shuffled_positions = SPAWN_POSITIONS.duplicate()
+	shuffled_positions.shuffle()
 	
-	var positions: Array[Vector2] = []
+	# Only spawn as many animals as we have unique positions (no duplicates)
+	var spawn_count = min(chores.size(), shuffled_positions.size())
 	
-	for i in range(chores.size()):
-		var pos := _pick_random_avatar_position(positions)
-		positions.append(pos)
+	for i in range(spawn_count):
+		var pos: Vector2 = shuffled_positions[i]
 		
 		var avatar: Node2D = chore_avatar_scene.instantiate()
 		avatar.position = pos
@@ -193,81 +253,25 @@ func _spawn_chore_avatars():
 			avatar.setup(i, i % 6)
 		
 		if avatar.has_signal("player_entered"):
-			avatar.player_entered.connect(_on_chore_avatar_player_near)
+			avatar.player_entered.connect(_on_chore_avatar_player_entered)
+		if avatar.has_signal("player_exited"):
+			avatar.player_exited.connect(_on_chore_avatar_player_exited)
+	
+	print("Spawned ", spawn_count, " chore animals at random positions")
 
 
-func _build_walkable_spawn_positions() -> void:
-	walkable_spawn_positions.clear()
-	
-	var tilemaps: Array[TileMapLayer] = []
-	for layer_name in ["TileMapLayerMid", "TileMapLayerBack", "TileMapLayerFront"]:
-		var tilemap: TileMapLayer = get_node_or_null(layer_name) as TileMapLayer
-		if tilemap:
-			tilemaps.append(tilemap)
-	
-	if tilemaps.is_empty():
-		return
-	
-	# Collect every occupied cell across ALL layers
-	var all_occupied: Dictionary = {}
-	for tilemap in tilemaps:
-		for cell in tilemap.get_used_cells():
-			var key := "%d,%d" % [cell.x, cell.y]
-			all_occupied[key] = true
-	
-	# A cell is a surface tile only when it is occupied AND the cell
-	# directly above it is empty in EVERY layer.
-	var seen_surface: Dictionary = {}
-	var ref_tilemap: TileMapLayer = tilemaps[0]
-	
-	for key in all_occupied:
-		if key in seen_surface:
-			continue
-		var parts = key.split(",")
-		var cx := int(parts[0])
-		var cy := int(parts[1])
-		var above_key := "%d,%d" % [cx, cy - 1]
-		if above_key not in all_occupied:
-			seen_surface[key] = true
-			var local_pos: Vector2 = ref_tilemap.map_to_local(Vector2i(cx, cy))
-			local_pos.x += randf_range(-4.0, 4.0)
-			walkable_spawn_positions.append(local_pos)
+func _on_chore_avatar_player_entered(chore_index: int) -> void:
+	# Just track which animal is nearby, don't show popup automatically
+	if chore_index >= 0 and chore_index < chores.size():
+		nearby_chore_index = chore_index
+		print("Near animal for chore: ", chores[chore_index].get("title", "Unknown"))
 
 
-func _build_fallback_spawn_positions() -> void:
-	# Fallback: use camera bounds if tilemap lookup fails
-	walkable_spawn_positions.clear()
-	var step_x := 80
-	var step_y := 60
-	for x in range(400, 3200, step_x):
-		for y in range(200, 800, step_y):
-			walkable_spawn_positions.append(Vector2(x, y))
-
-
-func _pick_random_avatar_position(existing: Array[Vector2]) -> Vector2:
-	if walkable_spawn_positions.is_empty():
-		return Vector2(500, 400)
-	
-	var positions_copy: Array = walkable_spawn_positions.duplicate()
-	positions_copy.shuffle()
-	
-	for pos in positions_copy:
-		var too_close := false
-		for other in existing:
-			if pos.distance_to(other) < AVATAR_MIN_DISTANCE:
-				too_close = true
-				break
-		if not too_close:
-			return pos
-	
-	# Fallback: return first available even if close
-	return walkable_spawn_positions[0] if walkable_spawn_positions.size() > 0 else Vector2(500, 400)
-
-
-func _on_chore_avatar_player_near(chore_index: int) -> void:
-	if chore_index >= 0 and chore_index < chores.size() and not $infoPopup.visible:
-		current_chore_index = chore_index
-		_show_chore_popup(current_chore_index)
+func _on_chore_avatar_player_exited(chore_index: int) -> void:
+	# Clear nearby tracking when player leaves
+	if nearby_chore_index == chore_index:
+		nearby_chore_index = -1
+		print("Left animal area")
 
 
 func _update_points_display():
@@ -284,6 +288,7 @@ func _on_chores_button_pressed():
 		_show_message("No chores available!", "Ask your parent to add some chores.")
 		return
 	
+	is_browsing_all = true
 	current_chore_index = 0
 	_show_chore_popup(current_chore_index)
 
@@ -298,10 +303,11 @@ func _input(event):
 			toggle_pause()
 	elif event.is_action_pressed("interact"):
 		interact()
-	elif event.is_action_pressed("ui_left") and $infoPopup.visible and chores.size() > 1:
+	# Arrow key navigation only when browsing all chores (via View Chores button)
+	elif event.is_action_pressed("ui_left") and $infoPopup.visible and is_browsing_all and chores.size() > 1:
 		current_chore_index = (current_chore_index - 1 + chores.size()) % chores.size()
 		_show_chore_popup(current_chore_index)
-	elif event.is_action_pressed("ui_right") and $infoPopup.visible and chores.size() > 1:
+	elif event.is_action_pressed("ui_right") and $infoPopup.visible and is_browsing_all and chores.size() > 1:
 		current_chore_index = (current_chore_index + 1) % chores.size()
 		_show_chore_popup(current_chore_index)
 
@@ -326,6 +332,7 @@ func hide_info_popup():
 	clear_popup_content()
 	$infoPopup.hide()
 	current_chore = {}
+	is_browsing_all = false
 
 func _show_chore_popup(index: int):
 	if index < 0 or index >= chores.size():
@@ -334,10 +341,13 @@ func _show_chore_popup(index: int):
 	clear_popup_content()
 	current_chore = chores[index]
 	
-	# Update title with nice formatting
+	# Update title based on browsing mode
 	var title_node = info_popup_container.get_node_or_null("Title")
 	if title_node:
-		title_node.text = "CHORE " + str(index + 1) + " of " + str(chores.size())
+		if is_browsing_all:
+			title_node.text = "CHORE " + str(index + 1) + " of " + str(chores.size())
+		else:
+			title_node.text = "THIS ANIMAL'S CHORE"
 		title_node.add_theme_font_size_override("font_size", 18)
 		title_node.add_theme_color_override("font_color", Color(0.6, 0.75, 0.9))
 	
@@ -388,10 +398,13 @@ func _show_chore_popup(index: int):
 	spacer2.custom_minimum_size = Vector2(0, 10)
 	info_popup_container.add_child(spacer2)
 	
-	# Navigation hint
+	# Navigation hint depends on mode
 	if chores.size() > 1:
 		var nav_label = Label.new()
-		nav_label.text = "Use Arrow Keys to browse chores"
+		if is_browsing_all:
+			nav_label.text = "Use Arrow Keys to browse chores"
+		else:
+			nav_label.text = "Find " + str(chores.size() - 1) + " other animals for more chores!"
 		nav_label.add_theme_font_size_override("font_size", 13)
 		nav_label.add_theme_color_override("font_color", Color(0.5, 0.55, 0.6))
 		nav_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -525,10 +538,15 @@ func _on_complete_chore_pressed():
 
 func interact():
 	if !$infoPopup.visible:
-		if chores.is_empty():
+		# Check if player is near an animal
+		if nearby_chore_index >= 0 and nearby_chore_index < chores.size():
+			# Show the specific chore for this animal (not browsing all)
+			is_browsing_all = false
+			current_chore_index = nearby_chore_index
+			_show_chore_popup(current_chore_index)
+		elif chores.is_empty():
 			_show_message("No Chores", "No chores available.\nAsk your parent to add some!")
 		else:
-			current_chore_index = 0
-			_show_chore_popup(current_chore_index)
+			_show_message("Find an Animal", "Walk up to an animal and press E to see its chore!")
 	else:
 		hide_info_popup()

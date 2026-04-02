@@ -15,6 +15,74 @@ var reward_popup: CanvasLayer
 var popup_container: VBoxContainer
 var redeem_button: Button
 
+# Animal avatar system
+var reward_avatars_container: Node2D
+var reward_avatar_scene: PackedScene
+var nearby_reward_index: int = -1  # Track which animal/reward the player is near
+var is_browsing_all: bool = false  # True when using View Rewards button, false when interacting with animal
+
+# Fixed spawn positions for animals (flipped horizontally from chore_xplorer, x * -1)
+const SPAWN_POSITIONS: Array = [
+	Vector2(-1500, 8),
+	Vector2(-1800, 152),
+	Vector2(-1675, 152),
+	Vector2(-1490, 7),
+	Vector2(-1439, 152),
+	Vector2(-1315, 23),
+	Vector2(-1223, -24),
+	Vector2(-1103, -56),
+	Vector2(-1045, -56),
+	Vector2(-968, -8),
+	Vector2(-1400, 152),
+	Vector2(-1300, 152),
+	Vector2(-1250, 152),
+	Vector2(-1080, 152),
+	Vector2(-950, 152),
+	Vector2(-1320, 392),
+	Vector2(-1488, 312),
+	Vector2(-1100, 409),
+	Vector2(-1022, 392),
+	Vector2(-920, 328),
+	Vector2(-780, 24),
+	Vector2(-656, -40),
+	Vector2(-462, 24),
+	Vector2(-376, 24),
+	Vector2(-215, 24),
+	Vector2(-126, 24),
+	Vector2(-670, 152),
+	Vector2(-200, 152),
+	Vector2(-163, 312),
+	Vector2(-32, 312),
+	Vector2(140, 280),
+	Vector2(80, 344),
+	Vector2(-34, 120),
+	Vector2(-83, 152),
+	Vector2(160, 24),
+	Vector2(332, -8),
+	Vector2(430, -40),
+	Vector2(308, 232),
+	Vector2(380, 200),
+	Vector2(438, 200),
+	Vector2(500, 200),
+	Vector2(676, 232),
+	Vector2(266, 345),
+	Vector2(359, 361),
+	Vector2(534, 377),
+	Vector2(760, 104),
+	Vector2(837, 104),
+	Vector2(943, 104),
+	Vector2(1114, 56),
+	Vector2(1000, 248),
+	Vector2(1080, 248),
+	Vector2(1188, 248),
+	Vector2(1368, 328),
+	Vector2(1500, 441),
+	Vector2(1544, 377),
+	Vector2(1617, 264),
+	Vector2(1719, 312),
+	Vector2(1786, 248),
+]
+
 func _ready():
 	# Get HTTP client reference
 	http_client = get_node("/root/HTTPClient")
@@ -47,6 +115,14 @@ func _ready():
 	# Setup HUD and reward popup
 	_setup_hud()
 	_setup_reward_popup()
+	
+	# Setup reward avatars container (animals placed in world)
+	reward_avatars_container = Node2D.new()
+	reward_avatars_container.name = "RewardAvatarsContainer"
+	add_child(reward_avatars_container)
+	reward_avatars_container.z_index = 5
+	
+	reward_avatar_scene = load("res://reward_avatar.tscn") as PackedScene
 	
 	# Fetch rewards and user data
 	_load_data()
@@ -226,10 +302,61 @@ func _load_data():
 		if success and data is Array:
 			rewards = data
 			print("Loaded ", rewards.size(), " rewards from backend")
+			_spawn_reward_avatars()
 		else:
 			rewards = []
 			print("Failed to load rewards or no rewards available")
+			_spawn_reward_avatars()
 	)
+
+
+func _spawn_reward_avatars():
+	if not reward_avatars_container or not reward_avatar_scene:
+		return
+	
+	# Remove existing avatars
+	for child in reward_avatars_container.get_children():
+		child.queue_free()
+	
+	if rewards.is_empty():
+		return
+	
+	# Shuffle positions randomly so animals appear at different locations each time
+	var shuffled_positions = SPAWN_POSITIONS.duplicate()
+	shuffled_positions.shuffle()
+	
+	# Only spawn as many animals as we have unique positions (no duplicates)
+	var spawn_count = min(rewards.size(), shuffled_positions.size())
+	
+	for i in range(spawn_count):
+		var pos: Vector2 = shuffled_positions[i]
+		
+		var avatar: Node2D = reward_avatar_scene.instantiate()
+		avatar.position = pos
+		avatar.name = "RewardAvatar_%d" % i
+		reward_avatars_container.add_child(avatar)
+		
+		if avatar.has_method("setup"):
+			avatar.setup(i, i % 6)
+		
+		if avatar.has_signal("player_entered"):
+			avatar.player_entered.connect(_on_reward_avatar_player_entered)
+		if avatar.has_signal("player_exited"):
+			avatar.player_exited.connect(_on_reward_avatar_player_exited)
+	
+	print("Spawned ", spawn_count, " reward animals at random positions")
+
+
+func _on_reward_avatar_player_entered(reward_index: int) -> void:
+	if reward_index >= 0 and reward_index < rewards.size():
+		nearby_reward_index = reward_index
+		print("Near animal for reward: ", rewards[reward_index].get("title", "Unknown"))
+
+
+func _on_reward_avatar_player_exited(reward_index: int) -> void:
+	if nearby_reward_index == reward_index:
+		nearby_reward_index = -1
+		print("Left reward animal area")
 
 func _update_points_display():
 	var hud = get_node_or_null("HUD")
@@ -245,6 +372,8 @@ func _on_rewards_button_pressed():
 		_show_reward_message("No Rewards", "No rewards available yet.\nAsk your parent to add some!")
 		return
 	
+	# View Rewards button shows ALL rewards with navigation
+	is_browsing_all = true
 	current_reward_index = 0
 	_show_reward_popup(current_reward_index)
 
@@ -258,10 +387,13 @@ func _show_reward_popup(index: int):
 	_clear_popup_content()
 	current_reward = rewards[index]
 	
-	# Update title with nice formatting
+	# Update title based on browsing mode
 	var title = popup_container.get_node_or_null("Title")
 	if title:
-		title.text = "REWARD " + str(index + 1) + " of " + str(rewards.size())
+		if is_browsing_all:
+			title.text = "REWARD " + str(index + 1) + " of " + str(rewards.size())
+		else:
+			title.text = "THIS ANIMAL'S REWARD"
 		title.add_theme_font_size_override("font_size", 18)
 		title.add_theme_color_override("font_color", Color(0.9, 0.7, 0.4))
 	
@@ -350,10 +482,13 @@ func _show_reward_popup(index: int):
 			btn_style.set_corner_radius_all(6)
 			redeem_button.add_theme_stylebox_override("normal", btn_style)
 	
-	# Navigation hint
+	# Navigation hint depends on mode
 	if rewards.size() > 1:
 		var nav_label = Label.new()
-		nav_label.text = "Use Arrow Keys to browse rewards"
+		if is_browsing_all:
+			nav_label.text = "Use Arrow Keys to browse rewards"
+		else:
+			nav_label.text = "Find " + str(rewards.size() - 1) + " other animals for more rewards!"
 		nav_label.add_theme_font_size_override("font_size", 13)
 		nav_label.add_theme_color_override("font_color", Color(0.5, 0.55, 0.6))
 		nav_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -419,6 +554,7 @@ func _show_reward_message(title_text: String, message: String):
 func _hide_reward_popup():
 	reward_popup.visible = false
 	current_reward = {}
+	is_browsing_all = false
 	if redeem_button:
 		redeem_button.visible = true
 
@@ -483,13 +619,22 @@ func _input(event):
 			toggle_pause()
 	elif event.is_action_pressed("interact"):
 		if not reward_popup.visible:
-			_on_rewards_button_pressed()
+			# Check if near an animal
+			if nearby_reward_index >= 0 and nearby_reward_index < rewards.size():
+				is_browsing_all = false
+				current_reward_index = nearby_reward_index
+				_show_reward_popup(current_reward_index)
+			elif rewards.is_empty():
+				_show_reward_message("No Rewards", "No rewards available yet.\nAsk your parent to add some!")
+			else:
+				_show_reward_message("Find an Animal", "Walk up to an animal and press E to see its reward!")
 		else:
 			_hide_reward_popup()
-	elif event.is_action_pressed("ui_left") and reward_popup.visible and rewards.size() > 1:
+	# Arrow key navigation only when browsing all rewards (via View Rewards button)
+	elif event.is_action_pressed("ui_left") and reward_popup.visible and is_browsing_all and rewards.size() > 1:
 		current_reward_index = (current_reward_index - 1 + rewards.size()) % rewards.size()
 		_show_reward_popup(current_reward_index)
-	elif event.is_action_pressed("ui_right") and reward_popup.visible and rewards.size() > 1:
+	elif event.is_action_pressed("ui_right") and reward_popup.visible and is_browsing_all and rewards.size() > 1:
 		current_reward_index = (current_reward_index + 1) % rewards.size()
 		_show_reward_popup(current_reward_index)
 

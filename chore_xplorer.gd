@@ -143,8 +143,8 @@ func _setup_hud():
 	var points_panel = PanelContainer.new()
 	points_panel.name = "PointsPanel"
 	var panel_style = StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.1, 0.12, 0.15, 0.9)
-	panel_style.border_color = Color(0.3, 0.65, 0.45, 1)
+	panel_style.bg_color = Color(0.08, 0.10, 0.07, 0.9)
+	panel_style.border_color = Color(0.35, 0.55, 0.30, 1)
 	panel_style.set_border_width_all(2)
 	panel_style.set_corner_radius_all(8)
 	points_panel.add_theme_stylebox_override("panel", panel_style)
@@ -169,14 +169,14 @@ func _setup_hud():
 	var star_label = Label.new()
 	star_label.text = "Points:"
 	star_label.add_theme_font_size_override("font_size", 20)
-	star_label.add_theme_color_override("font_color", Color(0.9, 0.92, 0.95))
+	star_label.add_theme_color_override("font_color", Color(0.92, 0.90, 0.82))
 	inner_hbox.add_child(star_label)
 	
 	var points_label = Label.new()
 	points_label.name = "PointsLabel"
 	points_label.text = "0"
 	points_label.add_theme_font_size_override("font_size", 24)
-	points_label.add_theme_color_override("font_color", Color(0.45, 0.85, 0.55))
+	points_label.add_theme_color_override("font_color", Color(0.85, 0.70, 0.35))
 	inner_hbox.add_child(points_label)
 	
 	# Chores button
@@ -185,7 +185,7 @@ func _setup_hud():
 	chores_btn.text = "View Chores"
 	chores_btn.add_theme_font_size_override("font_size", 16)
 	var btn_style = StyleBoxFlat.new()
-	btn_style.bg_color = Color(0.2, 0.5, 0.35, 1)
+	btn_style.bg_color = Color(0.18, 0.30, 0.15, 1)
 	btn_style.set_corner_radius_all(6)
 	chores_btn.add_theme_stylebox_override("normal", btn_style)
 	chores_btn.position = Vector2(200, 20)
@@ -199,7 +199,7 @@ func _setup_hud():
 	back_btn.text = "Back"
 	back_btn.add_theme_font_size_override("font_size", 16)
 	var back_style = StyleBoxFlat.new()
-	back_style.bg_color = Color(0.4, 0.35, 0.5, 1)
+	back_style.bg_color = Color(0.25, 0.22, 0.15, 1)
 	back_style.set_corner_radius_all(6)
 	back_btn.add_theme_stylebox_override("normal", back_style)
 	back_btn.position = Vector2(340, 20)
@@ -227,8 +227,8 @@ func _setup_chore_popup():
 	var panel = PanelContainer.new()
 	panel.name = "Panel"
 	var panel_style = StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.08, 0.1, 0.12, 0.95)
-	panel_style.border_color = Color(0.3, 0.65, 0.45, 1)  # Green tint for chores
+	panel_style.bg_color = Color(0.08, 0.10, 0.07, 0.95)
+	panel_style.border_color = Color(0.35, 0.55, 0.30, 1)  # Green tint for chores
 	panel_style.set_border_width_all(2)
 	panel_style.set_corner_radius_all(12)
 	panel.add_theme_stylebox_override("panel", panel_style)
@@ -260,7 +260,7 @@ func _setup_chore_popup():
 	title.name = "Title"
 	title.text = "CHORE"
 	title.add_theme_font_size_override("font_size", 28)
-	title.add_theme_color_override("font_color", Color(0.3, 0.65, 0.45))
+	title.add_theme_color_override("font_color", Color(0.35, 0.55, 0.30))
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	popup_container.add_child(title)
 	
@@ -278,7 +278,7 @@ func _setup_chore_popup():
 	complete_button.add_theme_font_size_override("font_size", 18)
 	complete_button.custom_minimum_size = Vector2(120, 45)
 	var complete_style = StyleBoxFlat.new()
-	complete_style.bg_color = Color(0.2, 0.5, 0.35, 1)
+	complete_style.bg_color = Color(0.18, 0.30, 0.15, 1)
 	complete_style.set_corner_radius_all(6)
 	complete_button.add_theme_stylebox_override("normal", complete_style)
 	complete_button.pressed.connect(_on_complete_chore_pressed)
@@ -291,7 +291,7 @@ func _setup_chore_popup():
 	close_btn.add_theme_font_size_override("font_size", 18)
 	close_btn.custom_minimum_size = Vector2(100, 45)
 	var close_style = StyleBoxFlat.new()
-	close_style.bg_color = Color(0.5, 0.3, 0.3, 1)
+	close_style.bg_color = Color(0.40, 0.20, 0.15, 1)
 	close_style.set_corner_radius_all(6)
 	close_btn.add_theme_stylebox_override("normal", close_style)
 	close_btn.pressed.connect(_hide_chore_popup)
@@ -441,7 +441,7 @@ func _show_chore_popup(index: int):
 		else:
 			title.text = "THIS ANIMAL'S CHORE"
 		title.add_theme_font_size_override("font_size", 18)
-		title.add_theme_color_override("font_color", Color(0.3, 0.65, 0.45))
+		title.add_theme_color_override("font_color", Color(0.35, 0.55, 0.30))
 	
 	# Spacer
 	var spacer1 = Control.new()
@@ -453,7 +453,7 @@ func _show_chore_popup(index: int):
 	var title_label = Label.new()
 	title_label.text = current_chore.get("title", "Untitled")
 	title_label.add_theme_font_size_override("font_size", 28)
-	title_label.add_theme_color_override("font_color", Color(1, 1, 1))
+	title_label.add_theme_color_override("font_color", Color(0.92, 0.90, 0.82))
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	popup_container.add_child(title_label)
 	popup_container.move_child(title_label, 2)
@@ -464,7 +464,7 @@ func _show_chore_popup(index: int):
 		var desc_label = Label.new()
 		desc_label.text = desc
 		desc_label.add_theme_font_size_override("font_size", 16)
-		desc_label.add_theme_color_override("font_color", Color(0.75, 0.78, 0.82))
+		desc_label.add_theme_color_override("font_color", Color(0.75, 0.72, 0.60))
 		desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 		desc_label.custom_minimum_size = Vector2(400, 0)
@@ -480,13 +480,13 @@ func _show_chore_popup(index: int):
 	var star_label = Label.new()
 	star_label.text = "Reward: "
 	star_label.add_theme_font_size_override("font_size", 20)
-	star_label.add_theme_color_override("font_color", Color(0.8, 0.82, 0.85))
+	star_label.add_theme_color_override("font_color", Color(0.75, 0.72, 0.60))
 	points_container.add_child(star_label)
 	
 	var points_label = Label.new()
 	points_label.text = "+" + str(current_chore.get("points", 0)) + " points"
 	points_label.add_theme_font_size_override("font_size", 22)
-	points_label.add_theme_color_override("font_color", Color(0.4, 0.9, 0.5))
+	points_label.add_theme_color_override("font_color", Color(0.45, 0.75, 0.35))
 	points_container.add_child(points_label)
 	
 	# Spacer
@@ -509,7 +509,7 @@ func _show_chore_popup(index: int):
 		else:
 			nav_label.text = "Find " + str(chores.size() - 1) + " other animals for more chores!"
 		nav_label.add_theme_font_size_override("font_size", 13)
-		nav_label.add_theme_color_override("font_color", Color(0.5, 0.55, 0.6))
+		nav_label.add_theme_color_override("font_color", Color(0.55, 0.52, 0.42))
 		nav_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		popup_container.add_child(nav_label)
 		popup_container.move_child(nav_label, popup_container.get_child_count() - 1)
@@ -525,10 +525,10 @@ func _show_message(title_text: String, message: String):
 		title.text = title_text
 		# Color based on message type
 		if "SENT" in title_text or "COMPLETED" in title_text:
-			title.add_theme_color_override("font_color", Color(0.4, 0.9, 0.5))
+			title.add_theme_color_override("font_color", Color(0.45, 0.75, 0.35))
 			title.add_theme_font_size_override("font_size", 26)
 		elif "OOPS" in title_text or "ERROR" in title_text:
-			title.add_theme_color_override("font_color", Color(0.95, 0.5, 0.5))
+			title.add_theme_color_override("font_color", Color(0.80, 0.40, 0.35))
 			title.add_theme_font_size_override("font_size", 24)
 		else:
 			title.add_theme_color_override("font_color", Color(0.9, 0.85, 0.4))
@@ -543,7 +543,7 @@ func _show_message(title_text: String, message: String):
 	var msg_label = Label.new()
 	msg_label.text = message
 	msg_label.add_theme_font_size_override("font_size", 18)
-	msg_label.add_theme_color_override("font_color", Color(0.9, 0.92, 0.95))
+	msg_label.add_theme_color_override("font_color", Color(0.92, 0.90, 0.82))
 	msg_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	msg_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	msg_label.custom_minimum_size = Vector2(350, 0)
@@ -560,7 +560,7 @@ func _show_message(title_text: String, message: String):
 	var hint_label = Label.new()
 	hint_label.text = "Press ESC or E to close"
 	hint_label.add_theme_font_size_override("font_size", 13)
-	hint_label.add_theme_color_override("font_color", Color(0.5, 0.55, 0.6))
+	hint_label.add_theme_color_override("font_color", Color(0.55, 0.52, 0.42))
 	hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	popup_container.add_child(hint_label)
 	popup_container.move_child(hint_label, 4)

@@ -220,16 +220,16 @@ func _set_buttons_disabled(disabled: bool) -> void:
 	role_child.disabled = disabled
 
 func _show_error(msg: String) -> void:
-	lbl_error.add_theme_color_override("font_color", Color(1, 0.4, 0.4, 1))
+	lbl_error.add_theme_color_override("font_color", Color(0.80, 0.40, 0.35, 1))
 	lbl_error.text = msg
 	lbl_error.visible = msg != ""
 
 func _show_success(msg: String) -> void:
-	lbl_error.add_theme_color_override("font_color", Color(0.4, 1, 0.5, 1))
+	lbl_error.add_theme_color_override("font_color", Color(0.45, 0.75, 0.35, 1))
 	lbl_error.text = msg
 	lbl_error.visible = msg != ""
 
 func _show_info(msg: String) -> void:
-	lbl_error.add_theme_color_override("font_color", Color(0.6, 0.8, 1, 1))
+	lbl_error.add_theme_color_override("font_color", Color(0.75, 0.72, 0.60, 1))
 	lbl_error.text = msg
 	lbl_error.visible = msg != ""

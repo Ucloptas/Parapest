@@ -11,12 +11,12 @@
 [sub_resource type="Theme" id="Theme_eh1qh"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxGlass_panel"]
-bg_color = Color(0.08, 0.12, 0.18, 0.25)
+bg_color = Color(0.08, 0.10, 0.07, 0.80)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.4, 0.65, 0.9, 0.5)
+border_color = Color(0.35, 0.45, 0.30, 0.55)
 corner_radius_top_left = 16
 corner_radius_top_right = 16
 corner_radius_bottom_right = 16
@@ -24,12 +24,12 @@ corner_radius_bottom_left = 16
 anti_aliasing = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_i26rj"]
-bg_color = Color(0.06, 0.1, 0.16, 0.35)
+bg_color = Color(0.08, 0.10, 0.07, 0.35)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.35, 0.6, 0.85, 0.6)
+border_color = Color(0.35, 0.45, 0.30, 0.6)
 corner_radius_top_left = 14
 corner_radius_top_right = 14
 corner_radius_bottom_right = 14
@@ -37,12 +37,12 @@ corner_radius_bottom_left = 14
 anti_aliasing = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eiy7p"]
-bg_color = Color(0.05, 0.08, 0.12, 0.5)
+bg_color = Color(0.06, 0.08, 0.05, 0.5)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.3, 0.55, 0.8, 0.5)
+border_color = Color(0.30, 0.40, 0.25, 0.5)
 corner_radius_top_left = 14
 corner_radius_top_right = 14
 corner_radius_bottom_right = 14
@@ -50,12 +50,12 @@ corner_radius_bottom_left = 14
 anti_aliasing = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_h7a2f"]
-bg_color = Color(0.1, 0.16, 0.24, 0.4)
+bg_color = Color(0.15, 0.20, 0.12, 0.4)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.5, 0.75, 1.0, 0.7)
+border_color = Color(0.50, 0.65, 0.35, 0.7)
 corner_radius_top_left = 14
 corner_radius_top_right = 14
 corner_radius_bottom_right = 14
@@ -63,12 +63,12 @@ corner_radius_bottom_left = 14
 anti_aliasing = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qoqlk"]
-bg_color = Color(0.06, 0.1, 0.16, 0.35)
+bg_color = Color(0.08, 0.10, 0.07, 0.35)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.35, 0.6, 0.85, 0.6)
+border_color = Color(0.35, 0.45, 0.30, 0.6)
 corner_radius_top_left = 14
 corner_radius_top_right = 14
 corner_radius_bottom_right = 14
@@ -76,12 +76,12 @@ corner_radius_bottom_left = 14
 anti_aliasing = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_iwfq2"]
-bg_color = Color(0.05, 0.08, 0.12, 0.5)
+bg_color = Color(0.06, 0.08, 0.05, 0.5)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.3, 0.55, 0.8, 0.5)
+border_color = Color(0.30, 0.40, 0.25, 0.5)
 corner_radius_top_left = 14
 corner_radius_top_right = 14
 corner_radius_bottom_right = 14
@@ -89,12 +89,12 @@ corner_radius_bottom_left = 14
 anti_aliasing = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7r1g0"]
-bg_color = Color(0.1, 0.16, 0.24, 0.4)
+bg_color = Color(0.15, 0.20, 0.12, 0.4)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.5, 0.75, 1.0, 0.7)
+border_color = Color(0.50, 0.65, 0.35, 0.7)
 corner_radius_top_left = 14
 corner_radius_top_right = 14
 corner_radius_bottom_right = 14
@@ -102,12 +102,12 @@ corner_radius_bottom_left = 14
 anti_aliasing = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cqjrg"]
-bg_color = Color(0.06, 0.1, 0.16, 0.35)
+bg_color = Color(0.08, 0.10, 0.07, 0.35)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.35, 0.6, 0.85, 0.6)
+border_color = Color(0.35, 0.45, 0.30, 0.6)
 corner_radius_top_left = 14
 corner_radius_top_right = 14
 corner_radius_bottom_right = 14
@@ -115,12 +115,12 @@ corner_radius_bottom_left = 14
 anti_aliasing = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_e2xy7"]
-bg_color = Color(0.05, 0.08, 0.12, 0.5)
+bg_color = Color(0.06, 0.08, 0.05, 0.5)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.3, 0.55, 0.8, 0.5)
+border_color = Color(0.30, 0.40, 0.25, 0.5)
 corner_radius_top_left = 14
 corner_radius_top_right = 14
 corner_radius_bottom_right = 14
@@ -128,12 +128,12 @@ corner_radius_bottom_left = 14
 anti_aliasing = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fimr5"]
-bg_color = Color(0.1, 0.16, 0.24, 0.4)
+bg_color = Color(0.15, 0.20, 0.12, 0.4)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.5, 0.75, 1.0, 0.7)
+border_color = Color(0.50, 0.65, 0.35, 0.7)
 corner_radius_top_left = 14
 corner_radius_top_right = 14
 corner_radius_bottom_right = 14
@@ -163,7 +163,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.02, 0.04, 0.08, 1)
+color = Color(0.03, 0.04, 0.03, 1)
 
 [node name="Background" type="Control" parent="."]
 layout_mode = 1
@@ -248,7 +248,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.0, 0.15, 0.3, 0.25)
+color = Color(0.02, 0.08, 0.03, 0.25)
 
 [node name="GlassPanel" type="PanelContainer" parent="."]
 layout_mode = 1
@@ -279,7 +279,7 @@ theme = SubResource("Theme_eh1qh")
 
 [node name="Chore Lobby" type="Label" parent="GlassPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.9, 1.0, 1)
+theme_override_colors/font_color = Color(0.90, 0.85, 0.70, 1)
 theme_override_font_sizes/font_size = 36
 text = "CHORE LOBBY"
 horizontal_alignment = 1
@@ -289,7 +289,7 @@ uppercase = true
 [node name="Parent Login" type="Button" parent="GlassPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme = SubResource("Theme_eh1qh")
-theme_override_colors/font_color = Color(0.93333334, 0.9490196, 0.96862745, 1)
+theme_override_colors/font_color = Color(0.92, 0.90, 0.82, 1)
 theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_i26rj")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_eiy7p")
@@ -299,7 +299,7 @@ text = "Parent Login"
 [node name="ChoreXplorer" type="Button" parent="GlassPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme = SubResource("Theme_eh1qh")
-theme_override_colors/font_color = Color(0.93333334, 0.9490196, 0.96862745, 1)
+theme_override_colors/font_color = Color(0.92, 0.90, 0.82, 1)
 theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_qoqlk")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_iwfq2")
@@ -309,7 +309,7 @@ text = "Chore Lobby"
 [node name="Exit" type="Button" parent="GlassPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme = SubResource("Theme_eh1qh")
-theme_override_colors/font_color = Color(0.93333334, 0.9490196, 0.96862745, 1)
+theme_override_colors/font_color = Color(0.92, 0.90, 0.82, 1)
 theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_cqjrg")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_e2xy7")

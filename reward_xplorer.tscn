@@ -374,7 +374,7 @@ offset_right = 720.0
 offset_bottom = -240.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.09019608, 0.17254902, 0.19215687, 1)
+color = Color(0.08, 0.12, 0.07, 1)
 
 [node name="TileMapLayerBack" type="TileMapLayer" parent="."]
 position = Vector2(-5.3683657e-06, 3.590073e-20)

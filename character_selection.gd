@@ -60,6 +60,9 @@ func _ready() -> void:
 	# Load user data
 	_update_user_info()
 	
+	# Add ground tiles to preview viewport
+	_create_preview_ground()
+	
 	# Select blue as default character
 	selected_character = "blue"
 	btn_start.disabled = false
@@ -122,8 +125,8 @@ func _update_character_buttons() -> void:
 	btn_white.add_theme_stylebox_override("normal", _create_char_style(selected_character == "white"))
 	
 	# Update colors
-	var selected_color = Color(0.45, 0.85, 0.55)
-	var unselected_color = Color(0.6, 0.65, 0.7)
+	var selected_color = Color(0.45, 0.75, 0.35)
+	var unselected_color = Color(0.65, 0.60, 0.50)
 	
 	btn_blue.add_theme_color_override("font_color", selected_color if selected_character == "blue" else unselected_color)
 	btn_pink.add_theme_color_override("font_color", selected_color if selected_character == "pink" else unselected_color)
@@ -132,14 +135,65 @@ func _update_character_buttons() -> void:
 func _create_char_style(selected: bool) -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
 	if selected:
-		style.bg_color = Color(0.15, 0.25, 0.2, 1)
-		style.border_color = Color(0.35, 0.65, 0.45, 1)
+		style.bg_color = Color(0.15, 0.20, 0.10, 1)
+		style.border_color = Color(0.40, 0.55, 0.30, 1)
 	else:
-		style.bg_color = Color(0.12, 0.14, 0.18, 1)
-		style.border_color = Color(0.25, 0.28, 0.35, 1)
+		style.bg_color = Color(0.10, 0.10, 0.08, 1)
+		style.border_color = Color(0.30, 0.30, 0.22, 1)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(4)
 	return style
+
+func _create_preview_ground() -> void:
+	var subviewport = character_preview.get_parent()
+	if not subviewport:
+		return
+	
+	var ground_container = Node2D.new()
+	ground_container.name = "GroundTiles"
+	ground_container.z_index = -1
+	subviewport.add_child(ground_container)
+	
+	var tiles_tex = load("res://Assets/tiles.png") as Texture2D
+	if not tiles_tex:
+		return
+	
+	# Camera at (252, 100) zoom 2 -> visible world: x 126..378, y 50..150
+	# Character feet at y=100, so ground surface at y=100
+	# 16x16 tiles centered -> tile at y=108 has its top at y=100
+	var grass_regions = [
+		Rect2(16, 0, 16, 16),
+		Rect2(32, 0, 16, 16),
+		Rect2(48, 0, 16, 16),
+		Rect2(64, 0, 16, 16),
+	]
+	var dirt_regions = [
+		Rect2(16, 16, 16, 16),
+		Rect2(32, 16, 16, 16),
+		Rect2(48, 16, 16, 16),
+	]
+	
+	for x in range(112, 400, 16):
+		var tile_idx = (x / 16) % grass_regions.size()
+		
+		var grass = Sprite2D.new()
+		grass.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		var g_atlas = AtlasTexture.new()
+		g_atlas.atlas = tiles_tex
+		g_atlas.region = grass_regions[tile_idx]
+		grass.texture = g_atlas
+		grass.position = Vector2(x, 108)
+		ground_container.add_child(grass)
+		
+		for dirt_y in [124, 140, 156]:
+			var dirt = Sprite2D.new()
+			dirt.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			var d_atlas = AtlasTexture.new()
+			d_atlas.atlas = tiles_tex
+			d_atlas.region = dirt_regions[tile_idx % dirt_regions.size()]
+			dirt.texture = d_atlas
+			dirt.position = Vector2(x, dirt_y)
+			ground_container.add_child(dirt)
 
 func _show_character_preview(character: String) -> void:
 	# Kill any running entrance animation

@@ -108,23 +108,23 @@ func _update_role_buttons() -> void:
 	btn_child.add_theme_stylebox_override("normal", _create_role_style(selected_role == Role.CHILD))
 	
 	if selected_role == Role.PARENT:
-		btn_parent.add_theme_color_override("font_color", Color(0.45, 0.85, 0.55))
+		btn_parent.add_theme_color_override("font_color", Color(0.45, 0.75, 0.35))
 	else:
-		btn_parent.add_theme_color_override("font_color", Color(0.6, 0.65, 0.7))
+		btn_parent.add_theme_color_override("font_color", Color(0.65, 0.60, 0.50))
 	
 	if selected_role == Role.CHILD:
-		btn_child.add_theme_color_override("font_color", Color(0.45, 0.85, 0.55))
+		btn_child.add_theme_color_override("font_color", Color(0.45, 0.75, 0.35))
 	else:
-		btn_child.add_theme_color_override("font_color", Color(0.6, 0.65, 0.7))
+		btn_child.add_theme_color_override("font_color", Color(0.65, 0.60, 0.50))
 
 func _create_role_style(selected: bool) -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
 	if selected:
-		style.bg_color = Color(0.15, 0.25, 0.2, 1)
-		style.border_color = Color(0.35, 0.65, 0.45, 1)
+		style.bg_color = Color(0.15, 0.20, 0.10, 1)
+		style.border_color = Color(0.40, 0.55, 0.30, 1)
 	else:
-		style.bg_color = Color(0.12, 0.14, 0.18, 1)
-		style.border_color = Color(0.25, 0.28, 0.35, 1)
+		style.bg_color = Color(0.10, 0.10, 0.08, 1)
+		style.border_color = Color(0.30, 0.30, 0.22, 1)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(4)
 	return style
@@ -261,16 +261,16 @@ func _clear_message() -> void:
 	lbl_error.text = ""
 
 func _show_error(msg: String) -> void:
-	lbl_error.add_theme_color_override("font_color", Color(0.95, 0.4, 0.4, 1))
+	lbl_error.add_theme_color_override("font_color", Color(0.80, 0.40, 0.35, 1))
 	lbl_error.text = msg
 	lbl_error.visible = true
 
 func _show_success(msg: String) -> void:
-	lbl_error.add_theme_color_override("font_color", Color(0.4, 0.9, 0.5, 1))
+	lbl_error.add_theme_color_override("font_color", Color(0.45, 0.75, 0.35, 1))
 	lbl_error.text = msg
 	lbl_error.visible = true
 
 func _show_info(msg: String) -> void:
-	lbl_error.add_theme_color_override("font_color", Color(0.6, 0.75, 0.9, 1))
+	lbl_error.add_theme_color_override("font_color", Color(0.75, 0.72, 0.60, 1))
 	lbl_error.text = msg
 	lbl_error.visible = true

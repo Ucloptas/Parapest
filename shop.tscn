@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://shop.gd" id="1_shop"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_shop"]
+size = Vector2(200, 50)
+
+[node name="Shop" type="Node2D"]
+script = ExtResource("1_shop")
+
+[node name="ShopArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 1
+monitoring = true
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShopArea"]
+position = Vector2(0, 10)
+shape = SubResource("RectangleShape2D_shop")

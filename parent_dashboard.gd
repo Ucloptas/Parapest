@@ -55,11 +55,11 @@ var editing_chore_id: String = ""
 var editing_reward_id: String = ""
 var current_page: String = "chores"
 
-# Colors (futuristic glassmorphism palette)
-const COLOR_ACTIVE = Color(0.7, 0.92, 1.0, 1)
-const COLOR_INACTIVE = Color(0.55, 0.7, 0.85, 0.9)
-const COLOR_POINTS = Color(0.4, 0.95, 0.7, 1)
-const COLOR_COST = Color(0.5, 0.75, 1.0, 1)
+# Colors (forest palette)
+const COLOR_ACTIVE = Color(0.90, 0.85, 0.70, 1)
+const COLOR_INACTIVE = Color(0.65, 0.60, 0.50, 0.9)
+const COLOR_POINTS = Color(0.85, 0.70, 0.35, 1)
+const COLOR_COST = Color(0.85, 0.70, 0.35, 1)
 
 func _ready() -> void:
 	http_client = get_node("/root/HTTPClient")
@@ -240,8 +240,8 @@ func _create_approval_card(pending: Dictionary) -> PanelContainer:
 	
 	# Glassmorphism style for pending approvals
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.04, 0.12, 0.08, 0.25)
-	style.border_color = Color(0.4, 0.9, 0.65, 0.7)
+	style.bg_color = Color(0.08, 0.10, 0.07, 0.25)
+	style.border_color = Color(0.40, 0.55, 0.30, 0.7)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(14)
 	style.anti_aliasing = true
@@ -269,13 +269,13 @@ func _create_approval_card(pending: Dictionary) -> PanelContainer:
 	var child_label = Label.new()
 	child_label.text = pending.get("username", "Child") + " completed:"
 	child_label.add_theme_font_size_override("font_size", 14)
-	child_label.add_theme_color_override("font_color", Color(0.65, 0.85, 0.95, 0.95))
+	child_label.add_theme_color_override("font_color", Color(0.75, 0.72, 0.60, 0.95))
 	info_vbox.add_child(child_label)
 	
 	var title_label = Label.new()
 	title_label.text = pending.get("choreTitle", "Untitled")
 	title_label.add_theme_font_size_override("font_size", 18)
-	title_label.add_theme_color_override("font_color", Color(0.9, 0.95, 1.0, 1))
+	title_label.add_theme_color_override("font_color", Color(0.92, 0.90, 0.82, 1))
 	info_vbox.add_child(title_label)
 	
 	var points_label = Label.new()
@@ -293,8 +293,8 @@ func _create_approval_card(pending: Dictionary) -> PanelContainer:
 	approve_btn.custom_minimum_size = Vector2(90, 38)
 	approve_btn.add_theme_font_size_override("font_size", 14)
 	var approve_style = StyleBoxFlat.new()
-	approve_style.bg_color = Color(0.08, 0.35, 0.22, 0.55)
-	approve_style.border_color = Color(0.5, 0.95, 0.7, 0.75)
+	approve_style.bg_color = Color(0.18, 0.30, 0.15, 0.55)
+	approve_style.border_color = Color(0.40, 0.55, 0.30, 0.75)
 	approve_style.set_border_width_all(1)
 	approve_style.set_corner_radius_all(12)
 	approve_style.anti_aliasing = true
@@ -306,7 +306,7 @@ func _create_approval_card(pending: Dictionary) -> PanelContainer:
 	reject_btn.text = "Reject"
 	reject_btn.custom_minimum_size = Vector2(80, 38)
 	reject_btn.add_theme_font_size_override("font_size", 14)
-	reject_btn.add_theme_color_override("font_color", Color(1.0, 0.55, 0.6, 1))
+	reject_btn.add_theme_color_override("font_color", Color(0.80, 0.40, 0.35, 1))
 	reject_btn.pressed.connect(_on_reject_pressed.bind(pending))
 	btn_container.add_child(reject_btn)
 	
@@ -358,9 +358,9 @@ func _show_approval_feedback(message: String) -> void:
 	feedback.text = message
 	feedback.add_theme_font_size_override("font_size", 16)
 	if "Error" in message:
-		feedback.add_theme_color_override("font_color", Color(0.95, 0.5, 0.5))
+		feedback.add_theme_color_override("font_color", Color(0.80, 0.40, 0.35))
 	else:
-		feedback.add_theme_color_override("font_color", Color(0.5, 0.9, 0.5))
+		feedback.add_theme_color_override("font_color", Color(0.45, 0.75, 0.35))
 	feedback.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	
 	if approvals_list:
@@ -412,7 +412,7 @@ func _create_chore_card(chore: Dictionary) -> PanelContainer:
 	var title_label = Label.new()
 	title_label.text = chore.get("title", "Untitled")
 	title_label.add_theme_font_size_override("font_size", 17)
-	title_label.add_theme_color_override("font_color", Color(0.9, 0.95, 1.0, 1))
+	title_label.add_theme_color_override("font_color", Color(0.92, 0.90, 0.82, 1))
 	info_vbox.add_child(title_label)
 	
 	var desc = chore.get("description", "")
@@ -420,7 +420,7 @@ func _create_chore_card(chore: Dictionary) -> PanelContainer:
 		var desc_label = Label.new()
 		desc_label.text = desc
 		desc_label.add_theme_font_size_override("font_size", 13)
-		desc_label.add_theme_color_override("font_color", Color(0.55, 0.75, 0.9, 0.9))
+		desc_label.add_theme_color_override("font_color", Color(0.75, 0.72, 0.60, 0.9))
 		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 		info_vbox.add_child(desc_label)
 	
@@ -482,7 +482,7 @@ func _create_reward_card(reward: Dictionary) -> PanelContainer:
 	var title_label = Label.new()
 	title_label.text = reward.get("title", "Untitled")
 	title_label.add_theme_font_size_override("font_size", 17)
-	title_label.add_theme_color_override("font_color", Color(0.9, 0.95, 1.0, 1))
+	title_label.add_theme_color_override("font_color", Color(0.92, 0.90, 0.82, 1))
 	info_vbox.add_child(title_label)
 	
 	var desc = reward.get("description", "")
@@ -490,7 +490,7 @@ func _create_reward_card(reward: Dictionary) -> PanelContainer:
 		var desc_label = Label.new()
 		desc_label.text = desc
 		desc_label.add_theme_font_size_override("font_size", 13)
-		desc_label.add_theme_color_override("font_color", Color(0.55, 0.75, 0.9, 0.9))
+		desc_label.add_theme_color_override("font_color", Color(0.75, 0.72, 0.60, 0.9))
 		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 		info_vbox.add_child(desc_label)
 	
@@ -547,7 +547,7 @@ func _create_family_member_card(member: Dictionary) -> PanelContainer:
 	var role_indicator = Label.new()
 	role_indicator.text = "P" if role == "parent" else "C"
 	role_indicator.add_theme_font_size_override("font_size", 14)
-	role_indicator.add_theme_color_override("font_color", Color(0.02, 0.05, 0.1, 1))
+	role_indicator.add_theme_color_override("font_color", Color(0.08, 0.10, 0.07, 1))
 	role_indicator.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	role_indicator.custom_minimum_size = Vector2(32, 32)
 	
@@ -570,13 +570,13 @@ func _create_family_member_card(member: Dictionary) -> PanelContainer:
 	var name_label = Label.new()
 	name_label.text = member.get("username", "Unknown")
 	name_label.add_theme_font_size_override("font_size", 16)
-	name_label.add_theme_color_override("font_color", Color(0.88, 0.94, 1.0, 1))
+	name_label.add_theme_color_override("font_color", Color(0.92, 0.90, 0.82, 1))
 	info_vbox.add_child(name_label)
 	
 	var role_label = Label.new()
 	role_label.text = role.capitalize()
 	role_label.add_theme_font_size_override("font_size", 13)
-	role_label.add_theme_color_override("font_color", Color(0.5, 0.7, 0.9, 0.9))
+	role_label.add_theme_color_override("font_color", Color(0.65, 0.60, 0.50, 0.9))
 	info_vbox.add_child(role_label)
 	
 	var points_label = Label.new()
@@ -641,19 +641,19 @@ func _create_history_item(text: String, timestamp: String, points: String, is_po
 	var text_label = Label.new()
 	text_label.text = text
 	text_label.add_theme_font_size_override("font_size", 14)
-	text_label.add_theme_color_override("font_color", Color(0.85, 0.92, 1.0, 0.95))
+	text_label.add_theme_color_override("font_color", Color(0.92, 0.90, 0.82, 0.95))
 	vbox.add_child(text_label)
 	
 	var time_label = Label.new()
 	time_label.text = timestamp
 	time_label.add_theme_font_size_override("font_size", 12)
-	time_label.add_theme_color_override("font_color", Color(0.45, 0.65, 0.85, 0.8))
+	time_label.add_theme_color_override("font_color", Color(0.65, 0.60, 0.50, 0.8))
 	vbox.add_child(time_label)
 	
 	var points_label = Label.new()
 	points_label.text = points
 	points_label.add_theme_font_size_override("font_size", 15)
-	points_label.add_theme_color_override("font_color", COLOR_POINTS if is_positive else Color(0.9, 0.5, 0.5))
+	points_label.add_theme_color_override("font_color", COLOR_POINTS if is_positive else Color(0.80, 0.40, 0.35))
 	hbox.add_child(points_label)
 	
 	return panel
@@ -661,8 +661,8 @@ func _create_history_item(text: String, timestamp: String, points: String, is_po
 # Helper functions
 func _create_card_style() -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.06, 0.12, 0.2, 0.2)
-	style.border_color = Color(0.5, 0.75, 1.0, 0.55)
+	style.bg_color = Color(0.07, 0.09, 0.06, 0.2)
+	style.border_color = Color(0.40, 0.55, 0.30, 0.55)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(14)
 	style.anti_aliasing = true
@@ -675,7 +675,7 @@ func _create_empty_label(text: String) -> Label:
 	var label = Label.new()
 	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_color_override("font_color", Color(0.5, 0.7, 0.9, 0.8))
+	label.add_theme_color_override("font_color", Color(0.65, 0.60, 0.50, 0.8))
 	label.add_theme_font_size_override("font_size", 14)
 	return label
 
@@ -685,7 +685,7 @@ func _create_action_button(text: String, is_danger: bool = false) -> Button:
 	btn.custom_minimum_size = Vector2(70, 32)
 	btn.add_theme_font_size_override("font_size", 13)
 	if is_danger:
-		btn.add_theme_color_override("font_color", Color(1.0, 0.5, 0.55, 1))
+		btn.add_theme_color_override("font_color", Color(0.80, 0.40, 0.35, 1))
 	return btn
 
 func _clear_children(container: Node) -> void:

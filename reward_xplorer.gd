@@ -21,6 +21,11 @@ var reward_avatar_scene: PackedScene
 var nearby_reward_index: int = -1  # Track which animal/reward the player is near
 var is_browsing_all: bool = false  # True when using View Rewards button, false when interacting with animal
 
+# Shop system
+var shop_instance: Node2D = null
+var is_near_shop: bool = false
+const SHOP_POSITION := Vector2(-1920, 152)
+
 # Fixed spawn positions for animals (flipped horizontally from chore_xplorer, x * -1)
 const SPAWN_POSITIONS: Array = [
 	Vector2(-1500, 8),
@@ -124,6 +129,9 @@ func _ready():
 	
 	reward_avatar_scene = load("res://reward_avatar.tscn") as PackedScene
 	
+	# Spawn the shop building
+	_spawn_shop()
+	
 	# Fetch rewards and user data
 	_load_data()
 
@@ -138,8 +146,8 @@ func _setup_hud():
 	var points_panel = PanelContainer.new()
 	points_panel.name = "PointsPanel"
 	var panel_style = StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.1, 0.12, 0.15, 0.9)
-	panel_style.border_color = Color(0.55, 0.7, 0.9, 1)
+	panel_style.bg_color = Color(0.08, 0.10, 0.07, 0.9)
+	panel_style.border_color = Color(0.55, 0.45, 0.25, 1)
 	panel_style.set_border_width_all(2)
 	panel_style.set_corner_radius_all(8)
 	points_panel.add_theme_stylebox_override("panel", panel_style)
@@ -164,14 +172,14 @@ func _setup_hud():
 	var star_label = Label.new()
 	star_label.text = "Points:"
 	star_label.add_theme_font_size_override("font_size", 20)
-	star_label.add_theme_color_override("font_color", Color(0.9, 0.92, 0.95))
+	star_label.add_theme_color_override("font_color", Color(0.92, 0.90, 0.82))
 	inner_hbox.add_child(star_label)
 	
 	var points_label = Label.new()
 	points_label.name = "PointsLabel"
 	points_label.text = "0"
 	points_label.add_theme_font_size_override("font_size", 24)
-	points_label.add_theme_color_override("font_color", Color(0.55, 0.7, 0.9))
+	points_label.add_theme_color_override("font_color", Color(0.75, 0.60, 0.30))
 	inner_hbox.add_child(points_label)
 	
 	# Rewards button
@@ -180,7 +188,7 @@ func _setup_hud():
 	rewards_btn.text = "View Rewards"
 	rewards_btn.add_theme_font_size_override("font_size", 16)
 	var btn_style = StyleBoxFlat.new()
-	btn_style.bg_color = Color(0.4, 0.55, 0.7, 1)
+	btn_style.bg_color = Color(0.35, 0.28, 0.12, 1)
 	btn_style.set_corner_radius_all(6)
 	rewards_btn.add_theme_stylebox_override("normal", btn_style)
 	rewards_btn.position = Vector2(200, 20)
@@ -194,7 +202,7 @@ func _setup_hud():
 	back_btn.text = "Chores"
 	back_btn.add_theme_font_size_override("font_size", 16)
 	var back_style = StyleBoxFlat.new()
-	back_style.bg_color = Color(0.2, 0.5, 0.35, 1)
+	back_style.bg_color = Color(0.18, 0.30, 0.15, 1)
 	back_style.set_corner_radius_all(6)
 	back_btn.add_theme_stylebox_override("normal", back_style)
 	back_btn.position = Vector2(350, 20)
@@ -222,8 +230,8 @@ func _setup_reward_popup():
 	var panel = PanelContainer.new()
 	panel.name = "Panel"
 	var panel_style = StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.08, 0.1, 0.12, 0.95)
-	panel_style.border_color = Color(0.55, 0.7, 0.9, 1)
+	panel_style.bg_color = Color(0.08, 0.10, 0.07, 0.95)
+	panel_style.border_color = Color(0.55, 0.45, 0.25, 1)
 	panel_style.set_border_width_all(2)
 	panel_style.set_corner_radius_all(12)
 	panel.add_theme_stylebox_override("panel", panel_style)
@@ -255,7 +263,7 @@ func _setup_reward_popup():
 	title.name = "Title"
 	title.text = "REWARDS SHOP"
 	title.add_theme_font_size_override("font_size", 28)
-	title.add_theme_color_override("font_color", Color(0.55, 0.7, 0.9))
+	title.add_theme_color_override("font_color", Color(0.75, 0.60, 0.30))
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	popup_container.add_child(title)
 	
@@ -273,7 +281,7 @@ func _setup_reward_popup():
 	redeem_button.add_theme_font_size_override("font_size", 18)
 	redeem_button.custom_minimum_size = Vector2(120, 45)
 	var redeem_style = StyleBoxFlat.new()
-	redeem_style.bg_color = Color(0.4, 0.55, 0.7, 1)
+	redeem_style.bg_color = Color(0.35, 0.28, 0.12, 1)
 	redeem_style.set_corner_radius_all(6)
 	redeem_button.add_theme_stylebox_override("normal", redeem_style)
 	redeem_button.pressed.connect(_on_redeem_pressed)
@@ -286,11 +294,34 @@ func _setup_reward_popup():
 	close_btn.add_theme_font_size_override("font_size", 18)
 	close_btn.custom_minimum_size = Vector2(100, 45)
 	var close_style = StyleBoxFlat.new()
-	close_style.bg_color = Color(0.5, 0.3, 0.3, 1)
+	close_style.bg_color = Color(0.40, 0.20, 0.15, 1)
 	close_style.set_corner_radius_all(6)
 	close_btn.add_theme_stylebox_override("normal", close_style)
 	close_btn.pressed.connect(_hide_reward_popup)
 	btn_hbox.add_child(close_btn)
+
+func _spawn_shop():
+	var shop_scene = load("res://shop.tscn") as PackedScene
+	if not shop_scene:
+		return
+	shop_instance = shop_scene.instantiate()
+	shop_instance.position = SHOP_POSITION
+	shop_instance.z_index = 5
+	add_child(shop_instance)
+	
+	if shop_instance.has_signal("player_entered_shop"):
+		shop_instance.player_entered_shop.connect(_on_shop_entered)
+	if shop_instance.has_signal("player_exited_shop"):
+		shop_instance.player_exited_shop.connect(_on_shop_exited)
+
+
+func _on_shop_entered():
+	is_near_shop = true
+
+
+func _on_shop_exited():
+	is_near_shop = false
+
 
 func _load_data():
 	# Get current points from user data
@@ -395,7 +426,7 @@ func _show_reward_popup(index: int):
 		else:
 			title.text = "THIS ANIMAL'S REWARD"
 		title.add_theme_font_size_override("font_size", 18)
-		title.add_theme_color_override("font_color", Color(0.9, 0.7, 0.4))
+		title.add_theme_color_override("font_color", Color(0.85, 0.70, 0.35))
 	
 	# Spacer
 	var spacer1 = Control.new()
@@ -407,7 +438,7 @@ func _show_reward_popup(index: int):
 	var name_label = Label.new()
 	name_label.text = current_reward.get("title", "Untitled")
 	name_label.add_theme_font_size_override("font_size", 28)
-	name_label.add_theme_color_override("font_color", Color(1, 1, 1))
+	name_label.add_theme_color_override("font_color", Color(0.92, 0.90, 0.82))
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	popup_container.add_child(name_label)
 	popup_container.move_child(name_label, 2)
@@ -418,7 +449,7 @@ func _show_reward_popup(index: int):
 		var desc_label = Label.new()
 		desc_label.text = desc
 		desc_label.add_theme_font_size_override("font_size", 16)
-		desc_label.add_theme_color_override("font_color", Color(0.75, 0.78, 0.82))
+		desc_label.add_theme_color_override("font_color", Color(0.75, 0.72, 0.60))
 		desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 		desc_label.custom_minimum_size = Vector2(400, 0)
@@ -437,23 +468,23 @@ func _show_reward_popup(index: int):
 	var cost_prefix = Label.new()
 	cost_prefix.text = "Cost: "
 	cost_prefix.add_theme_font_size_override("font_size", 20)
-	cost_prefix.add_theme_color_override("font_color", Color(0.8, 0.82, 0.85))
+	cost_prefix.add_theme_color_override("font_color", Color(0.75, 0.72, 0.60))
 	cost_container.add_child(cost_prefix)
 	
 	var cost_label = Label.new()
 	cost_label.text = str(cost) + " points"
 	cost_label.add_theme_font_size_override("font_size", 22)
 	if can_afford:
-		cost_label.add_theme_color_override("font_color", Color(0.4, 0.9, 0.5))
+		cost_label.add_theme_color_override("font_color", Color(0.45, 0.75, 0.35))
 	else:
-		cost_label.add_theme_color_override("font_color", Color(0.95, 0.55, 0.55))
+		cost_label.add_theme_color_override("font_color", Color(0.80, 0.40, 0.35))
 	cost_container.add_child(cost_label)
 	
 	# Your points display
 	var your_points_label = Label.new()
 	your_points_label.text = "(You have: " + str(user_points) + " points)"
 	your_points_label.add_theme_font_size_override("font_size", 15)
-	your_points_label.add_theme_color_override("font_color", Color(0.6, 0.65, 0.7))
+	your_points_label.add_theme_color_override("font_color", Color(0.55, 0.52, 0.42))
 	your_points_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	popup_container.add_child(your_points_label)
 	popup_container.move_child(your_points_label, popup_container.get_child_count() - 1)
@@ -471,14 +502,14 @@ func _show_reward_popup(index: int):
 			redeem_button.text = "Get This!"
 			# Green style for affordable
 			var btn_style = StyleBoxFlat.new()
-			btn_style.bg_color = Color(0.2, 0.45, 0.3, 1)
+			btn_style.bg_color = Color(0.18, 0.30, 0.15, 1)
 			btn_style.set_corner_radius_all(6)
 			redeem_button.add_theme_stylebox_override("normal", btn_style)
 		else:
 			redeem_button.text = "Get This!"
 			# Red style for not affordable
 			var btn_style = StyleBoxFlat.new()
-			btn_style.bg_color = Color(0.35, 0.2, 0.2, 1)
+			btn_style.bg_color = Color(0.35, 0.18, 0.12, 1)
 			btn_style.set_corner_radius_all(6)
 			redeem_button.add_theme_stylebox_override("normal", btn_style)
 	
@@ -490,7 +521,7 @@ func _show_reward_popup(index: int):
 		else:
 			nav_label.text = "Find " + str(rewards.size() - 1) + " other animals for more rewards!"
 		nav_label.add_theme_font_size_override("font_size", 13)
-		nav_label.add_theme_color_override("font_color", Color(0.5, 0.55, 0.6))
+		nav_label.add_theme_color_override("font_color", Color(0.55, 0.52, 0.42))
 		nav_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		popup_container.add_child(nav_label)
 		popup_container.move_child(nav_label, popup_container.get_child_count() - 1)
@@ -506,13 +537,13 @@ func _show_reward_message(title_text: String, message: String):
 		title.text = title_text
 		# Color based on message type
 		if "REDEEMED" in title_text or "SUCCESS" in title_text:
-			title.add_theme_color_override("font_color", Color(0.4, 0.9, 0.5))
+			title.add_theme_color_override("font_color", Color(0.45, 0.75, 0.35))
 			title.add_theme_font_size_override("font_size", 26)
 		elif "ERROR" in title_text or "FAILED" in title_text:
-			title.add_theme_color_override("font_color", Color(0.95, 0.5, 0.5))
+			title.add_theme_color_override("font_color", Color(0.80, 0.40, 0.35))
 			title.add_theme_font_size_override("font_size", 24)
 		else:
-			title.add_theme_color_override("font_color", Color(0.9, 0.75, 0.4))
+			title.add_theme_color_override("font_color", Color(0.85, 0.70, 0.35))
 			title.add_theme_font_size_override("font_size", 24)
 	
 	# Spacer
@@ -524,7 +555,7 @@ func _show_reward_message(title_text: String, message: String):
 	var msg_label = Label.new()
 	msg_label.text = message
 	msg_label.add_theme_font_size_override("font_size", 18)
-	msg_label.add_theme_color_override("font_color", Color(0.9, 0.92, 0.95))
+	msg_label.add_theme_color_override("font_color", Color(0.92, 0.90, 0.82))
 	msg_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	msg_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	msg_label.custom_minimum_size = Vector2(350, 0)
@@ -541,7 +572,7 @@ func _show_reward_message(title_text: String, message: String):
 	var hint_label = Label.new()
 	hint_label.text = "Press ESC or q to close"
 	hint_label.add_theme_font_size_override("font_size", 13)
-	hint_label.add_theme_color_override("font_color", Color(0.5, 0.55, 0.6))
+	hint_label.add_theme_color_override("font_color", Color(0.55, 0.52, 0.42))
 	hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	popup_container.add_child(hint_label)
 	popup_container.move_child(hint_label, 4)
@@ -619,15 +650,22 @@ func _input(event):
 			toggle_pause()
 	elif event.is_action_pressed("interact"):
 		if not reward_popup.visible:
-			# Check if near an animal
-			if nearby_reward_index >= 0 and nearby_reward_index < rewards.size():
+			if is_near_shop:
+				# Shop interaction: open full reward browser
+				if rewards.is_empty():
+					_show_reward_message("SHOP", "No rewards available yet.\nAsk your parent to add some!")
+				else:
+					is_browsing_all = true
+					current_reward_index = 0
+					_show_reward_popup(current_reward_index)
+			elif nearby_reward_index >= 0 and nearby_reward_index < rewards.size():
 				is_browsing_all = false
 				current_reward_index = nearby_reward_index
 				_show_reward_popup(current_reward_index)
 			elif rewards.is_empty():
 				_show_reward_message("No Rewards", "No rewards available yet.\nAsk your parent to add some!")
 			else:
-				_show_reward_message("Find an Animal", "Walk up to an animal and press E to see its reward!")
+				_show_reward_message("Find an Animal", "Walk up to an animal or the Shop and press E!")
 		else:
 			_hide_reward_popup()
 	# Arrow key navigation only when browsing all rewards (via View Rewards button)

@@ -1,24 +1,17 @@
-[gd_scene load_steps=5 format=3 uid="uid://chore_avatar_scene"]
+[gd_scene load_steps=3 format=3 uid="uid://chore_avatar_scene"]
 
 [ext_resource type="Script" path="res://chore_avatar.gd" id="1_avatar"]
-[ext_resource type="Texture2D" uid="uid://bpo8veb35khvv" path="res://Assets/spritesheet.png" id="2_sprite"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_proximity"]
 radius = 90.0
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_bear"]
-atlas = ExtResource("2_sprite")
-region = Rect2(0, 288, 16, 16)
-
 [node name="ChoreAvatar" type="Node2D"]
 script = ExtResource("1_avatar")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 texture_filter = 1
-position = Vector2(0, -24)
+position = Vector2(0, -10)
 scale = Vector2(2, 2)
-texture = SubResource("AtlasTexture_bear")
-centered = true
 
 [node name="ProximityArea" type="Area2D" parent="."]
 collision_layer = 0
@@ -27,5 +20,5 @@ monitoring = true
 monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ProximityArea"]
-position = Vector2(0, -24)
+position = Vector2(0, -10)
 shape = SubResource("CircleShape2D_proximity")

@@ -751,16 +751,34 @@ func _on_delete_chore_pressed(chore: Dictionary) -> void:
 	
 	var confirm = ConfirmationDialog.new()
 	confirm.dialog_text = "Delete this chore?"
-	confirm.confirmed.connect(func():
-		http_client.delete_chore(chore_id, func(success, data):
-			if success:
-				_reload_chores()
-		)
-		confirm.queue_free()
-	)
+	confirm.confirmed.connect(_confirm_delete_chore.bind(chore_id))
 	confirm.canceled.connect(func(): confirm.queue_free())
 	add_child(confirm)
 	confirm.popup_centered()
+
+func _confirm_delete_chore(chore_id: String) -> void:
+	print("Deleting chore: ", chore_id)
+	
+	# Remove from local array immediately for instant UI update
+	var new_chores: Array = []
+	for c in chores:
+		if c.get("id", "") != chore_id:
+			new_chores.append(c)
+	chores = new_chores
+	_refresh_chores_list()
+	
+	# Also delete from backend
+	http_client.delete_chore(chore_id, func(success, data):
+		print("Delete chore result - Success: ", success, " Data: ", data)
+		if not success:
+			# If failed, reload to restore the item
+			_reload_chores()
+	)
+	
+	# Clean up confirmation dialog
+	for child in get_children():
+		if child is ConfirmationDialog:
+			child.queue_free()
 
 func _on_add_reward_pressed() -> void:
 	editing_reward_id = ""
@@ -815,16 +833,34 @@ func _on_delete_reward_pressed(reward: Dictionary) -> void:
 	
 	var confirm = ConfirmationDialog.new()
 	confirm.dialog_text = "Delete this reward?"
-	confirm.confirmed.connect(func():
-		http_client.delete_reward(reward_id, func(success, data):
-			if success:
-				_reload_rewards()
-		)
-		confirm.queue_free()
-	)
+	confirm.confirmed.connect(_confirm_delete_reward.bind(reward_id))
 	confirm.canceled.connect(func(): confirm.queue_free())
 	add_child(confirm)
 	confirm.popup_centered()
+
+func _confirm_delete_reward(reward_id: String) -> void:
+	print("Deleting reward: ", reward_id)
+	
+	# Remove from local array immediately for instant UI update
+	var new_rewards: Array = []
+	for r in rewards:
+		if r.get("id", "") != reward_id:
+			new_rewards.append(r)
+	rewards = new_rewards
+	_refresh_rewards_list()
+	
+	# Also delete from backend
+	http_client.delete_reward(reward_id, func(success, data):
+		print("Delete reward result - Success: ", success, " Data: ", data)
+		if not success:
+			# If failed, reload to restore the item
+			_reload_rewards()
+	)
+	
+	# Clean up confirmation dialog
+	for child in get_children():
+		if child is ConfirmationDialog:
+			child.queue_free()
 
 func _reload_chores() -> void:
 	http_client.get_chores(func(success, data):

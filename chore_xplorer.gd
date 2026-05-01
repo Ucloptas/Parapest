@@ -13,6 +13,8 @@ var chore_avatars_container: Node2D
 var chore_avatar_scene: PackedScene
 var nearby_chore_index: int = -1  # Track which animal/chore the player is near
 var is_browsing_all: bool = false  # True when using View Chores button, false when interacting with animal
+var hud_points_label: Label
+var _points_poll_elapsed: float = 0.0
 
 # Dynamic popup UI (like reward scene)
 var chore_popup: CanvasLayer
@@ -132,6 +134,13 @@ func _ready():
 	# Fetch chores and user data from backend
 	_load_data()
 
+func _process(delta: float) -> void:
+	# Keep points display in sync with auth singleton data.
+	_points_poll_elapsed += delta
+	if _points_poll_elapsed >= 1.0:
+		_points_poll_elapsed = 0.0
+		_sync_points_from_http_client()
+
 func _setup_hud():
 	# Create HUD layer for points display
 	var hud = CanvasLayer.new()
@@ -178,6 +187,7 @@ func _setup_hud():
 	points_label.add_theme_font_size_override("font_size", 24)
 	points_label.add_theme_color_override("font_color", Color(0.45, 0.85, 0.55))
 	inner_hbox.add_child(points_label)
+	hud_points_label = points_label
 	
 	# Chores button
 	var chores_btn = Button.new()
@@ -298,9 +308,9 @@ func _setup_chore_popup():
 	btn_hbox.add_child(close_btn)
 
 func _load_data():
-	# Fetch user data to get current points
-	user_points = http_client.user_data.get("points", 0)
-	_update_points_display()
+	# Fetch points for the currently logged-in child
+	_sync_points_from_http_client()
+	_refresh_points_from_backend()
 	
 	# Fetch chores from backend
 	http_client.get_chores(func(success, data):
@@ -312,6 +322,78 @@ func _load_data():
 			chores = []
 			print("Failed to load chores or no chores available")
 			_spawn_chore_avatars()
+	)
+
+func _sync_points_from_http_client() -> void:
+	if http_client == null:
+		return
+	user_points = _extract_points_from_user_data(http_client.user_data)
+	_update_points_display()
+
+func _extract_points_from_user_data(data: Dictionary) -> int:
+	if data.is_empty():
+		return 0
+	
+	# Prefer canonical key first.
+	if data.has("points"):
+		return _points_to_int(data.get("points", 0))
+	
+	# Fallback keys used by different response payloads.
+	for key in ["totalPoints", "remainingPoints", "score"]:
+		if data.has(key):
+			return _points_to_int(data.get(key, 0))
+	
+	# Some payloads may nest user object.
+	var nested_user = data.get("user", {})
+	if nested_user is Dictionary and nested_user.has("points"):
+		return _points_to_int(nested_user.get("points", 0))
+	
+	return 0
+
+func _points_to_int(value) -> int:
+	match typeof(value):
+		TYPE_INT:
+			return value
+		TYPE_FLOAT:
+			return int(round(value))
+		TYPE_STRING:
+			var s := String(value).strip_edges()
+			if s.is_valid_int():
+				return int(s)
+			if s.is_valid_float():
+				return int(round(float(s)))
+			return 0
+		_:
+			return 0
+
+func _refresh_points_from_backend() -> void:
+	# Pull latest family state and sync this child's points.
+	http_client.get_family(func(success, data):
+		if not success or not (data is Array):
+			return
+		
+		var me: Dictionary = http_client.user_data
+		var my_username := str(me.get("username", ""))
+		var my_id := str(me.get("id", me.get("_id", me.get("userId", ""))))
+		
+		for member in data:
+			if not (member is Dictionary):
+				continue
+			var m: Dictionary = member
+			var member_username := str(m.get("username", ""))
+			var member_id := str(m.get("id", m.get("_id", m.get("userId", ""))))
+			
+			var same_user := false
+			if my_id != "" and member_id != "":
+				same_user = my_id == member_id
+			elif my_username != "" and member_username != "":
+				same_user = my_username == member_username
+			
+			if same_user:
+				user_points = _points_to_int(m.get("points", user_points))
+				http_client.user_data["points"] = user_points
+				_update_points_display()
+				return
 	)
 
 func _spawn_chore_avatars():
@@ -366,13 +448,20 @@ func _on_chore_avatar_player_exited(chore_index: int) -> void:
 
 
 func _update_points_display():
+	if hud_points_label != null and is_instance_valid(hud_points_label):
+		hud_points_label.text = str(user_points)
+		return
+	
+	# Fallback path lookup if label reference is missing.
 	var hud = get_node_or_null("HUD")
-	if hud:
-		var points_panel = hud.get_node_or_null("PointsPanel")
-		if points_panel:
-			var points_label = points_panel.get_node("HBoxContainer/MarginContainer/HBoxContainer/PointsLabel")
-			if points_label:
-				points_label.text = str(user_points)
+	if hud == null:
+		return
+	var points_panel = hud.get_node_or_null("PointsPanel")
+	if points_panel == null:
+		return
+	var points_label = points_panel.get_node_or_null("HBoxContainer/MarginContainer/HBoxContainer/PointsLabel")
+	if points_label:
+		points_label.text = str(user_points)
 
 func _on_chores_button_pressed():
 	if chores.is_empty():

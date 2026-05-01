@@ -9,6 +9,8 @@ var rewards: Array = []
 var current_reward_index: int = 0
 var current_reward: Dictionary = {}
 var user_points: int = 0
+var hud_points_label: Label
+var _points_poll_elapsed: float = 0.0
 
 # UI references (created dynamically)
 var reward_popup: CanvasLayer
@@ -127,6 +129,13 @@ func _ready():
 	# Fetch rewards and user data
 	_load_data()
 
+func _process(delta: float) -> void:
+	# Keep points display in sync with auth singleton data.
+	_points_poll_elapsed += delta
+	if _points_poll_elapsed >= 1.0:
+		_points_poll_elapsed = 0.0
+		_sync_points_from_http_client()
+
 func _setup_hud():
 	# Create HUD layer for points display
 	var hud = CanvasLayer.new()
@@ -173,6 +182,7 @@ func _setup_hud():
 	points_label.add_theme_font_size_override("font_size", 24)
 	points_label.add_theme_color_override("font_color", Color(0.55, 0.7, 0.9))
 	inner_hbox.add_child(points_label)
+	hud_points_label = points_label
 	
 	# Rewards button
 	var rewards_btn = Button.new()
@@ -293,9 +303,9 @@ func _setup_reward_popup():
 	btn_hbox.add_child(close_btn)
 
 func _load_data():
-	# Get current points from user data
-	user_points = http_client.user_data.get("points", 0)
-	_update_points_display()
+	# Get current points from user data and backend
+	_sync_points_from_http_client()
+	_refresh_points_from_backend()
 	
 	# Fetch rewards from backend
 	http_client.get_rewards(func(success, data):
@@ -307,6 +317,66 @@ func _load_data():
 			rewards = []
 			print("Failed to load rewards or no rewards available")
 			_spawn_reward_avatars()
+	)
+
+func _points_to_int(value) -> int:
+	match typeof(value):
+		TYPE_INT:
+			return value
+		TYPE_FLOAT:
+			return int(round(value))
+		TYPE_STRING:
+			var s := String(value).strip_edges()
+			if s.is_valid_int():
+				return int(s)
+			if s.is_valid_float():
+				return int(round(float(s)))
+			return 0
+		_:
+			return 0
+
+func _extract_points_from_user_data(data: Dictionary) -> int:
+	if data.is_empty():
+		return 0
+	if data.has("points"):
+		return _points_to_int(data.get("points", 0))
+	for key in ["totalPoints", "remainingPoints", "score"]:
+		if data.has(key):
+			return _points_to_int(data.get(key, 0))
+	var nested_user = data.get("user", {})
+	if nested_user is Dictionary and nested_user.has("points"):
+		return _points_to_int(nested_user.get("points", 0))
+	return 0
+
+func _sync_points_from_http_client() -> void:
+	if http_client == null:
+		return
+	user_points = _extract_points_from_user_data(http_client.user_data)
+	_update_points_display()
+
+func _refresh_points_from_backend() -> void:
+	http_client.get_family(func(success, data):
+		if not success or not (data is Array):
+			return
+		var me: Dictionary = http_client.user_data
+		var my_username := str(me.get("username", ""))
+		var my_id := str(me.get("id", me.get("_id", me.get("userId", ""))))
+		for member in data:
+			if not (member is Dictionary):
+				continue
+			var m: Dictionary = member
+			var member_username := str(m.get("username", ""))
+			var member_id := str(m.get("id", m.get("_id", m.get("userId", ""))))
+			var same_user := false
+			if my_id != "" and member_id != "":
+				same_user = my_id == member_id
+			elif my_username != "" and member_username != "":
+				same_user = my_username == member_username
+			if same_user:
+				user_points = _points_to_int(m.get("points", user_points))
+				http_client.user_data["points"] = user_points
+				_update_points_display()
+				return
 	)
 
 
@@ -359,13 +429,18 @@ func _on_reward_avatar_player_exited(reward_index: int) -> void:
 		print("Left reward animal area")
 
 func _update_points_display():
+	if hud_points_label != null and is_instance_valid(hud_points_label):
+		hud_points_label.text = str(user_points)
+		return
 	var hud = get_node_or_null("HUD")
-	if hud:
-		var points_panel = hud.get_node_or_null("PointsPanel")
-		if points_panel:
-			var points_label = points_panel.get_node("HBoxContainer/MarginContainer/HBoxContainer/PointsLabel")
-			if points_label:
-				points_label.text = str(user_points)
+	if hud == null:
+		return
+	var points_panel = hud.get_node_or_null("PointsPanel")
+	if points_panel == null:
+		return
+	var points_label = points_panel.get_node_or_null("HBoxContainer/MarginContainer/HBoxContainer/PointsLabel")
+	if points_label:
+		points_label.text = str(user_points)
 
 func _on_rewards_button_pressed():
 	if rewards.is_empty():

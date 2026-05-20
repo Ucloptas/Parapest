@@ -17,7 +17,7 @@
 [![Node](https://img.shields.io/badge/Node.js-Express-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![SQLite](https://img.shields.io/badge/Database-SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 [![JWT](https://img.shields.io/badge/Auth-JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
-[![Status](https://img.shields.io/badge/Status-Sprint%202-ff69b4?style=for-the-badge)]()
+[![Status](https://img.shields.io/badge/Status-Sprint%207-ff69b4?style=for-the-badge)]()
 
 *A pixel-art chore & reward game for families — parents run the kingdom, kids explore the forest.*
 

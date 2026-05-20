@@ -56,8 +56,25 @@
 </tr>
 </table>
 
-> ⚠️ **Heads up:** Older docs (`PROJECT_SUMMARY.md`, `QUICKSTART.md`, parts of `FEATURES.md`, `TROUBLESHOOTING.md`) still reference a React/Vite web app from a previous life.
-> **The real stack today: Godot 4.5 client + Node/Express + SQLite.** Trust this README first.
+---
+
+## 👤 Built by
+
+This is a **4-person sprint project**. Here's what **I personally** owned — verifiable via `git log --author="faikkinku"`:
+
+| | What I built | Where |
+|:---:|:---|:---|
+| 🔧 | **Entire Node/Express backend** from scratch — JWT auth, role-based middleware, REST routes for chores, rewards, family, and history. ~580 LOC initial drop. | `Sprint 2 backend/server.js` |
+| 🛂 | **Pending-approval workflow, end-to-end** — designed the `pendingCompletions` schema, added 4 new endpoints, built the Approvals tab in the parent dashboard, and wired the request flow on the child side. The flagship Sprint 2 feature. | `server.js`, `parent_dashboard.gd`, `chore_xplorer.gd`, `HTTPClient.gd` |
+| ⚡ | **HTTP layer + backend auto-spawn** — `HTTPClient.gd` autoload with request queuing, auto-launches the Node server on game start, dynamic port discovery via a `server_port.txt` handshake between processes. | `HTTPClient.gd`, `server.js` |
+| 🐻 | **Animal NPC system** — proximity-based chore/reward markers, 6 sprite variants, hand-tuned spawn positions across both forest levels. | `chore_avatar.gd`, `reward_avatar.gd`, both `*_xplorer.gd` |
+| 💬 | **Dynamic popup UI** — refactored chore/reward popups from pre-built scenes to runtime-built `CanvasLayer`s for consistent styling and easier iteration. | `chore_xplorer.gd`, `reward_xplorer.gd` |
+| 🗄️ | **JSON → SQLite migration** — schema design with indexed lookups, WAL/SHM handling, promisified async wrappers around the `sqlite3` driver. | `server.js`, `database.db` |
+| 🗑️ | **Optimistic deletes** in the parent dashboard — instant UI removal with rollback on server error. | `parent_dashboard.gd` |
+
+**Skills demonstrated:** REST API design · JWT auth & role-based access control · SQLite schema design · cross-process IPC · Godot ↔ server integration · async request queueing · real-time UI sync.
+
+**Teammates:** [@Ucloptas](https://github.com/Ucloptas) · [@Papaye98](https://github.com/Papaye98) · [@metincakir12](https://github.com/metincakir12) — who built the playable character system, parallax backgrounds, character-selection animation, tilesets, level design with custom camera mechanics, and UI polish.
 
 ---
 
@@ -473,6 +490,8 @@ Parapest/
     ├── PROJECT_SUMMARY.md   ⚠️
     └── TROUBLESHOOTING.md   ⚠️ (some sections still ok)
 ```
+
+> ⚠️ **About the legacy `.md` files:** `PROJECT_SUMMARY.md`, `QUICKSTART.md`, parts of `FEATURES.md`, and `TROUBLESHOOTING.md` were written for an earlier React/Vite web prototype. The real stack today is **Godot 4.5 + Node/Express + SQLite** — trust this README first. Those files are kept for historical reference.
 
 ---
 

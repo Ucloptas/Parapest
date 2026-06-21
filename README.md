@@ -17,7 +17,7 @@
 [![Node](https://img.shields.io/badge/Node.js-Express-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![SQLite](https://img.shields.io/badge/Database-SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 [![JWT](https://img.shields.io/badge/Auth-JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
-[![Status](https://img.shields.io/badge/Status-Sprint%207-ff69b4?style=for-the-badge)]()
+[![Status](https://img.shields.io/badge/Status-Complete-brightgreen?style=for-the-badge)]()
 
 *A pixel-art chore & reward game for families — parents run the kingdom, kids explore the forest.*
 
@@ -484,14 +484,7 @@ Parapest/
 │   ├── package.json
 │   └── *.md                     # Install / quick-fix notes (Windows)
 │
-└── 📚 Legacy docs (React era — outdated)
-    ├── FEATURES.md          ⚠️
-    ├── QUICKSTART.md        ⚠️
-    ├── PROJECT_SUMMARY.md   ⚠️
-    └── TROUBLESHOOTING.md   ⚠️ (some sections still ok)
 ```
-
-> ⚠️ **About the legacy `.md` files:** `PROJECT_SUMMARY.md`, `QUICKSTART.md`, parts of `FEATURES.md`, and `TROUBLESHOOTING.md` were written for an earlier React/Vite web prototype. The real stack today is **Godot 4.5 + Node/Express + SQLite** — trust this README first. Those files are kept for historical reference.
 
 ---
 
